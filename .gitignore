@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+
+# Xcode (project is generated, see project.yml once added)
+*.xcodeproj
+*.xcworkspace
+xcuserdata/
+DerivedData/
+build/
+.build/
+*.xcresult
+
+# Local Claude Code / observer config (machine-specific paths)
+.claude/observer.json
+.claude/settings.local.json
+.claude/worktrees/
