@@ -2,7 +2,7 @@
 
 Working name: **Breathnest**. A simple iPhone app for guided breathing exercises such as box breathing.
 
-Input for `/wayfinder` and `/to-spec`. The original voice note is in [voice-note.sk.md](voice-note.sk.md), visual references in [references/](references/README.md).
+Input for `/wayfinder` and `/to-spec`. Visual references are in [references/](references/README.md).
 
 ## Why this project exists
 
