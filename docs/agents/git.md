@@ -56,7 +56,7 @@ GitHub flow with Conventional Commits. Read this before creating a branch, a com
 |---|---|
 | Commit message format | `commit-msg` hook, `.githooks/commit-msg` calling `scripts/check-commit-msg.sh` |
 | PR title format | CI, `.github/workflows/pr-title.yml` calling `scripts/check-commit-msg.sh -` on `$PR_TITLE` |
-| Squash merge, PR title as commit title | not configured yet (repository setting, GitHub UI: Settings → General → Pull Requests) |
+| Squash merge, PR title as commit title | repository setting: only squash merge is allowed, the PR title is the commit title, branches are deleted after the merge |
 | No direct commits to `main` | not enforced yet |
 
 Enable the hook once per clone (linked worktrees share it):
