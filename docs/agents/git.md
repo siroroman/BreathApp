@@ -58,8 +58,9 @@ GitHub flow with Conventional Commits. Read this before creating a branch, a com
 | PR title format | CI, `.github/workflows/pr-title.yml` calling `scripts/check-commit-msg.sh -` on `$PR_TITLE` |
 | Squash merge, PR title as commit title | repository setting: only squash merge is allowed, the PR title is the commit title, branches are deleted after the merge |
 | No direct commits to `main` | not enforced yet |
+| Destructive commands: force push (also `-fu`, `--force-with-lease`), deleting or mirroring remote refs, push to `main`, hard reset, forced clean, forced branch delete, `checkout .` / `restore .` | Claude Code `PreToolUse` hook, `.claude/hooks/block-dangerous-git.sh`, registered in `.claude/settings.json`, tested by `scripts/test-block-dangerous-git.sh`. Needs `jq` and refuses everything without it. Pushing a feature branch is allowed. Options before the subcommand (`git -C dir ...`) are ignored when matching. The hook matches the command text, so a commit message or PR body that quotes a blocked command is blocked too, reword it |
 
-Enable the hook once per clone (linked worktrees share it):
+Enable the `commit-msg` hook once per clone (linked worktrees share it). The Claude Code hook needs no setup, it is registered in the checked-in `.claude/settings.json`:
 
 ```bash
 git config core.hooksPath .githooks
