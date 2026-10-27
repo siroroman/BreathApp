@@ -23,7 +23,7 @@ enum StillStyle: String, CaseIterable, Identifiable {
 }
 
 enum MotionShape: String, CaseIterable, Identifiable {
-    case circle, torus
+    case circle, torus, solid, sphere
     var id: String { rawValue }
 }
 
@@ -31,6 +31,9 @@ struct MotionConfig: Equatable {
     var shape: MotionShape = .circle
     var tilt = 0.0        // torus: tilt away from face-on, radians
     var colors = false    // torus: coloured dots
+    var spinSpeed = 0.35  // torus, solid, sphere: rotation in rad/s, 0 = no rotation
+    var holdReverse = false  // hold progress counts down from 100% to 0 instead of up
+    var cycleRing = false    // white progress ring around the shape: one Cycle, arcs sized by Phase seconds
     var inhaleCurve: Curve
     var exhaleCurve: Curve
     var minScale: Double
@@ -39,6 +42,8 @@ struct MotionConfig: Equatable {
     var restStyle: StillStyle
     var pulseAmount: Double = 0.03
     var guideRings: Bool
+
+    func holdProgress(_ u: Double) -> Double { holdReverse ? 1 - u : u }
 }
 
 struct MotionPreset {
@@ -57,6 +62,18 @@ struct MotionPreset {
             holdStyle: .orbit, restStyle: .still, guideRings: true)),
         MotionPreset(name: "Torus", config: MotionConfig(
             shape: .torus, tilt: 0.4, colors: true, inhaleCurve: .sine, exhaleCurve: .sine, minScale: 0.80, maxScale: 1.0,
+            holdStyle: .ring, restStyle: .still, guideRings: false)),
+        MotionPreset(name: "Solid", config: MotionConfig(
+            shape: .solid, tilt: 0.7, colors: true, inhaleCurve: .sine, exhaleCurve: .sine, minScale: 0.80, maxScale: 1.0,
+            holdStyle: .ring, restStyle: .still, guideRings: false)),
+        MotionPreset(name: "Sphere", config: MotionConfig(
+            shape: .sphere, tilt: 0.3, colors: true, spinSpeed: 0.12, cycleRing: true, inhaleCurve: .sine, exhaleCurve: .sine, minScale: 0.50, maxScale: 0.85,
+            holdStyle: .ring, restStyle: .still, guideRings: false)),
+        MotionPreset(name: "Torus still", config: MotionConfig(
+            shape: .torus, tilt: 0.4, colors: true, spinSpeed: 0, cycleRing: true, inhaleCurve: .sine, exhaleCurve: .sine, minScale: 0.64, maxScale: 0.80,
+            holdStyle: .still, restStyle: .still, guideRings: false)),
+        MotionPreset(name: "Torus still reverse", config: MotionConfig(
+            shape: .torus, tilt: 0.4, colors: true, spinSpeed: 0, holdReverse: true, inhaleCurve: .sine, exhaleCurve: .sine, minScale: 0.64, maxScale: 0.80,
             holdStyle: .ring, restStyle: .still, guideRings: false)),
     ]
 }
