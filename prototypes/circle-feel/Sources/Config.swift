@@ -67,6 +67,12 @@ struct HapticConfig: Equatable {
     var rest: HapticStyle
     var strength: Double = 0.8
     var pulseEvery: Double = 0.6
+    var exhaleFloor: Double = 0.12     // same as rampFloor, for exhale only
+    var rampFloor: Double = 0.12       // intensity at an empty circle for .ramp (0...1)
+    var inhaleSharpness: Double = 0.2  // 0 soft and rumbly ... 1 crisp
+    var exhaleSharpness: Double = 0.2
+    var tickStrength: Double = 0.7     // .seconds ticks, as a share of strength
+    var tickBoost = false              // stack a short full-power buzz under each tick
 
     func style(for kind: PhaseKind) -> HapticStyle {
         switch kind {
@@ -84,7 +90,9 @@ struct HapticPreset {
 
     static let all: [HapticPreset] = [
         HapticPreset(name: "Follow", config: HapticConfig(
-            inhale: .ramp, hold: .tap, exhale: .ramp, rest: .off)),
+            inhale: .ramp, hold: .seconds, exhale: .ramp, rest: .seconds,
+            strength: 1.0, exhaleFloor: 0.65, rampFloor: 0.35, inhaleSharpness: 0.7, exhaleSharpness: 0.25,
+            tickStrength: 1.0, tickBoost: false)),
         HapticPreset(name: "Ticks", config: HapticConfig(
             inhale: .tap, hold: .seconds, exhale: .tap, rest: .off)),
         HapticPreset(name: "Pulse", config: HapticConfig(

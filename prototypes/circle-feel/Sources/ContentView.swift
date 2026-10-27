@@ -91,7 +91,9 @@ struct ContentView: View {
         haptic preset \(HapticPreset.all[hapticIdx].name)\(hapticEdited ? " (edited)" : ""): \
         inhale \(h.inhale.rawValue), hold \(h.hold.rawValue), exhale \(h.exhale.rawValue), \
         rest \(h.rest.rawValue), strength \(String(format: "%.2f", h.strength)), \
-        pulseEvery \(String(format: "%.2f", h.pulseEvery)) s, enabled \(runner.hapticsEnabled)
+        pulseEvery \(String(format: "%.2f", h.pulseEvery)) s, \
+        rampFloor \(String(format: "%.2f", h.rampFloor)) exhaleFloor \(String(format: "%.2f", h.exhaleFloor)), tick \(String(format: "%.2f", h.tickStrength)) boost \(h.tickBoost), \
+        sharpness in/out \(String(format: "%.2f", h.inhaleSharpness))/\(String(format: "%.2f", h.exhaleSharpness)), enabled \(runner.hapticsEnabled)
         """
     }
 }
@@ -202,6 +204,12 @@ struct TweakSheet: View {
                     Picker("Rest", selection: $runner.haptic.rest) { styles }
                     slider("Strength", $runner.haptic.strength, 0.1...1.0)
                     slider("Pulse every (s)", $runner.haptic.pulseEvery, 0.2...1.5)
+                    slider("Tick strength", $runner.haptic.tickStrength, 0.2...1.0)
+                    Toggle("Tick boost (buzz under tick)", isOn: $runner.haptic.tickBoost)
+                    slider("Exhale floor", $runner.haptic.exhaleFloor, 0...0.9)
+                    slider("Ramp floor", $runner.haptic.rampFloor, 0...0.8)
+                    slider("Inhale sharp", $runner.haptic.inhaleSharpness, 0...1)
+                    slider("Exhale sharp", $runner.haptic.exhaleSharpness, 0...1)
                 }
                 Section {
                     Text(summary).font(.system(.caption2, design: .monospaced))

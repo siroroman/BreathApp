@@ -69,13 +69,23 @@ final class Haptics {
             events.append(transient(0, s, sharp))
         case .seconds:
             var t = 0.0
-            while t < d - 0.05 { events.append(transient(t, s * 0.6, 0.7)); t += 1 }
+            while t < d - 0.05 {
+                events.append(transient(t, s * Float(config.tickStrength), 1.0))
+                if config.tickBoost {
+                    events.append(CHHapticEvent(eventType: .hapticContinuous, parameters: [
+                        CHHapticEventParameter(parameterID: .hapticIntensity, value: 1),
+                        CHHapticEventParameter(parameterID: .hapticSharpness, value: 1),
+                    ], relativeTime: t, duration: 0.07))
+                }
+                t += 1
+            }
         case .ramp:
             let dur = min(d, 30), n = 12
-            events.append(continuous(s, 0.2))
+            let floor = span.kind == .exhale ? config.exhaleFloor : config.rampFloor
+            events.append(continuous(s, Float(span.kind == .exhale ? config.exhaleSharpness : config.inhaleSharpness)))
             let points = (0...n).map { i -> CHHapticParameterCurve.ControlPoint in
                 let rel = dur * Double(i) / Double(n)
-                return .init(relativeTime: rel, value: Float(0.12 + 0.88 * level(rel)))
+                return .init(relativeTime: rel, value: Float(floor + (1 - floor) * level(rel)))
             }
             curves.append(CHHapticParameterCurve(parameterID: .hapticIntensityControl,
                                                  controlPoints: points, relativeTime: 0))
