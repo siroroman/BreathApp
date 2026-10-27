@@ -8,10 +8,10 @@ What does iOS 26 impose on a timed, animated breathing Session? Cover: keeping t
 
 ## Short answer
 
-- **A Session is a foreground-only activity.** Without audio playback or another listed background mode, the app gets no execution time once it leaves the foreground, and Core Haptics stops with it. Lock, Home, call, app switcher: anything that makes the scene not `.active` must pause the Session. Keeping the screen on is allowed and appropriate (`UIApplication.isIdleTimerDisabled`), but only while the Session is running, and it must be reset afterwards.
-- **Time must come from a clock, not from counting ticks.** Apple documents that `Timer` is not a real-time mechanism and gives no latency figures for clocks or display links, so their jitter has to be measured on a device. Position in the Pattern should be a pure function of elapsed time since an anchor, evaluated each frame. Drift over 5 minutes then cannot accumulate by construction. The only drift risk left is the haptic timeline, whose alignment with UI time Apple does not specify.
-- **Haptics: write for a device, test on a device.** Apple says the Simulator does not play Core Haptics. The engine can stop at any time (background, call, error) and must be restarted; its handlers arrive off the main thread. `UIFeedbackGenerator` and SwiftUI `sensoryFeedback` are a reasonable fallback but give discrete taps only.
-- **For the circle, a clock-driven `TimelineView` evaluating a `KeyframeTimeline` (or a plain easing function) looks like a better fit than `PhaseAnimator` (my reading of the docs; nothing was built or measured).** It keeps animation, haptics and pause/resume on one timeline. `PhaseAnimator` is the simplest but chains animations from view appearance and has no documented pause or seek.
+- **A Session is a foreground-only activity.** Without audio playback or another listed background mode, the app gets no execution time once it leaves the foreground, and Core Haptics stops with it. Lock, Home, call, app switcher: anything that makes the scene not `.active` should pause the Session (a recommendation: Siri and banners are not documented to change the scene phase). Keeping the screen on is allowed, and appropriate in my reading (`UIApplication.isIdleTimerDisabled`), but only while the Session is running, and it must be reset afterwards.
+- **Time must come from a clock, not from counting ticks.** Apple documents that `Timer` is not a real-time mechanism and gives no latency figures for clocks or display links, so their jitter has to be measured on a device. Position in the Pattern should be a pure function of elapsed time since an anchor, evaluated each frame. Drift over 5 minutes then cannot accumulate by construction (my reasoning, section 5). The only drift risk left is the haptic timeline, whose alignment with UI time Apple does not specify.
+- **Haptics: write for a device, test on a device.** Older Apple sources say the Simulator does not play Core Haptics (the current Simulator was not tested). The engine can stop at any time (background, call, error) and must be restarted; its handlers arrive off the main thread. `UIFeedbackGenerator` and SwiftUI `sensoryFeedback` are a reasonable fallback but give discrete taps only.
+- **For the circle, a clock-driven `TimelineView` evaluating a `KeyframeTimeline` (or a plain easing function) looks like a better fit than `PhaseAnimator` (my reading of the docs; nothing was built or measured).** It keeps animation and pause/resume on one clock; the haptic engine has its own clock (section 4). `PhaseAnimator` is the simplest but chains animations from view appearance and has no documented pause or seek.
 - **Reduce Motion needs a real alternative.** Apple's guidance names zooming and scaling as the things to reduce, and the scaling circle is also the main cue of the app. It cannot simply be turned off; it needs a non-moving equivalent (and a text cue).
 - Several behaviours are **not documented by Apple** and are marked unverified below: which interruptions (Siri, banners) move the scene to `.inactive`, whether the Simulator reports `supportsHaptics == false`, how the Silent switch and System Haptics setting affect Core Haptics, and haptic-to-frame alignment.
 
@@ -19,7 +19,7 @@ What does iOS 26 impose on a timed, animated breathing Session? Cover: keeping t
 
 `GLOSSARY.md` terms are used as defined there: **Exercise**, **Pattern** (ordered Phases), **Phase** (kind + seconds, fractional allowed), **Cycle**, **Session**.
 
-Name clash to watch: SwiftUI's `PhaseAnimator` uses "phase" for its own animation states. In this file "Phase" always means the glossary term, and "animator phase" means the SwiftUI one. Keep them apart in code too.
+Name clash to watch: SwiftUI's `PhaseAnimator` uses "phase" for its own animation states. In this file "Phase" always means the glossary term, and "animator phase" means the SwiftUI `PhaseAnimator` one; "scene phase" means SwiftUI's `ScenePhase`. Keep them apart in code too.
 
 ## Source quality key
 
@@ -60,14 +60,14 @@ The current docs already describe iOS 27 in places. Where that matters for an iO
 - App Review Guideline 2.5.4 says background services may only be used for their intended purposes (VoIP, audio playback, location, task completion, local notifications and so on). A silent timer with an audio background mode would be a review risk (my inference from this guideline, not an Apple statement).
 - The tracer bullet has no sound, so the Session cannot continue in the background.
 - A background app can be terminated at any time. State preservation data may also be discarded by the system. Doc page: "Preserving your app's UI across launches".
-- The page for `applicationWillResignActive(_:)` marks it deprecated as of iOS 26 and says to use the scene delegate method when scenes are in use. SwiftUI apps use `ScenePhase`, so nothing extra is needed. I checked only that one method, not the rest of the app-delegate lifecycle. Doc page: `applicationWillResignActive(_:)`.
+- The page for `applicationWillResignActive(_:)` marks it deprecated as of iOS 26 and says to use the scene delegate method when scenes are in use. SwiftUI apps use `ScenePhase`, so nothing extra is needed (my reading). I checked only that one method, not the rest of the app-delegate lifecycle. Doc page: `applicationWillResignActive(_:)`.
 
 **Recommended approach**
 
 - Treat the Session as foreground-only. Observe `scenePhase`; when it is anything other than `.active`: freeze the Session clock (pause), stop the haptic engine, clear the idle-timer flag.
 - On return to `.active`, show the Session in a paused state and let the person resume. Do not auto-resume (see section 3).
 - Do not use a background task or audio mode to "keep the timer alive".
-- A local notification is not useful as a substitute: the visual and haptic experience cannot run in the background, so there is nothing to wait for.
+- A local notification is not useful as a substitute (my reading): the visual and haptic experience cannot run in the background, so there is nothing to wait for.
 - Live Activities are out of scope for v1 per the brief.
 
 **Apple sources**: pages above.
@@ -82,7 +82,7 @@ The current docs already describe iOS 27 in places. Where that matters for an iO
 | Siri | No page I read mentions Siri. | Unverified. |
 | Notification banner | Not mentioned. The `willResignActiveNotification` page says focus is lost "when an overlay window pops up". | Unverified whether a plain banner, Notification Center or Control Center changes `scenePhase`. |
 | Audio route change (headphones, Bluetooth) | `AVAudioSession.routeChangeNotification` is posted on a secondary thread. It is an `AVAudioSession` notification, so it matters only to an app that uses an audio session (my reading; no page states this outright). | Irrelevant for the tracer bullet (no sound). |
-| Audio interruption (other app's audio, call) | Same: only for an app with an active audio session. `interruptionNotification` is the iOS 26 mechanism. In iOS 27 and later the system adds `didBecomeInactiveNotification` and `resumptionRecommendationNotification` and deprecates the old one. Since iOS 10 the system deactivates the audio session when it suspends the app and you are told when you next run. | Deploying to iOS 26 means using the legacy notification; revisit when sound is added. |
+| Audio interruption (other app's audio, call) | Same: only for an app with an active audio session. `interruptionNotification` is the iOS 26 mechanism. In iOS 27 and later the system adds `didBecomeInactiveNotification` and `resumptionRecommendationNotification` and deprecates the old one. Since iOS 10 the system deactivates the audio session when it suspends the app and you are told when you next run (unverified beyond the page I read). | Deploying to iOS 26 means using the legacy notification; revisit when sound is added. |
 
 **Constraint on Core Haptics**: the engine reports `audioSessionInterrupt` when its audio session is interrupted, using the phone call as the example. It also stops when the app is backgrounded. See section 4.
 
@@ -117,15 +117,15 @@ From "Preparing your app to play haptics", the `CHHapticEngine` pages and the he
 
 ### What a pattern can do (relevant to a breathing guide)
 
-- Events are `hapticTransient` (a tap) or `hapticContinuous` (a sustained vibration). **A continuous event is at most 30 seconds long.** Any Phase this app uses is shorter, but a Pattern validator should respect it.
+- Events are `hapticTransient` (a tap) or `hapticContinuous` (a sustained vibration). **A continuous event is at most 30 seconds long.** Every Phase in the four built-in Patterns (#9) is shorter, but a custom Pattern could exceed it (the brief has a pattern editor, out of the tracer bullet), so a Pattern validator should respect it.
 - Intensity and sharpness are event parameters. During playback, dynamic parameters change them instantly, and parameter curves interpolate linearly between control points. A curve applies to all events in the pattern, not one event. Sources: `CHHapticParameterCurve`, `CHHapticEvent`.
 - The standard player starts at `CHHapticTimeImmediate` or at an absolute engine time (`start(atTime:)`; a time in the past starts now). The advanced player adds loop, pause, resume and seek.
 - `CHHapticEngine.currentTime` is the clock for scheduling. Apple says it does not correlate with media time in other frameworks (for example `AVAudioPlayer`). So the haptic timeline and the UI timeline are two clocks that need a one-off alignment at start and after every restart. How precise that alignment can be is not documented. WWDC19 520 says scheduled mode exists to line haptics up with other systems such as animation, and that UIKit feedback sits on the same low-latency stack. It gives no accuracy figure.
 
 ### Fallback
 
-- `UIImpactFeedbackGenerator` / `UISelectionFeedbackGenerator` / `UINotificationFeedbackGenerator` produce a single predefined haptic each. No duration, no intensity curve (impact has an `intensity` value 0 to 1). `prepare()` readies the Taptic Engine for lower latency, but it idles again after a few seconds or after a trigger; repeated `prepare()` without ever triggering can be ignored. For Phases of 4 to 8 seconds, call `prepare()` shortly before each boundary.
-- SwiftUI `sensoryFeedback(_:trigger:)` (iOS 17+) plays a `SensoryFeedback` when a value changes, with `.impact(weight:intensity:)`, `.selection`, `.start`, `.stop`, `.success`. Impact feedback plays on iOS and watchOS only, and Apple says it should supplement the experience. It is the least code for boundary ticks and needs no engine lifecycle.
+- `UIImpactFeedbackGenerator` / `UISelectionFeedbackGenerator` / `UINotificationFeedbackGenerator` produce a single predefined haptic each. No duration, no intensity curve (impact has an `intensity` value 0 to 1). `prepare()` readies the Taptic Engine for lower latency, but it idles again after a few seconds or after a trigger; repeated `prepare()` without ever triggering can be ignored. For Phases of a few seconds, call `prepare()` shortly before each boundary.
+- SwiftUI `sensoryFeedback(_:trigger:)` (iOS 17+) plays a `SensoryFeedback` when a value changes, with `.impact(weight:intensity:)`, `.selection`, `.start`, `.stop`, `.success`. Impact feedback plays on iOS and watchOS only, and Apple says it should supplement the experience. It is the least code for boundary ticks (my reading) and needs no engine lifecycle.
 - The fallback gives ticks at Phase boundaries, not a haptic that follows the Phase. If Core Haptics is unavailable or the engine fails to restart, ticks are the degraded mode.
 - Whether the generators work in the Simulator is not stated on their pages: unverified.
 
@@ -204,14 +204,14 @@ Notes common to all of them:
 **#11 Ending, pause, stop, interruptions**
 
 - (C) The Session runs only while the scene is `.active`. Without sound there is no way to run in the background, and Core Haptics stops when the app is suspended.
-- (R) Any non-active scene phase pauses the Session (clock frozen, haptic engine stopped, screen-awake flag released). One code path for call, Siri, lock, Home, app switcher.
+- (R) Any non-active scene phase pauses the Session (clock frozen, haptic engine stopped, screen-awake flag released). One code path for call, lock, Home and app switcher; Siri and banners join it only if the device test shows they change the scene phase.
 - (R) Do not auto-resume. Show a paused state and ask the person to resume. Open question for #11: resume mid-Phase, restart the Phase, or restart the Cycle.
 - (Gap) Siri, banners and Control Center are not documented to change `scenePhase`. Test on a device and treat the result as input to #11.
 - (R) Until then, design as if each of them could pause the Session.
-- (C) If the system terminates the backgrounded app, the Session is lost. #11 must decide whether a partial Session is recorded in History and from what (elapsed seconds, not clock instants).
-- (R) Natural end happens on a Cycle boundary (from #9), so the engine derives the end time from Pattern and chosen duration. The end cue must be visual and haptic only.
+- (C) If the system terminates the backgrounded app, the Session is lost. #11 must decide whether a partial Session would be recorded later, once persistence exists (out of scope for the tracer bullet), and from what (elapsed seconds, not clock instants).
+- (R) Natural end happens on a Cycle boundary (from #9, `docs/product/research/breathing-techniques.md`), so the engine derives the end time from Pattern and chosen duration. The end cue must be visual and haptic only.
 - (R) Stop and end release everything: idle-timer flag, haptic engine, scheduled deadlines.
-- (C) The screen stays on only while running. Whether the paused state may dim (releases the flag) is a #11 choice.
+- (R) The screen stays on only while running. Whether the paused state may dim (releases the flag) is a #11 choice.
 - (R) No local notification for Session end or interruption; there is nothing the app could do in the background to make it meaningful.
 
 **#12 Session engine and BreathnestKit boundary**
@@ -220,18 +220,22 @@ Notes common to all of them:
 - (R) Inject a `Clock` (documented protocol) so tests run instantly. Live app uses `ContinuousClock`. Pause and resume are bookkeeping on `elapsedBeforePause`, owned by the engine.
 - (R) Use `Duration` for Phase lengths and precompute cumulative boundaries from one anchor; never chain relative sleeps.
 - (R) Adapters in the app target behind small protocols: haptics (Core Haptics implementation, `sensoryFeedback`/generator fallback, no-op for tests and the Simulator), idle timer, scene-phase source, and reduce-motion source.
-- (C) Core Haptics handlers run off the main thread and are not Sendable-annotated; the haptics adapter needs its own isolation (an actor or a lock-protected class) and must be able to rebuild the engine and players on `reset` and on restart.
-- (C) The haptic timeline is separate from UI time (`currentTime` is not media time). The adapter owns alignment and re-alignment after every restart; accuracy is unverified.
+- (C) Core Haptics handlers run off the main thread and are not Sendable-annotated.
+- (R) The haptics adapter needs its own isolation (an actor or a lock-protected class) and must be able to rebuild the engine and players on `reset` and on restart.
+- (C) The haptic timeline is separate from UI time (`currentTime` is not media time); alignment accuracy is unverified.
+- (R) The adapter owns alignment and re-alignment after every restart.
 - (R) Validate Patterns at the boundary: every Phase seconds greater than 0, and a continuous haptic event never longer than 30 s.
 
 **#13 Circle motion and haptic feel**
 
 - (R) Drive the circle from the same elapsed-time function as everything else: `TimelineView(.animation)` plus either a `KeyframeTimeline` built from the Pattern or an easing function of Phase progress. Inhale grows, exhale shrinks, holds stay at the end values, `rest` stays at the empty value. Fractional seconds are fine.
-- (C) Reduce Motion needs a non-moving or much reduced equivalent plus a text cue. Pick the replacement in #13; do not just disable the animation.
-- (C) The Simulator cannot show haptics. Every haptic decision in #13 needs a physical iPhone, and the tracer-bullet QA plan should say so.
+- (C) Apple's guidance (HIG, Reduced Motion criteria) is to give meaning-carrying motion a replacement, not to remove it.
+- (R) A non-moving or much reduced equivalent plus a text cue; a reduced-amplitude scale is unproven. Pick the replacement in #13.
+- (C) Per older Apple sources (current Simulator untested), the Simulator does not play haptics. Every haptic decision in #13 needs a physical iPhone, and the tracer-bullet QA plan should say so.
 - (R) Offer a haptics setting (HIG). With eyes closed and no sound, haptics are the only cue, so they are not a nicety for this app; budget time for tuning on a device.
-- Haptic feel options to put to the user, with what Apple documents for each: boundary ticks (generator or `sensoryFeedback`, simplest, robust); a continuous vibration whose intensity follows the Phase through a parameter curve (at most 30 s per event, curve applies to the whole pattern, so one pattern per Phase or per Cycle); or a hybrid. The HIG leans to short haptics for discrete events and warns about long ones; no Apple source says which suits a breathing guide.
-- (C) Frame rate is not guaranteed (Low Power Mode, thermal state, accessibility settings). Time-based evaluation tolerates this; keep the per-frame view body tiny.
+- (R) Options for #13 to put to the user, with what Apple documents for each: boundary ticks (generator or `sensoryFeedback`, simplest, robust); a continuous vibration whose intensity follows the Phase through a parameter curve (at most 30 s per event, curve applies to the whole pattern, so one pattern per Phase or per Cycle); or a hybrid. The HIG leans to short haptics for discrete events and warns about long ones; no Apple source says which suits a breathing guide.
+- (C) Frame rate is not guaranteed (Low Power Mode, thermal state, accessibility settings).
+- (R) Time-based evaluation tolerates this; keep the per-frame view body tiny.
 
 ## Gaps and open items
 
