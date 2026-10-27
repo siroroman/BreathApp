@@ -1,0 +1,26 @@
+# PROTOTYPE for issue #13 (circle motion and haptic feel). Throwaway, never merged into main.
+# Generate with `xcodegen`, then build/run on a real iPhone (haptics do not play in the Simulator).
+name: CircleFeel
+options:
+  bundleIdPrefix: com.siroroman.prototype
+  deploymentTarget:
+    iOS: "26.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    CODE_SIGN_STYLE: Automatic
+targets:
+  CircleFeel:
+    type: application
+    platform: iOS
+    sources: [Sources]
+    info:
+      path: Config/Info.plist
+      properties:
+        CFBundleDisplayName: Circle Feel PROTO
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        CADisableMinimumFrameDurationOnPhone: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.siroroman.prototype.circlefeel
