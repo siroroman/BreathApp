@@ -47,34 +47,29 @@ struct MotionConfig: Equatable {
 }
 
 struct MotionPreset {
+    let key: String
     let name: String
     let config: MotionConfig
 
+    private static let sphere = MotionConfig(
+        shape: .sphere, tilt: 0.3, colors: true, spinSpeed: 0.12, cycleRing: true,
+        inhaleCurve: .sine, exhaleCurve: .sine, minScale: 0.50, maxScale: 0.85,
+        holdStyle: .ring, restStyle: .still, guideRings: false)
+    private static let torusStill = MotionConfig(
+        shape: .torus, tilt: 0.4, colors: true, spinSpeed: 0, cycleRing: true,
+        inhaleCurve: .sine, exhaleCurve: .sine, minScale: 0.64, maxScale: 0.80,
+        holdStyle: .still, restStyle: .still, guideRings: false)
+
+    /// F and G keep their letters from the earlier list of variants; F2 and G2 are the same without the ring, G3 is G seen straight on.
     static let all: [MotionPreset] = [
-        MotionPreset(name: "Organic", config: MotionConfig(
-            inhaleCurve: .sine, exhaleCurve: .sine, minScale: 0.45, maxScale: 1.0,
-            holdStyle: .ring, restStyle: .still, guideRings: true)),
-        MotionPreset(name: "Linear", config: MotionConfig(
-            inhaleCurve: .linear, exhaleCurve: .linear, minScale: 0.30, maxScale: 1.0,
-            holdStyle: .pulse, restStyle: .pulse, guideRings: false)),
-        MotionPreset(name: "Wave", config: MotionConfig(
-            inhaleCurve: .easeOut, exhaleCurve: .easeIn, minScale: 0.60, maxScale: 1.0,
-            holdStyle: .orbit, restStyle: .still, guideRings: true)),
-        MotionPreset(name: "Torus", config: MotionConfig(
-            shape: .torus, tilt: 0.4, colors: true, inhaleCurve: .sine, exhaleCurve: .sine, minScale: 0.80, maxScale: 1.0,
-            holdStyle: .ring, restStyle: .still, guideRings: false)),
-        MotionPreset(name: "Solid", config: MotionConfig(
-            shape: .solid, tilt: 0.7, colors: true, inhaleCurve: .sine, exhaleCurve: .sine, minScale: 0.80, maxScale: 1.0,
-            holdStyle: .ring, restStyle: .still, guideRings: false)),
-        MotionPreset(name: "Sphere", config: MotionConfig(
-            shape: .sphere, tilt: 0.3, colors: true, spinSpeed: 0.12, cycleRing: true, inhaleCurve: .sine, exhaleCurve: .sine, minScale: 0.50, maxScale: 0.85,
-            holdStyle: .ring, restStyle: .still, guideRings: false)),
-        MotionPreset(name: "Torus still", config: MotionConfig(
-            shape: .torus, tilt: 0.4, colors: true, spinSpeed: 0, cycleRing: true, inhaleCurve: .sine, exhaleCurve: .sine, minScale: 0.64, maxScale: 0.80,
-            holdStyle: .still, restStyle: .still, guideRings: false)),
-        MotionPreset(name: "Torus still reverse", config: MotionConfig(
-            shape: .torus, tilt: 0.4, colors: true, spinSpeed: 0, holdReverse: true, inhaleCurve: .sine, exhaleCurve: .sine, minScale: 0.64, maxScale: 0.80,
-            holdStyle: .ring, restStyle: .still, guideRings: false)),
+        MotionPreset(key: "F", name: "Sphere", config: sphere),
+        MotionPreset(key: "G", name: "Torus still", config: torusStill),
+        MotionPreset(key: "F2", name: "Sphere, no ring", config: {
+            var c = sphere; c.cycleRing = false; return c }()),
+        MotionPreset(key: "G2", name: "Torus still, no ring", config: {
+            var c = torusStill; c.cycleRing = false; c.holdStyle = .ring; return c }()),
+        MotionPreset(key: "G3", name: "Torus still, face-on", config: {
+            var c = torusStill; c.tilt = 0; return c }()),
     ]
 }
 

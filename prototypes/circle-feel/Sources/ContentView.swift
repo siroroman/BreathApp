@@ -16,14 +16,14 @@ struct ContentView: View {
         VStack(spacing: 12) {
             header
             Spacer(minLength: 0)
-            BreathCircle(frame: runner.frame, motion: runner.motion, pattern: runner.pattern)
-                .aspectRatio(runner.motion.cycleRing ? 1 : nil, contentMode: .fit)
-                .padding(.horizontal, 16)
-            if showHUD || runner.motion.cycleRing {
+            if showHUD || runner.motion.shape != .circle {
                 Text(runner.frame.kind.label)
                     .font(.system(size: 44, weight: .light, design: .rounded))
-                    .padding(.top, runner.motion.cycleRing ? -14 : 0)
+                    .padding(.bottom, runner.motion.shape == .circle ? 0 : -14)
             }
+            BreathCircle(frame: runner.frame, motion: runner.motion, pattern: runner.pattern)
+                .aspectRatio(runner.motion.shape == .circle ? nil : 1, contentMode: .fit)
+                .padding(.horizontal, 16)
             Spacer(minLength: 0)
             if showHUD { hud }
             controls
@@ -64,7 +64,7 @@ struct ContentView: View {
 
     private var controls: some View {
         VStack(spacing: 10) {
-            Switcher(title: "Motion", name: MotionPreset.all[motionIdx].name, edited: motionEdited,
+            Switcher(title: "Motion", name: MotionPreset.all[motionIdx].name, key: MotionPreset.all[motionIdx].key, edited: motionEdited,
                      count: MotionPreset.all.count, index: $motionIdx) {
                 runner.motion = MotionPreset.all[motionIdx].config
             }
@@ -89,7 +89,7 @@ struct ContentView: View {
         let m = runner.motion, h = runner.haptic
         return """
         #13 circle feel — pattern: \(runner.pattern.name)
-        motion preset \(MotionPreset.all[motionIdx].name)\(motionEdited ? " (edited)" : ""): shape \(m.shape.rawValue) tilt \(String(format: "%.2f", m.tilt)) colours \(m.colors) spin \(String(format: "%.2f", m.spinSpeed)) holdReverse \(m.holdReverse) cycleRing \(m.cycleRing), \
+        motion preset \(MotionPreset.all[motionIdx].key) \(MotionPreset.all[motionIdx].name)\(motionEdited ? " (edited)" : ""): shape \(m.shape.rawValue) tilt \(String(format: "%.2f", m.tilt)) colours \(m.colors) spin \(String(format: "%.2f", m.spinSpeed)) holdReverse \(m.holdReverse) cycleRing \(m.cycleRing), \
         inhale \(m.inhaleCurve.rawValue), exhale \(m.exhaleCurve.rawValue), \
         scale \(String(format: "%.2f", m.minScale))–\(String(format: "%.2f", m.maxScale)), \
         hold \(m.holdStyle.rawValue), rest \(m.restStyle.rawValue), guide rings \(m.guideRings), \
@@ -108,6 +108,7 @@ struct ContentView: View {
 struct Switcher: View {
     let title: String
     let name: String
+    var key: String? = nil
     let edited: Bool
     let count: Int
     @Binding var index: Int
@@ -117,7 +118,7 @@ struct Switcher: View {
         HStack {
             Text(title).font(.caption).foregroundStyle(.secondary).frame(width: 56, alignment: .leading)
             Button { step(-1) } label: { Image(systemName: "chevron.left") }
-            Text("\(letter) \(name)\(edited ? " *" : "")")
+            Text("\(key ?? letter) \(name)\(edited ? " *" : "")")
                 .font(.headline).frame(maxWidth: .infinity)
             Button { step(1) } label: { Image(systemName: "chevron.right") }
         }
