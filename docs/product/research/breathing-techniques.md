@@ -4,32 +4,26 @@ Research for issue #9 (part of the map in issue #8). Researched 2026-10-23.
 
 ## Question
 
-What are the established phase timings for box breathing, 4-7-8, coherent breathing and the physiological sigh, and which safety notes or contraindications must the app show? Express each as a Pattern (ordered Phases of kind and seconds, fractional allowed) and recommend default Session durations.
+What are the established Phase timings for box breathing, 4-7-8, coherent breathing and the physiological sigh, and which safety notes or contraindications must the app show? Express each as a Pattern (ordered Phases of kind and seconds, fractional allowed) and recommend default Session durations.
 
 ## Short answer
 
-- Only two of the four have timings that a primary source gives: **4-7-8** (4 / 7 / 8 as a ratio, from its inventor) and **coherent breathing** (about 5.5 to 6 breaths per minute with equal inhale and exhale, from physiological studies). **Box breathing** has equal phases in a primary study, but the 4 s length is an example, not a finding. The **physiological sigh** has no published seconds at all; its structure (double inhale, long exhale) is supported, its timings are an app design choice.
+- Only two of the four have timings that a primary source gives: **4-7-8** (4 / 7 / 8 as a ratio, from its inventor) and **coherent breathing** (about 5.5 to 6 breaths per minute with equal inhale and exhale, from physiological studies). **Box breathing** has equal Phases in a primary study, but the 4 s length is an example, not a finding. The **physiological sigh** has no published seconds at all; its structure (double inhale, long exhale) is supported, its timings are an app design choice.
 - Effect evidence is thin and short-term. The strongest result is a 28-day randomized trial (Balban 2023) where 5 minutes a day of cyclic sighing improved mood the most. Slow breathing near 6 per minute reliably raises heart rate variability in small lab studies. 4-7-8 and box breathing have little direct support.
 - No primary or clinical-guidance source I found lists formal contraindications for slow breathing. What exists is trial exclusion lists, a general NIH caution, and review-level theoretical risks. The safety text the app shows is therefore partly a conservative design decision, labelled as such below.
 
 ## Terms
 
-`GLOSSARY.md` does not exist in the repository yet (checked every local and remote branch). This file uses the definitions given in issue #8 and `docs/product/brief.md`:
+Terms follow `GLOSSARY.md` (Exercise, Pattern, Phase, Cycle, Session). Two assumptions are still open:
 
-- **Pattern**: an ordered list of Phases.
-- **Phase**: a kind (`inhale`, `hold`, `exhale`; the brief also lists `rest`) plus a duration in seconds, fractional allowed.
-- **Cycle**: one pass through the Pattern. **Session**: a run of Cycles. **Exercise**: a named Pattern with its notes.
-
-Assumptions this file makes, to be reconciled when the glossary is written:
-
-- Both holds in box breathing use kind `hold`. The first is a hold with full lungs, the second with empty lungs. If the glossary wants these distinguished, `rest` is the candidate kind for the empty-lung hold.
+- Both holds in box breathing use kind `hold`. The first is a hold with full lungs, the second with empty lungs. `rest` is the candidate kind if #13 wants the empty-lung hold told apart.
 - Two consecutive Phases of the same kind are allowed (the double inhale of the sigh).
 
 ## Source quality key
 
 - **Primary study**: the paper that ran the experiment.
 - **Review**: a published synthesis of primary studies. Used for background, flagged as such.
-- **Originator**: the person who defined the technique. Authoritative for what the technique *is*, not for whether it *works*.
+- **Originator**: the person who defined the Exercise. Authoritative for what the Exercise *is*, not for whether it *works*.
 - **Convention**: widely repeated, no primary source found in this research. Marked clearly.
 
 ## Patterns
@@ -47,13 +41,13 @@ Cycle length 16 s (3.75 breaths per minute).
 
 What the sources support:
 
-- Equal inhale, hold, exhale and hold phases are the definition used in the only randomized trial of box breathing found: Balban et al. 2023 (Cell Reports Medicine). Phase length there was scaled to the participant, from 3 to 4 s for people who emptied their lungs quickly after a maximal inhale, up to 8 to 10 s for people who took long. Their worked example is 4 / 4 / 4 / 4. Participants were told to shorten phases if they strained.
+- Equal inhale, hold, exhale and hold Phases are the definition used in the only randomized trial of box breathing found: Balban et al. 2023 (Cell Reports Medicine). Phase length there was scaled to the participant, from 3 to 4 s for people who emptied their lungs quickly after a maximal inhale, up to 8 to 10 s for people who took long. Their worked example is 4 / 4 / 4 / 4. Participants were told to shorten Phases if they strained.
 - Effect: in that trial (21 people in the box group, 5 min a day for 28 days) positive mood and state anxiety improved, but box breathing did not differ from the mindfulness control, and no group-level advantage was shown for box over the other breathwork groups.
 - A head-to-head HRV study (Marchant et al. 2025, Applied Psychophysiology and Biofeedback, 84 students) found square breathing raised heart rate variability less than breathing at 6 per minute, and its authors state that square and 4-7-8 breathing "have little empirical support".
 
 Convention only: the fixed 4 s length as "the" box pattern, and any military origin story. I found no primary source for either.
 
-Suggested range for the app: allow 3 to 6 s per phase, default 4 s.
+Suggested range for the app: allow 3 to 6 s per Phase, default 4 s.
 
 ### 4-7-8
 
@@ -67,12 +61,12 @@ Cycle length 19 s (about 3.2 breaths per minute).
 
 What the sources support:
 
-- The 4:7:8 definition comes from its originator, Andrew Weil (drweil.com instructions): inhale through the nose for 4, hold for 7, exhale through the mouth for 8, repeated for four cycles. He states that the ratio matters, not the absolute seconds, and that anyone who struggles with the hold should speed up while keeping the ratio. He advises no more than four cycles at a time for the first month, extendable to eight, and says mild lightheadedness early on will pass. (The Weil pages returned HTTP 403 to direct fetching; the wording above was read from search result excerpts of those pages, so re-verify before quoting.)
-- Effect: no randomized trial of 4-7-8 on its own was found. A small study in 43 healthy 19 to 25 year olds (Physiological Reports 2022, doi 10.14814/phy2.15389) measured immediate effects of three sets of six cycles: heart rate and systolic blood pressure fell and high-frequency HRV rose in the non-sleep-deprived group. It had no control condition for breathing, so it shows an immediate change, not that 4-7-8 is better than other slow breathing. Marchant 2025 (above) found 4-7-8 raised HRV less than 6 breaths per minute.
+- The 4:7:8 definition comes from its originator, Andrew Weil (drweil.com instructions): inhale through the nose for 4, hold for 7, exhale through the mouth for 8, repeated for four Cycles. He states that the ratio matters, not the absolute seconds, and that anyone who struggles with the hold should speed up while keeping the ratio. He advises no more than four Cycles at a time for the first month, extendable to eight, and says mild lightheadedness early on will pass. (The Weil pages returned HTTP 403 to direct fetching; the wording above was read from search result excerpts of those pages, so re-verify before quoting.)
+- Effect: no randomized trial of 4-7-8 on its own was found. A small study in 43 healthy 19 to 25 year olds (Physiological Reports 2022, doi 10.14814/phy2.15389) measured immediate effects of three sets of six Cycles: heart rate and systolic blood pressure fell and high-frequency HRV rose in the non-sleep-deprived group. It had no control condition for breathing, so it shows an immediate change, not that 4-7-8 is better than other slow breathing. Marchant 2025 (above) found 4-7-8 raised HRV less than 6 breaths per minute.
 
 Convention only: use before sleep, and the claims that it calms the nervous system. Those come from the originator's publications, not from trials.
 
-Because of the long hold and the 19 s cycle, 4-7-8 is the pattern most likely to make a new user feel breathless. The ratio-preserving speed-up Weil describes should be exposed as a pace control (for example scale factor 0.5 to 1.0).
+Because of the long hold and the 19 s Cycle, 4-7-8 is the pattern most likely to make a new user feel breathless. The ratio-preserving speed-up Weil describes should be exposed as a pace control (for example scale factor 0.5 to 1.0).
 
 ### Coherent breathing
 
@@ -81,7 +75,7 @@ Because of the long hold and the 19 s cycle, 4-7-8 is the pattern most likely to
 | 1 | inhale | 5.5 |
 | 2 | exhale | 5.5 |
 
-Cycle length 11 s (5.45 breaths per minute). Exactly 5.5 breaths per minute would be 5.4545 s per phase; 5.5 s is the usual rounding.
+Cycle length 11 s (5.45 breaths per minute). Exactly 5.5 breaths per minute would be 5.4545 s per Phase; 5.5 s is the usual rounding.
 
 What the sources support:
 
@@ -91,7 +85,7 @@ What the sources support:
 - Slow breathing in general: Zaccaro et al. 2018 (Frontiers in Human Neuroscience, systematic review of 15 studies) found slow breathing (10 per minute or fewer) associated with higher HRV and with relaxation, but the studies were small, within-subject or pre-post, and none was a randomized longitudinal trial.
 - Caveat for the app: Marchant 2025 measured end-tidal CO2 and found that 6 per minute with a 4:6 or 5:5 ratio produced mild over-breathing (CO2 fell). This is the only direct evidence of a physiological downside I found, and it is the reason for the "stop if dizzy" note below.
 
-Alternatives with equal support: 5 / 5 (6 per minute) is the better-studied rate (Bernardi, Marchant). A longer exhale such as 4 / 6 is also studied (Lin) but gave lower HRV than 5:5; Gerritsen and Band 2018 (a theory paper) argue a longer exhale favours vagal effects, based on one HRV study, so this is not settled.
+Alternatives: 5 / 5 (6 per minute) is the better-studied rate (Bernardi, Marchant), while 5.5 / 5.5 has its own support in Lin. A longer exhale such as 4 / 6 is also studied (Lin) but gave lower HRV than 5:5; Gerritsen and Band 2018 (a theory paper) argue a longer exhale favours vagal effects, based on one HRV study, so this is not settled.
 
 ### Physiological sigh (cyclic sighing)
 
@@ -105,7 +99,7 @@ Cycle length 9 s (6.7 breaths per minute). The structure is: a normal inhale, a 
 
 What the sources support:
 
-- Balban et al. 2023 tested exactly this structure as "cyclic sighing" and describe it as a slow inhale, a second shorter inhale, then a slow full exhale, with the exhale emphasized and the double inhale increasing inhalation depth. The paper gives **no seconds** for any phase. In the 28-day trial (30 people in the cyclic sighing group), it was the only breathwork that improved positive mood significantly more than the mindfulness control, and the only one that lowered resting respiratory rate significantly more than the control. Its effect on anxiety was not different from the other groups.
+- Balban et al. 2023 tested exactly this structure as "cyclic sighing" and describe it as a slow inhale, a second shorter inhale, then a slow full exhale, with the exhale emphasized and the double inhale increasing inhalation depth. The paper gives **no seconds** for any Phase. In the 28-day trial (30 people in the cyclic sighing group), it was the only breathwork that improved positive mood significantly more than the mindfulness control, and the only one that lowered resting respiratory rate significantly more than the control. Its effect on anxiety was not different from the other groups.
 - Spontaneous sighs reset breathing: Vlemincx and colleagues (Physiology and Behavior 2012, Psychophysiology 2009 and 2011) found that a sigh restores respiratory variability lost under mental load, and that sigh rate is higher in moments of relief than of stress. Li et al. (Nature 2016) identified the brain circuit that produces sighs, in mice. These are background for why a sigh exists, not evidence that a deliberate double-inhale pattern helps.
 - The name "physiological sigh" and the seconds popularly quoted for it are not from these papers. I did not fetch any popular source, so I cannot say what timings are typical. The 2 / 1 / 6 values above are a proposal that satisfies the one rule the trial states (exhale clearly longer than the inhale), and should be validated by feel on a device.
 
@@ -123,37 +117,39 @@ Offer a lower bound: exhale at least as long as both inhales combined.
 | Russo et al. 2017 | States that no documented adverse effects of breathing at 6 to 10 per minute were found in the literature; makes no statement on pregnancy, dizziness or breath holds. | Review, healthy people, short sessions |
 | Marchant et al. 2025 | Breathing at 6 per minute caused mild over-breathing (lower end-tidal CO2) in healthy students. | Primary study, single session |
 | Gerritsen and Band 2018 | Notes that over-stimulation could be harmful, mentioning vasovagal syncope and bronchoconstriction (possibly relevant to asthma), and that fast deep breathing behaves differently from slow breathing. | Theory paper, speculative |
-| Weil (4-7-8 originator) | Mild lightheadedness when starting is normal; limit to four cycles at first. Search excerpts also suggested he advises people with respiratory or cardiac conditions or dizziness to ask a clinician before breath-holding exercises; I could not confirm this on the page itself. | Originator guidance, not clinical |
+| Weil (4-7-8 originator) | Mild lightheadedness when starting is normal; limit to four Cycles at first. Search excerpts also suggested he advises people with respiratory or cardiac conditions or dizziness to ask a clinician before breath-holding exercises; I could not confirm this on the page itself. | Originator guidance, not clinical |
 | NHS, "Breathing exercises for stress" (reviewed 12 June 2026) | Gives a simple 5-count breath for at least 5 minutes and contains no safety warnings. | Shows the mainstream guidance for gentle breathing is minimal. |
 
 There is **no source** in this set that addresses pregnancy, driving, or breath holds and fainting directly. I searched NHS, NIH and PubMed-indexed guidance and found none. Anything the app says on those points is a design decision.
 
 ### What the app should show (recommendation)
 
-Marked S (supported by a source above) or D (design decision, conservative, no direct source).
+Marked S (supported by a source above) or D (design decision, conservative, no direct source). Where a source covers only part of an item, the label says which part.
 
 1. **First-launch notice, once, with acknowledgement.** The app is for relaxation and is not medical advice or treatment. (D)
-2. **Stop and breathe normally if you feel dizzy, lightheaded, tingly, faint, short of breath, or anxious.** Never force a breath or a hold. Dizziness is expected mild and short at first, but stop if it persists. (S: Weil, Marchant, NCCIH, Balban 10%.)
-3. **Talk to a doctor first if you are pregnant, or have a heart, lung (including asthma), blood pressure or seizure condition, glaucoma, a history of fainting, or a serious mental health condition, especially panic disorder, psychosis, bipolar disorder or trauma.** This list is the union of trial exclusions and NCCIH cautions. Present it as "ask first because this has not been studied for you", not as "this is dangerous". (S for the groups listed in trial exclusions and NCCIH; D for the phrasing.)
-4. **Extra line on Exercises with holds (box, 4-7-8):** you can shorten the holds or the whole pace; the hold should never feel like strain. Hold-free Patterns (coherent, sigh) are the gentler starting point. (S: Balban shorten-if-strained, Weil ratio-preserving speed-up; D: ordering.)
+2. **Stop and breathe normally if you feel dizzy, lightheaded, tingly, faint, short of breath, or anxious.** Never force a breath or a hold. Dizziness is expected mild and short at first, but stop if it persists. (S in part: Weil on mild early lightheadedness, from search excerpts; NCCIH on occasional anxiety; Balban's unitemized 10% negative experiences. Marchant measured a CO2 drop, a mechanism and not symptoms. The "stop" instruction itself is D.)
+3. **Talk to a doctor first if you are pregnant, or have a heart, lung (including asthma), blood pressure or seizure condition, glaucoma, a history of fainting, or a serious mental health condition, especially panic disorder, psychosis, bipolar disorder or trauma.** Present it as "ask first because this has not been studied for you", not as "this is dangerous". (S: pregnancy, heart disease, glaucoma, seizures, psychosis and bipolar disorder from Balban's exclusions; epilepsy, psychiatric conditions and trauma from NCCIH. S but speculative: asthma and fainting, from Gerritsen and Band, a theory paper. D, no source read: blood pressure, other lung conditions (Weil's mention of respiratory or cardiac conditions is from unconfirmed search excerpts), panic disorder by name, and the phrasing.)
+4. **Extra line on Exercises with holds (box, 4-7-8):** you can shorten the holds or the whole pace; the hold should never feel like strain. Hold-free Patterns (coherent, sigh) are the gentler starting point. (S: Balban shorten-if-strained, Weil ratio-preserving speed-up from search excerpts; D: ordering.)
 5. **Not while driving, operating machinery, cycling, or in or near water (bath, pool).** Eyes may be closed, attention is inward, and lightheadedness is possible. (D, no source; convention.)
-6. **Sit or lie down comfortably.** (S: NHS, Weil.)
+6. **Sit or lie down comfortably.** (D. The NHS page has no safety warnings and Weil's posture advice was not read.)
 7. **Seek emergency care for chest pain, severe breathlessness or fainting.** This is not an exercise. (D.)
 
-Do not build the third technique from Balban et al. (cyclic hyperventilation with retention: 30 deep inhales then a 15 s empty-lung hold, three rounds). It is the only protocol in the sources that combines rapid deep breathing with breath retention, it is out of the requested set, and the trial excluded the vulnerable groups above.
+Do not build the third protocol from Balban et al. (cyclic hyperventilation with retention: 30 deep inhales then a 15 s empty-lung hold, three rounds). It is the only protocol in the sources that combines rapid deep breathing with breath retention, it is out of the requested set, and the trial excluded the vulnerable groups above.
 
 ## Recommended default Session durations
 
-Session length is a design choice; the evidence is: Balban used 5 minutes a day for 28 days for all breathwork groups; most lab studies of coherent breathing run for minutes (Critchley et al. used 1 minute per rate in Zaccaro's table); Weil caps 4-7-8 at four cycles to start. Sessions should end on a whole Cycle.
+Session length is a design choice; the evidence is: Balban used 5 minutes a day for 28 days for all breathwork groups; most lab studies of coherent breathing run for minutes (Critchley et al. used 1 minute per rate, as listed in Zaccaro's table; Critchley itself was not read); Weil caps 4-7-8 at four Cycles to start. Sessions should end on a whole Cycle.
 
 | Exercise | Cycle | Default | Allowed range | Basis |
 |---|---|---|---|---|
 | Box breathing | 16 s | 5 min = 19 Cycles (304 s) | 1 to 10 min | 5 min per Balban; range is a design choice |
 | 4-7-8 | 19 s | 4 Cycles = 76 s | 4 to 8 Cycles (76 to 152 s) | Weil's first-month limit of four, extendable to eight; hold-heavy, so keep short |
-| Coherent | 11 s | 5 min = 27 Cycles (297 s) | 1 to 20 min | 5 min per Balban for breathwork in general; longer practice is plausible but I did not verify a primary recommendation |
+| Coherent | 11 s | 5 min = 27 Cycles (297 s) | 1 to 20 min | 5 min per Balban for breathwork in general; longer Sessions are plausible but I did not verify a primary recommendation |
 | Physiological sigh | 9 s | 5 min = 33 Cycles (297 s) | 1 to 10 min | 5 min per Balban cyclic sighing; a 1 minute quick option is a design choice and has no direct source |
 
 Nearest whole Cycle is chosen, so the stated minutes are approximate; the UI can show "about 5 min".
+
+4-7-8 is the one Exercise that does not default to 5 min. The map (#8) records "5 min default Sessions" for this ticket; that line should be amended to 5 min for box, coherent and sigh, and 4 Cycles for 4-7-8. A uniform 5 min would be 16 Cycles (304 s), four times Weil's first-month limit and twice his maximum of eight.
 
 ## Gaps and open items
 
