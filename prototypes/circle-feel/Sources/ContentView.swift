@@ -83,7 +83,7 @@ struct ContentView: View {
         let m = runner.motion, h = runner.haptic
         return """
         #13 circle feel — pattern: \(runner.pattern.name)
-        motion preset \(MotionPreset.all[motionIdx].name)\(motionEdited ? " (edited)" : ""): \
+        motion preset \(MotionPreset.all[motionIdx].name)\(motionEdited ? " (edited)" : ""): shape \(m.shape.rawValue) tilt \(String(format: "%.2f", m.tilt)) colours \(m.colors), \
         inhale \(m.inhaleCurve.rawValue), exhale \(m.exhaleCurve.rawValue), \
         scale \(String(format: "%.2f", m.minScale))–\(String(format: "%.2f", m.maxScale)), \
         hold \(m.holdStyle.rawValue), rest \(m.restStyle.rawValue), guide rings \(m.guideRings), \
@@ -133,6 +133,48 @@ struct BreathCircle: View {
     let motion: MotionConfig
 
     var body: some View {
+        if motion.shape == .torus { torus } else { circle }
+    }
+
+    /// Dot cloud torus seen face-on: scale and dot size follow the breath, the tube thickens on inhale, it spins slowly.
+    private var torus: some View {
+        Canvas { ctx, size in
+            let full = min(size.width, size.height) * 0.86
+            let level = frame.level
+            let base = motion.minScale + (motion.maxScale - motion.minScale) * level
+            let style = style(for: frame.kind)
+            let wobble = style == .pulse ? 1 + motion.pulseAmount * sin(2 * .pi * frame.elapsedInSpan / 2) : 1
+            let bigR = 1.0, r = 0.42 + 0.22 * level
+            let spin = frame.time * 0.35
+            let cam = 3.0
+            let cosT = cos(motion.tilt), sinT = sin(motion.tilt), roll = 0.6
+            let k = full / 2 * base * wobble / (bigR + 0.64) * 0.95
+            let n = 72, m = 24
+            for i in 0..<n {
+                let a = Double(i) / Double(n)
+                let lit = style != .ring || a < frame.u
+                let u = a * 2 * .pi + spin
+                for j in 0..<m {
+                    let v = Double(j) / Double(m) * 2 * .pi + Double(i % 2) * .pi / Double(m)
+                    let rr = bigR + r * cos(v)
+                    let x = rr * cos(u), y = rr * sin(u), z = r * sin(v)
+                    let y2 = y * cosT - z * sinT, z2 = y * sinT + z * cosT
+                    let p = cam / (cam - z2)
+                    let rad = (1.0 + 1.6 * (p - 0.6)) * base * wobble
+                    let alpha = (lit ? 1.0 : 0.3) * min(max(0.35 + 0.65 * (p - 0.7) / 0.7, 0.2), 1)
+                    let xr = x * cos(roll) - y2 * sin(roll), yr = x * sin(roll) + y2 * cos(roll)
+                    let cx = size.width / 2 + xr * p * k, cy = size.height / 2 + yr * p * k
+                    // colour: blue when empty, towards teal when full, shifting around the ring and over time
+                    let hue = 0.62 - 0.17 * level + 0.10 * sin(2 * .pi * a + frame.time * 0.3)
+                    let color = motion.colors ? Color(hue: hue, saturation: 0.55, brightness: 1) : .white
+                    ctx.fill(Path(ellipseIn: CGRect(x: cx - rad, y: cy - rad, width: rad * 2, height: rad * 2)),
+                             with: .color(color.opacity(alpha)))
+                }
+            }
+        }
+    }
+
+    private var circle: some View {
         GeometryReader { geo in
             let full = min(geo.size.width, geo.size.height) * 0.86
             let level = frame.level
@@ -183,6 +225,15 @@ struct TweakSheet: View {
     var body: some View {
         NavigationStack {
             Form {
+                Section("Motion: shape") {
+                    Picker("Shape", selection: $runner.motion.shape) {
+                        ForEach(MotionShape.allCases) { Text($0.rawValue).tag($0) }
+                    }
+                }
+                Section("Motion: torus") {
+                    slider("Tilt (rad)", $runner.motion.tilt, 0...1.2)
+                    Toggle("Colours", isOn: $runner.motion.colors)
+                }
                 Section("Motion: curves") {
                     Picker("Inhale", selection: $runner.motion.inhaleCurve) { curves }
                     Picker("Exhale", selection: $runner.motion.exhaleCurve) { curves }

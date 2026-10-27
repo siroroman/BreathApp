@@ -22,7 +22,15 @@ enum StillStyle: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 }
 
+enum MotionShape: String, CaseIterable, Identifiable {
+    case circle, torus
+    var id: String { rawValue }
+}
+
 struct MotionConfig: Equatable {
+    var shape: MotionShape = .circle
+    var tilt = 0.0        // torus: tilt away from face-on, radians
+    var colors = false    // torus: coloured dots
     var inhaleCurve: Curve
     var exhaleCurve: Curve
     var minScale: Double
@@ -47,6 +55,9 @@ struct MotionPreset {
         MotionPreset(name: "Wave", config: MotionConfig(
             inhaleCurve: .easeOut, exhaleCurve: .easeIn, minScale: 0.60, maxScale: 1.0,
             holdStyle: .orbit, restStyle: .still, guideRings: true)),
+        MotionPreset(name: "Torus", config: MotionConfig(
+            shape: .torus, tilt: 0.4, colors: true, inhaleCurve: .sine, exhaleCurve: .sine, minScale: 0.80, maxScale: 1.0,
+            holdStyle: .ring, restStyle: .still, guideRings: false)),
     ]
 }
 

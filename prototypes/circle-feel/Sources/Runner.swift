@@ -9,6 +9,7 @@ struct Frame {
     var elapsedInSpan = 0.0
     var spanSeconds = 1.0
     var cycle = 0
+    var time = 0.0
     var u: Double { min(elapsedInSpan / spanSeconds, 1) }
     var remaining: Double { max(spanSeconds - elapsedInSpan, 0) }
 }
@@ -68,7 +69,7 @@ final class Runner {
         accumulated = 0
         lastKey = nil
         frame = Frame(level: 0, kind: pattern.spans[0].kind, spanIndex: 0,
-                      elapsedInSpan: 0, spanSeconds: pattern.spans[0].seconds, cycle: 0)
+                      elapsedInSpan: 0, spanSeconds: pattern.spans[0].seconds, cycle: 0, time: 0)
     }
 
     func setHapticsEnabled(_ on: Bool) {
@@ -94,6 +95,6 @@ final class Runner {
         }
         frame = Frame(level: p.level(at: ct, inhale: m.inhaleCurve, exhale: m.exhaleCurve),
                       kind: span.kind, spanIndex: idx, elapsedInSpan: ct - span.t0,
-                      spanSeconds: span.seconds, cycle: cycle)
+                      spanSeconds: span.seconds, cycle: cycle, time: t)
     }
 }
