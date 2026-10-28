@@ -14,7 +14,5 @@ Decided in [#12](https://github.com/siroroman/BreathApp/issues/12), amended by [
 
 ## Consequences
 
-- **Time is an input.** The engine is a pure `Sendable` struct with no timers, tasks or `Clock` objects. The app passes the current time as a `ContinuousClock.Instant`, so tests use made-up times and need no fake clock.
 - **No text in the Kit.** `Exercise` carries its fixed ID, Pattern and Duration options. Names, Phase names and spoken strings are looked up in the String Catalog by the app.
-- **Feel numbers are Kit data.** The Breath level curve and the Haptic plan are plain values tested by `swift test`, although a Watch would play its own haptics. The Watch can ignore the plan and reuse the level curve. A thin adapter in the app turns the plan into `CHHapticPattern`.
-- **Concurrency stays in the app.** One main-actor `@Observable` model owns the Session, runs the ticker, calls the engine and fires haptics from the transitions the engine returns. Nothing in the Kit is `async`.
+- **Feel numbers are Kit data.** The Breath level curve is a pure function and the Haptic plan is plain data, both tested by `swift test`, although a Watch would play its own haptics. The Watch can ignore the plan and reuse the level curve. A thin adapter in the app turns the plan into `CHHapticPattern`.
