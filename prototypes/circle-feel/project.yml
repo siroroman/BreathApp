@@ -21,6 +21,26 @@ targets:
         UILaunchScreen: {}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         CADisableMinimumFrameDurationOnPhone: true
+    dependencies:
+      - target: CircleFeelWatch
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.siroroman.prototype.circlefeel
+  CircleFeelWatch:
+    type: application
+    platform: watchOS
+    deploymentTarget: "10.0"
+    sources:
+      - Watch
+      - Sources/Model.swift
+      - Sources/Config.swift
+    info:
+      path: Config/Info-Watch.plist
+      properties:
+        CFBundleDisplayName: Feel PROTO
+        WKApplication: true
+        WKCompanionAppBundleIdentifier: com.siroroman.prototype.circlefeel
+        WKBackgroundModes: [mindfulness]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.siroroman.prototype.circlefeel.watchkitapp
