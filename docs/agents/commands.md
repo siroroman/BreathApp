@@ -1,6 +1,6 @@
 # Commands
 
-One `make` target per check, run from the repository root (also from a worktree). `xcodebuild` output goes through `xcbeautify --quiet`, so a green run prints almost nothing and a red run prints only the errors. Read the last lines: `Build Succeeded` / `Test Succeeded` for the app, no output for `swift test --quiet`.
+One `make` target per check, run from the repository root (also from a worktree). `xcodebuild` output goes through `xcbeautify --quiet`, so only warnings, errors and a few banner lines are printed, not the full build log. Read the last lines: `Build Succeeded` / `Test Succeeded` for the app, `Test run with N tests ... passed` for `swift test --quiet`, `0/N files require formatting.` for `make lint`.
 
 | Command | What it does | Needs simulator |
 |---|---|---|
