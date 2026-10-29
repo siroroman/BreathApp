@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Watch start</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.w{--bg:#000000;--fg:#E9F0F6;--fg2:#A7B6C4;--ring:#5CC7D6}
+</style>
+</helmet>
+<main class="w" style="width: 396px; height: 484px; box-sizing: border-box; background: var(--bg); color: var(--fg); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif; padding: 30px 36px 28px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center">
+<dc-import name="Torus" level="0" rm="false" theme="dark" size="100" hint-size="100px,100px"></dc-import>
+<h1 style="margin: 10px 0 0; font-size: 32px; font-weight: 600; line-height: 1.15">Box breathing</h1>
+<p style="margin: 6px 0 0; font-size: 32px; color: var(--fg2); line-height: 1.2; font-variant-numeric: tabular-nums">4 · 4 · 4 · 4</p>
+<p style="margin: 18px 0 0; font-size: 32px; font-weight: 600; line-height: 1.2; color: var(--ring); font-variant-numeric: tabular-nums">5 min · 19 Cycles</p>
+<button style="width: 100%; min-height: 76px; margin-top: 28px; border: 0; border-radius: 999px; background: var(--fg); color: var(--bg); font: inherit; font-size: 32px; font-weight: 600">Start</button>
+</main>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":396,"height":484}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Watch set duration</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.w{--bg:#000000;--fg:#E9F0F6;--fg2:#A7B6C4;--track:#2B3E53;--ring:#5CC7D6}
+</style>
+</helmet>
+<main class="w" style="position: relative; width: 396px; height: 484px; box-sizing: border-box; background: var(--bg); color: var(--fg); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif; padding: 32px 20px 28px; display: flex; flex-direction: column">
+<h1 style="margin: 0 10px 14px; font-size: 32px; font-weight: 600; line-height: 1.15">Duration</h1>
+<div style="flex: 1; display: flex; align-items: center; justify-content: center">
+<p aria-live="polite" style="margin: 0; display: flex; align-items: center; gap: 12px; line-height: 1; font-variant-numeric: tabular-nums"><span style="font-size: 150px; font-weight: 600; letter-spacing: -0.03em; color: var(--ring)">5</span><span style="font-size: 44px; font-weight: 600">min</span></p>
+</div>
+<svg viewBox="0 0 8 300" aria-hidden="true" style="position: absolute; right: 8px; top: 90px; width: 8px; height: 300px">
+<path d="M4 4 L4 296" style="fill: none; stroke: var(--track); stroke-width: 6; stroke-linecap: round"></path>
+<path d="M4 120 L4 190" style="fill: none; stroke: var(--ring); stroke-width: 6; stroke-linecap: round"></path>
+</svg>
+</main>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":396,"height":484}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

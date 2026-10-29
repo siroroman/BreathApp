@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Torus of dots</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+</style>
+</helmet>
+<svg viewBox="0 0 200 200" aria-hidden="true" style="display: block; width: {{px}}px; height: {{px}}px">
+<sc-for list="{{dots}}" as="d" hint-placeholder-count="40">
+<circle cx="{{d.x}}" cy="{{d.y}}" r="{{d.r}}" fill="{{d.f}}" opacity="{{d.o}}"></circle>
+</sc-for>
+</svg>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"level":{"editor":"range","default":0.5,"min":0,"max":1,"step":0.05},"rm":{"editor":"boolean","default":false},"theme":{"editor":"enum","default":"light","options":["light","dark"]},"size":{"editor":"int","default":260,"min":80,"max":600},"$preview":{"width":260,"height":260}}'>
+class Component extends DCLogic {
+renderVals() {
+const pr = this.props;
+const level = Math.max(0, Math.min(1, Number(pr.level ?? 0.5)));
+const rm = pr.rm === true || pr.rm === 'true';
+const dark = pr.theme === 'dark';
+const px = Number(pr.size ?? 260);
+const A = dark ? [111, 168, 232] : [47, 109, 179];
+const B = dark ? [82, 214, 182] : [21, 122, 102];
+const fill = '#' + A.map((a, i) => Math.round(a + (B[i] - a) * level).toString(16).padStart(2, '0')).join('');
+const scale = rm ? 0.72 : 0.64 + 0.16 * level;
+const ratio = rm ? 0.53 : 0.42 + 0.22 * level;
+const Rc = (scale * 100) / (1 + ratio);
+const r = ratio * Rc;
+const base = rm ? 1.7 : 1.15 + 0.75 * level;
+const bright = rm ? 0.75 + 0.25 * level : 1;
+const dots = [];
+for (let i = 1; i <= 620; i++) {
+const u = ((i * 0.6180339887) % 1) * 2 * Math.PI;
+const v = ((i * 0.7548776662) % 1) * 2 * Math.PI;
+const rho = Rc + r * Math.cos(v);
+const t = (Math.sin(v) + 1) / 2;
+dots.push({
+x: +(100 + rho * Math.cos(u)).toFixed(1),
+y: +(100 + rho * Math.sin(u)).toFixed(1),
+r: +(base * (0.75 + 0.5 * t)).toFixed(2),
+o: +((0.45 + 0.55 * t) * bright).toFixed(2),
+f: fill,
+t: t
+});
+}
+dots.sort((a, b) => a.t - b.t);
+return { px: px, dots: dots };
+}
+}
+</script>
+</body>
+</html>

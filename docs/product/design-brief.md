@@ -4,7 +4,7 @@ Input for the visual design of the tracer bullet. The behaviour is fixed by the 
 
 ## What to design
 
-iPhone only, iOS 26, portrait only, light and dark. Three screens, in this order:
+iPhone only, iOS 26, portrait only, light and dark. The Apple Watch app is designed separately in [watch-design.md](watch-design.md). Three screens, in this order:
 
 1. **Exercises list.** Four rows: Box breathing `4 · 4 · 4 · 4`, 4-7-8 `4 · 7 · 8`, Coherent breathing `5.5 · 5.5`, Physiological sigh `2 · 1 · 6`. The whole row is one tap target.
 2. **Exercise detail sheet.** A bottom sheet with Cancel. It holds the name, the Pattern with Phase names (`Inhale 4 · Hold 7 · Exhale 8`), Duration option chips, a result line such as `19 Cycles · 5:04`, a Haptics switch (on by default), the Safety note and a Start button.
