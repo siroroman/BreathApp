@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Settings, dark</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.t-dark{--bg:#000000;--fg:#E9F0F6;--fg2:#A7B6C4;--track:#2B3E53;--outline:#5E7389;--ring:#5CC7D6;--surface:#121F2E;--line:#22344A;--scrim:#04080D}
+</style>
+</helmet>
+<div class="{{themeClass}}" style="width: 390px; height: {{rootH}}px; box-sizing: border-box; background: var(--scrim); padding-top: 44px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif">
+<div style="height: 100%; box-sizing: border-box; background: var(--bg); color: var(--fg); border-radius: 38px 38px 0 0; padding: 10px 20px 36px; display: flex; flex-direction: column; gap: {{s.gap}}px; overflow: hidden">
+<div style="align-self: center; width: 36px; height: 5px; border-radius: 3px; background: var(--outline)"></div>
+<div style="display: flex; justify-content: flex-end">
+<button style="min-height: 44px; padding: 0; border: 0; background: transparent; color: var(--ring); font: inherit; font-size: {{s.done}}px; font-weight: 600">Done</button>
+</div>
+<h1 style="margin: 0 0 4px; font-size: {{s.title}}px; font-weight: 700; line-height: 1.15; letter-spacing: -0.02em">Settings</h1>
+<sc-for list="{{groups}}" as="g" hint-placeholder-count="3">
+<ul style="list-style: none; margin: 0; padding: 0; background: var(--surface); border-radius: 16px; overflow: hidden">
+<sc-for list="{{g.rows}}" as="r" hint-placeholder-count="2">
+<li style="border-top: {{r.bt}}">
+<button style="display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; box-sizing: border-box; min-height: {{s.rowH}}px; padding: {{s.rowPad}}px 16px; border: 0; background: transparent; color: var(--fg); font: inherit; font-size: {{s.row}}px; font-weight: 500; text-align: left">
+<span>{{r.name}}</span>
+<span style="display: flex; align-items: center; gap: 10px; color: var(--fg2)">
+<span>{{r.value}}</span>
+<svg viewBox="0 0 10 14" aria-hidden="true" style="flex: none; display: {{r.chev}}; width: {{s.chev}}px; height: {{s.chevH}}px">
+<path d="M2.5 1.5 L8 7 L2.5 12.5" style="fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"></path>
+</svg>
+<svg viewBox="0 0 24 24" aria-hidden="true" style="flex: none; display: {{r.share}}; width: {{s.shareIcon}}px; height: {{s.shareIcon}}px; color: var(--ring); fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round">
+<path d="M12 15 V3 M8 7 L12 3 L16 7 M6 11 H5 A1 1 0 0 0 4 12 V20 A1 1 0 0 0 5 21 H19 A1 1 0 0 0 20 20 V12 A1 1 0 0 0 19 11 H18"></path>
+</svg>
+</span>
+</button>
+</li>
+</sc-for>
+</ul>
+</sc-for>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"ax":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+const pr = this.props;
+const theme = 'dark';
+const ax = pr.ax === true || pr.ax === 'true';
+const s = ax
+? { gap: 22, done: 38, title: 52, row: 40, rowH: 88, rowPad: 14, chev: 14, chevH: 24, shareIcon: 44 }
+: { gap: 16, done: 17, title: 30, row: 17, rowH: 52, rowPad: 8, chev: 9, chevH: 14, shareIcon: 24 };
+const line = '1px solid var(--line)';
+const row = (name, value, kind, first) => ({
+name: name,
+value: value,
+bt: first ? 'none' : line,
+chev: kind === 'nav' ? 'block' : 'none',
+share: kind === 'share' ? 'block' : 'none'
+});
+const groups = [
+{ rows: [row('Appearance', 'Aurora', 'nav', true)] },{ rows: [row('Health access', 'Allowed', 'nav', true)] },
+{ rows: [row('Share the app', '', 'share', true)] },
+{ rows: [row('Version', '1.0 (1)', 'none', true)] }
+];
+return { themeClass: 't-' + theme, rootH: ax ? 2100 : 844, s: s, groups: groups };
+}
+}
+</script>
+</body>
+</html>

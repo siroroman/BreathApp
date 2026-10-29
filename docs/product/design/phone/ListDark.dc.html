@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Exercises, dark</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.t-dark{--bg:#000000;--fg:#E9F0F6;--fg2:#A7B6C4;--track:#2B3E53;--outline:#5E7389;--ring:#5CC7D6;--surface:#121F2E;--line:#22344A}
+</style>
+</helmet>
+<main class="{{themeClass}}" style="position: relative; width: 390px; height: 844px; box-sizing: border-box; background: var(--bg); color: var(--fg); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif; padding: 64px 16px 34px; overflow: hidden">
+<h1 style="margin: 0 4px 20px; font-size: {{s.title}}px; font-weight: 700; line-height: 1.1; letter-spacing: -0.02em">Exercises</h1>
+<section style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; padding: 16px; background: var(--surface); border-radius: 20px">
+<div style="flex: 1 1 auto; min-width: 0">
+<p style="margin: 0; font-size: {{s.qcap}}px; color: var(--fg2); line-height: 1.3">Quick Start</p>
+<p style="margin: 2px 0 0; font-size: {{s.name}}px; font-weight: 600; line-height: 1.25">Box breathing</p>
+<p style="margin: 2px 0 0; font-size: {{s.pattern}}px; color: var(--fg2); line-height: 1.3">5 min · Haptics on</p>
+</div>
+<button style="display: flex; align-items: center; justify-content: center; gap: 8px; min-height: {{s.qbtnH}}px; padding: 0 {{s.qbtnPad}}px; border: 0; border-radius: 999px; background: var(--fg); color: var(--bg); font: inherit; font-size: {{s.qbtn}}px; font-weight: 600; flex: {{s.qbtnGrow}}">
+<svg viewBox="0 0 12 14" aria-hidden="true" style="width: {{s.play}}px; height: {{s.playH}}px">
+<path d="M1 1 L11 7 L1 13 Z" style="fill: var(--bg)"></path>
+</svg>
+<span>Start</span>
+</button>
+</section>
+<ul style="list-style: none; margin: 0; padding: 0; background: var(--surface); border-radius: 20px; overflow: hidden">
+<li>
+<button style="display: flex; align-items: center; gap: 12px; width: 100%; box-sizing: border-box; padding: {{s.padV}}px 16px; border: 0; background: transparent; color: var(--ring); font: inherit; text-align: left">
+<svg viewBox="0 0 44 44" aria-hidden="true" style="flex: none; width: 44px; height: 44px; display: {{s.glyph}}">
+<circle cx="22" cy="22" r="17" style="fill: none; stroke: var(--ring); stroke-width: 2; stroke-dasharray: 3 4; stroke-linecap: round"></circle>
+<path d="M22 14 L22 30 M14 22 L30 22" style="fill: none; stroke: var(--ring); stroke-width: 2.5; stroke-linecap: round"></path>
+</svg>
+<span style="flex: 1; min-width: 0; font-size: {{s.name}}px; font-weight: 600; line-height: 1.25">Custom exercise</span>
+</button>
+</li>
+<sc-for list="{{items}}" as="it" hint-placeholder-count="4">
+<li style="border-top: {{it.bt}}">
+<button style="display: flex; align-items: center; gap: 12px; width: 100%; box-sizing: border-box; padding: {{s.padV}}px 16px; border: 0; background: transparent; color: inherit; font: inherit; text-align: left">
+<svg viewBox="0 0 44 44" aria-hidden="true" style="flex: none; width: 44px; height: 44px; display: {{s.glyph}}">
+<sc-for list="{{it.segs}}" as="g" hint-placeholder-count="3">
+<path d="{{g.d}}" style="{{g.s}}"></path>
+</sc-for>
+</svg>
+<span style="flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 2px">
+<span style="font-size: {{s.name}}px; font-weight: 600; line-height: 1.25">{{it.name}}</span>
+<span style="font-size: {{s.pattern}}px; color: var(--fg2); line-height: 1.25; font-variant-numeric: tabular-nums">{{it.pattern}}</span>
+</span>
+</button>
+</li>
+</sc-for>
+</ul>
+<nav aria-label="Main" style="position: absolute; left: 0; right: 0; bottom: 0; box-sizing: border-box; height: {{s.tabH}}px; padding: 8px 16px 34px; display: flex; border-top: 1px solid var(--line); background: var(--bg)">
+<button aria-current="{{tab.exCur}}" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 0; border: 0; background: transparent; color: {{tab.exColor}}; font: inherit; font-size: {{s.tabLabel}}px; font-weight: {{tab.exW}}">
+<svg viewBox="0 0 24 24" aria-hidden="true" style="width: {{s.tabIcon}}px; height: {{s.tabIcon}}px; fill: none; stroke: currentColor; stroke-width: {{tab.exSw}}; stroke-linecap: round; stroke-linejoin: round">
+<path d="M12 3 A9 9 0 1 1 11.99 3 Z M12 9.5 A2.5 2.5 0 1 1 11.99 9.5 Z"></path>
+</svg>
+<span>Exercises</span>
+</button>
+<button aria-current="{{tab.stCur}}" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 0; border: 0; background: transparent; color: {{tab.stColor}}; font: inherit; font-size: {{s.tabLabel}}px; font-weight: {{tab.stW}}">
+<svg viewBox="0 0 24 24" aria-hidden="true" style="width: {{s.tabIcon}}px; height: {{s.tabIcon}}px; fill: none; stroke: currentColor; stroke-width: {{tab.stSw}}; stroke-linecap: round; stroke-linejoin: round">
+<path d="M5 20 V12 M12 20 V5 M19 20 V9"></path>
+</svg>
+<span>Stats</span>
+</button>
+</nav>
+</main>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"ax":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+const pr = this.props;
+const theme = 'dark';
+const ax = pr.ax === true || pr.ax === 'true';
+const s = ax
+? { title: 56, name: 44, pattern: 38, padV: 22, glyph: 'none', chev: 16, chevH: 28, qcap: 34, qbtn: 40, qbtnH: 84, qbtnPad: 32, qbtnGrow: '1 1 100%', play: 20, playH: 24, tabH: 150, tabLabel: 30, tabIcon: 40 }
+: { title: 34, name: 17, pattern: 15, padV: 14, glyph: 'block', chev: 8, chevH: 14, qcap: 13, qbtn: 17, qbtnH: 44, qbtnPad: 22, qbtnGrow: '0 0 auto', play: 12, playH: 14, tabH: 88, tabLabel: 11, tabIcon: 26 };
+const tab = { exCur: 'page', stCur: 'false', exColor: 'var(--ring)', stColor: 'var(--fg2)', exW: 700, stW: 500, exSw: 2.4, stSw: 1.8 };
+const cx = 22, cy = 22, R = 17;
+const pt = (deg) => { const a = deg * Math.PI / 180; return [cx + R * Math.sin(a), cy - R * Math.cos(a)]; };
+const arc = (d0, d1) => {
+const a = pt(d0), b = pt(d1);
+return 'M ' + a[0].toFixed(2) + ' ' + a[1].toFixed(2) + ' A ' + R + ' ' + R + ' 0 ' + ((d1 - d0) > 180 ? 1 : 0) + ' 1 ' + b[0].toFixed(2) + ' ' + b[1].toFixed(2);
+};
+const move = 'fill:none;stroke:var(--ring);stroke-width:4;stroke-linecap:round';
+const hold = 'fill:none;stroke:var(--outline);stroke-width:4;stroke-linecap:round';
+const segs = (parts, kinds) => {
+const total = parts.reduce((x, y) => x + y, 0);
+const gap = 16;
+let a = 0;
+return parts.map((w, i) => {
+const span = 360 * w / total;
+const out = { d: arc(a + gap / 2, a + span - gap / 2), s: kinds[i] === 'h' ? hold : move };
+a += span;
+return out;
+});
+};
+const rows = [
+{ name: 'Box breathing', pattern: '4 · 4 · 4 · 4', parts: [4, 4, 4, 4], kinds: ['m', 'h', 'm', 'h'] },
+{ name: '4-7-8', pattern: '4 · 7 · 8', parts: [4, 7, 8], kinds: ['m', 'h', 'm'] },
+{ name: 'Coherent breathing', pattern: '5.5 · 5.5', parts: [5.5, 5.5], kinds: ['m', 'm'] },
+{ name: 'Physiological sigh', pattern: '2 · 1 · 6', parts: [2, 1, 6], kinds: ['m', 'm', 'm'] }
+];
+const items = rows.map((r, i) => ({
+name: r.name,
+pattern: r.pattern,
+segs: segs(r.parts, r.kinds),
+bt: '1px solid var(--line)'
+}));
+return { themeClass: 't-' + theme, s: s, tab: tab, items: items };
+}
+}
+</script>
+</body>
+</html>

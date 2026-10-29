@@ -1,5 +1,7 @@
 # Breathnest: design brief for Claude Design
 
+> **Status: done, superseded.** This was the input for the visual design. The result is [phone-design.md](phone-design.md) (sources in `design/phone/`). The design added screens and features beyond this brief (tabs, Quick Start, Stats, Reminders, custom exercises, sound and a Session menu) and changed some decisions below, for example "Nothing is saved". Where this brief and `phone-design.md` differ, `phone-design.md` wins; its table "Differences from the brief and the first spec" lists them. Keep this file as the record of the original intent.
+
 Input for the visual design of the tracer bullet. The behaviour is fixed by the spec ([#22](https://github.com/siroroman/BreathApp/issues/22)); this brief says what is open for design and what is not. Terms follow `GLOSSARY.md`.
 
 ## What to design

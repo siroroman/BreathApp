@@ -12,7 +12,7 @@ Stav k 2026-10-23. Odovzdávací dokument medzi sessions. Hotové body maž, aby
   - kostra `docs/agents/` a subagentov.
 - Product brief, prepis hlasovej poznámky a vizuálne referencie sú v `docs/product/`.
 - Rozhodnuté: v1 len iPhone, iOS 26+, zadarmo, systém najprv v tomto repe.
-- Vizuál vznikne cez Claude Design až po špecifikácii.
+- Vizuál je hotový v Claude Design: `docs/product/phone-design.md` (iPhone) a `docs/product/watch-design.md` (Watch), zdroje v `docs/product/design/`. Návrhy sú záväzné.
 
 ## 1. Teraz (ty)
 

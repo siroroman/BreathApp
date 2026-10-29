@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Stats, dark</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.t-dark{--bg:#000000;--fg:#E9F0F6;--fg2:#A7B6C4;--track:#2B3E53;--outline:#5E7389;--ring:#5CC7D6;--surface:#121F2E;--line:#22344A}
+</style>
+</helmet>
+<main class="{{themeClass}}" style="position: relative; width: 390px; height: {{rootH}}px; box-sizing: border-box; background: var(--bg); color: var(--fg); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif; padding: 64px 16px 34px; overflow: hidden">
+<div role="group" aria-label="Section" style="display: flex; gap: 4px; padding: 4px; margin-bottom: 24px; background: var(--surface); border-radius: 999px">
+<button aria-pressed="true" style="flex: 1; min-height: {{s.segH}}px; border: 0; border-radius: 999px; background: var(--fg); color: var(--bg); font: inherit; font-size: {{s.seg}}px; font-weight: 600">Stats</button>
+<button aria-pressed="false" style="flex: 1; min-height: {{s.segH}}px; border: 0; border-radius: 999px; background: transparent; color: var(--fg); font: inherit; font-size: {{s.seg}}px; font-weight: 500">Reminder</button>
+</div>
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; column-gap: 12px; margin: 0 4px 10px">
+<h2 style="margin: 0; font-size: {{s.head}}px; font-weight: 700; line-height: 1.2">This week</h2>
+<p style="margin: 0; font-size: {{s.headVal}}px; font-weight: 600; color: var(--fg2); line-height: 1.2; font-variant-numeric: tabular-nums">{{weekTotal}}</p>
+</div>
+<ol style="list-style: none; margin: 0 0 24px; padding: 16px 8px; display: flex; background: var(--surface); border-radius: 20px">
+<sc-for list="{{days}}" as="d" hint-placeholder-count="7">
+<li aria-label="{{d.label}}" style="flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 8px">
+<span style="font-size: {{s.day}}px; font-weight: {{d.w}}; color: {{d.color}}; line-height: 1.2">{{d.letter}}</span>
+<svg viewBox="0 0 40 40" aria-hidden="true" style="width: {{s.circle}}px; height: {{s.circle}}px">
+<circle cx="20" cy="20" r="19" style="fill: none; stroke: var(--fg); stroke-width: 1.5; opacity: {{d.todayOp}}"></circle>
+<circle cx="20" cy="20" r="15" style="{{d.disc}}"></circle>
+<path d="M13.5 20.5 L18 25 L26.5 15.5" style="fill: none; stroke: var(--bg); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; opacity: {{d.checkOp}}"></path>
+</svg>
+<span style="font-size: {{s.mins}}px; color: var(--fg2); line-height: 1.2; font-variant-numeric: tabular-nums">{{d.mins}}</span>
+</li>
+</sc-for>
+</ol>
+<h2 style="margin: 0 4px 10px; font-size: {{s.head}}px; font-weight: 700; line-height: 1.2">Log</h2>
+<ul style="list-style: none; margin: 0; padding: 0; background: var(--surface); border-radius: 20px; overflow: hidden">
+<sc-for list="{{log}}" as="it" hint-placeholder-count="4">
+<li style="border-top: {{it.bt}}; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: {{s.padV}}px 16px">
+<span style="min-width: 0; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: {{s.name}}px; font-weight: 600; line-height: 1.25">{{it.name}}</span>
+<span style="font-size: {{s.sub}}px; color: var(--fg2); line-height: 1.25">{{it.when}}</span>
+</span>
+<span style="flex: none; font-size: {{s.name}}px; font-weight: 600; font-variant-numeric: tabular-nums">{{it.dur}}</span>
+</li>
+</sc-for>
+</ul>
+<nav aria-label="Main" style="position: absolute; left: 0; right: 0; bottom: 0; box-sizing: border-box; height: {{s.tabH}}px; padding: 8px 16px 34px; display: flex; border-top: 1px solid var(--line); background: var(--bg)">
+<button aria-current="{{tab.exCur}}" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 0; border: 0; background: transparent; color: {{tab.exColor}}; font: inherit; font-size: {{s.tabLabel}}px; font-weight: {{tab.exW}}">
+<svg viewBox="0 0 24 24" aria-hidden="true" style="width: {{s.tabIcon}}px; height: {{s.tabIcon}}px; fill: none; stroke: currentColor; stroke-width: {{tab.exSw}}; stroke-linecap: round; stroke-linejoin: round">
+<path d="M12 3 A9 9 0 1 1 11.99 3 Z M12 9.5 A2.5 2.5 0 1 1 11.99 9.5 Z"></path>
+</svg>
+<span>Exercises</span>
+</button>
+<button aria-current="{{tab.stCur}}" style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 0; border: 0; background: transparent; color: {{tab.stColor}}; font: inherit; font-size: {{s.tabLabel}}px; font-weight: {{tab.stW}}">
+<svg viewBox="0 0 24 24" aria-hidden="true" style="width: {{s.tabIcon}}px; height: {{s.tabIcon}}px; fill: none; stroke: currentColor; stroke-width: {{tab.stSw}}; stroke-linecap: round; stroke-linejoin: round">
+<path d="M5 20 V12 M12 20 V5 M19 20 V9"></path>
+</svg>
+<span>Stats</span>
+</button>
+</nav>
+</main>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"ax":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+const pr = this.props;
+const theme = 'dark';
+const ax = pr.ax === true || pr.ax === 'true';
+const s = ax
+? { segH: 84, seg: 36, head: 44, headVal: 36, day: 30, mins: 30, circle: 44, padV: 22, name: 40, sub: 32, tabH: 150, tabLabel: 30, tabIcon: 40 }
+: { segH: 40, seg: 15, head: 22, headVal: 17, day: 13, mins: 13, circle: 38, padV: 14, name: 17, sub: 15, tabH: 88, tabLabel: 11, tabIcon: 26 };
+const names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const letters = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+const mins = [5, 8, 0, 10, null, null, null];
+const today = 3;
+const days = letters.map((l, i) => {
+const future = mins[i] === null;
+const done = !future && mins[i] > 0;
+return {
+letter: l,
+label: names[i] + (future ? '' : ', ' + mins[i] + ' min'),
+w: i === today ? 700 : 500,
+color: i === today ? 'var(--fg)' : 'var(--fg2)',
+todayOp: i === today ? 1 : 0,
+disc: done ? 'fill:var(--ring);stroke:none'
+: future ? 'fill:none;stroke:var(--outline);stroke-width:2;stroke-dasharray:3 4;stroke-linecap:round'
+: 'fill:none;stroke:var(--outline);stroke-width:2.5',
+checkOp: done ? 1 : 0,
+mins: future ? '\u00a0' : String(mins[i])
+};
+});
+const total = mins.reduce((a, b) => a + (b || 0), 0);
+const log = [
+{ name: 'Box breathing', when: 'Today, 7:30 AM', dur: '10 min' },
+{ name: '4-7-8', when: 'Tue 27 Oct, 9:40 PM', dur: '8 min' },
+{ name: 'Coherent breathing', when: 'Mon 26 Oct, 6:50 AM', dur: '5 min' },
+{ name: 'Physiological sigh', when: 'Sun 25 Oct, 8:15 PM', dur: '3 min' }
+].map((r, i) => ({ name: r.name, when: r.when, dur: r.dur, bt: i === 0 ? 'none' : '1px solid var(--line)' }));
+const tab = { exCur: 'false', stCur: 'page', exColor: 'var(--fg2)', stColor: 'var(--ring)', exW: 500, stW: 700, exSw: 1.8, stSw: 2.4 };
+return { themeClass: 't-' + theme, rootH: ax ? 1900 : 844, s: s, tab: tab, days: days, weekTotal: total + ' min', log: log };
+}
+}
+</script>
+</body>
+</html>

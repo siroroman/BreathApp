@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>New reminder, dark</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.t-dark{--bg:#000000;--fg:#E9F0F6;--fg2:#A7B6C4;--track:#2B3E53;--outline:#5E7389;--ring:#5CC7D6;--surface:#121F2E;--line:#22344A;--scrim:#04080D}
+</style>
+</helmet>
+<div class="{{themeClass}}" style="width: 390px; height: {{rootH}}px; box-sizing: border-box; background: var(--scrim); padding-top: 44px; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif">
+<div style="height: 100%; box-sizing: border-box; background: var(--bg); color: var(--fg); border-radius: 38px 38px 0 0; padding: 10px 20px 36px; display: flex; flex-direction: column; gap: {{s.gap}}px; overflow: hidden">
+<div style="align-self: center; width: 36px; height: 5px; border-radius: 3px; background: var(--outline)"></div>
+<div style="display: flex; justify-content: flex-start">
+<button style="min-height: 44px; padding: 0; border: 0; background: transparent; color: var(--ring); font: inherit; font-size: {{s.cancel}}px; font-weight: 500">Cancel</button>
+</div>
+<h1 style="margin: 0; font-size: {{s.title}}px; font-weight: 700; line-height: 1.15; letter-spacing: -0.02em">New reminder</h1>
+<section>
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; column-gap: 12px; margin: 0 0 8px">
+<h2 style="margin: 0; font-size: {{s.label}}px; font-weight: 600; color: var(--fg2); line-height: 1.3">Time</h2>
+<p aria-live="polite" style="margin: 0; font-size: {{s.label}}px; font-weight: 600; line-height: 1.3; font-variant-numeric: tabular-nums">{{timeText}}</p>
+</div>
+<div role="group" aria-label="Time" style="position: relative; display: flex; justify-content: center; gap: {{s.colGap}}px; height: {{s.wheelH}}px; background: var(--surface); border-radius: 16px; overflow: hidden">
+<div aria-hidden="true" style="position: absolute; left: 8px; right: 8px; top: {{s.bandTop}}px; height: {{s.itemH}}px; border-radius: 10px; background: var(--track)"></div>
+<sc-for list="{{cols}}" as="c" hint-placeholder-count="3">
+<div aria-hidden="true" style="position: relative; width: {{c.w}}px; display: flex; flex-direction: column; align-items: {{c.align}}">
+<sc-for list="{{c.items}}" as="it" hint-placeholder-count="5">
+<span style="display: flex; align-items: center; justify-content: {{c.align}}; height: {{s.itemH}}px; font-size: {{s.wheel}}px; font-weight: {{it.w}}; color: {{it.color}}; opacity: {{it.op}}; font-variant-numeric: tabular-nums">{{it.t}}</span>
+</sc-for>
+</div>
+</sc-for>
+</div>
+</section>
+<ul style="list-style: none; margin: 0; padding: 0; background: var(--surface); border-radius: 16px; overflow: hidden">
+<li>
+<button aria-haspopup="menu" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; box-sizing: border-box; min-height: {{s.rowH}}px; padding: {{s.rowPad}}px 16px; border: 0; background: transparent; color: var(--fg); font: inherit; font-size: {{s.field}}px; font-weight: 500; text-align: left">
+<span>Exercise</span>
+<span style="display: flex; align-items: center; gap: 10px; color: var(--fg2)">
+<span>Coherent breathing</span>
+<svg viewBox="0 0 10 14" aria-hidden="true" style="flex: none; width: {{s.chev}}px; height: {{s.chevH}}px">
+<path d="M2.5 1.5 L8 7 L2.5 12.5" style="fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"></path>
+</svg>
+</span>
+</button>
+</li>
+</ul>
+<section>
+<div style="display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; column-gap: 12px; margin: 0 0 8px">
+<h2 style="margin: 0; font-size: {{s.label}}px; font-weight: 600; color: var(--fg2); line-height: 1.3">Repeat</h2>
+<p aria-live="polite" style="margin: 0; font-size: {{s.label}}px; font-weight: 600; line-height: 1.3">{{repeatText}}</p>
+</div>
+<div role="group" aria-label="Repeat on" style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px">
+<sc-for list="{{days}}" as="d" hint-placeholder-count="7">
+<button aria-pressed="{{d.pressed}}" aria-label="{{d.label}}" style="display: flex; align-items: center; justify-content: center; width: {{s.dayBox}}px; height: {{s.dayBox}}px; padding: 0; border-radius: 999px; border: 2px {{d.bs}} {{d.border}}; background: {{d.bg}}; color: {{d.color}}; font: inherit; font-size: {{s.day}}px; font-weight: {{d.w}}">{{d.letter}}</button>
+</sc-for>
+</div>
+</section>
+<p style="margin: 0 4px; font-size: {{s.foot}}px; color: var(--fg2); line-height: 1.4">You will get a notification at this time. Tap it to start the exercise.</p>
+<button style="margin-top: auto; width: 100%; min-height: {{s.btnH}}px; border: 0; border-radius: 999px; background: var(--fg); color: var(--bg); font: inherit; font-size: {{s.btnF}}px; font-weight: 600">Add reminder</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"ax":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+const pr = this.props;
+const theme = 'dark';
+const ax = pr.ax === true || pr.ax === 'true';
+const s = ax
+? { gap: 22, cancel: 38, title: 52, label: 34, field: 38, itemH: 76, wheelH: 380, bandTop: 152, wheel: 44, colGap: 28, rowH: 88, rowPad: 14, chev: 14, chevH: 24, dayBox: 88, day: 36, foot: 30, btnH: 96, btnF: 44 }
+: { gap: 14, cancel: 17, title: 30, label: 15, field: 17, itemH: 38, wheelH: 190, bandTop: 76, wheel: 22, colGap: 20, rowH: 52, rowPad: 8, chev: 9, chevH: 14, dayBox: 44, day: 15, foot: 13, btnH: 54, btnF: 19 };
+const op = [0.6, 0.8, 1, 0.8, 0.6];
+const col = (vals, w, align) => ({
+w: w,
+align: align,
+items: vals.map((v, i) => ({
+t: v,
+w: i === 2 ? 600 : 400,
+color: i === 2 ? 'var(--fg)' : 'var(--fg2)',
+op: v === '' ? 0 : (i === 2 ? 1 : op[i])
+}))
+});
+const cols = [
+col(['5', '6', '7', '8', '9'], ax ? 90 : 52, 'flex-end'),
+col(['28', '29', '30', '31', '32'], ax ? 90 : 52, 'flex-end'),
+col(['', '', 'AM', 'PM', ''], ax ? 100 : 56, 'flex-start')
+];
+const letters = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+const names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const on = [true, true, true, true, true, false, false];
+const days = letters.map((l, i) => ({
+letter: l,
+label: names[i],
+pressed: on[i],
+bg: on[i] ? 'var(--fg)' : 'transparent',
+color: on[i] ? 'var(--bg)' : 'var(--fg2)',
+border: on[i] ? 'var(--fg)' : 'var(--outline)',
+bs: on[i] ? 'solid' : 'dashed',
+w: on[i] ? 700 : 500
+}));
+return {
+themeClass: 't-' + theme,
+rootH: ax ? 2300 : 844,
+s: s,
+cols: cols,
+days: days,
+timeText: '7:30 AM',
+repeatText: 'Weekdays'
+};
+}
+}
+</script>
+</body>
+</html>
