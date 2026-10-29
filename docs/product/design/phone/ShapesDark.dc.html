@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Shape at three Breath levels, dark</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.t-dark{--bg:#000000;--fg:#E9F0F6;--fg2:#A7B6C4}
+</style>
+</helmet>
+<main class="{{themeClass}}" style="width: 1100px; height: 760px; box-sizing: border-box; background: var(--bg); color: var(--fg); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif; padding: 40px">
+<h1 style="margin: 0; font-size: 28px; font-weight: 600; letter-spacing: -0.01em">Shape at Breath level 0, 0.5 and 1</h1>
+<p style="margin: 6px 0 24px; font-size: 16px; color: var(--fg2); line-height: 1.4">Top row: with motion, the torus and its dots grow. Bottom row: Reduce Motion, fixed size, the level shows as colour, dot brightness and opacity.</p>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px 20px">
+<sc-for list="{{cells}}" as="c" hint-placeholder-count="6">
+<figure style="margin: 0; display: flex; flex-direction: column; align-items: center; gap: 8px">
+<svg viewBox="0 0 200 200" aria-hidden="true" style="display: block; width: 250px; height: 250px">
+<sc-for list="{{c.dots}}" as="d" hint-placeholder-count="40">
+<circle cx="{{d.x}}" cy="{{d.y}}" r="{{d.r}}" fill="{{d.f}}" opacity="{{d.o}}"></circle>
+</sc-for>
+</svg>
+<figcaption style="font-size: 15px; color: var(--fg2); font-variant-numeric: tabular-nums">{{c.label}}</figcaption>
+</figure>
+</sc-for>
+</div>
+</main>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1100,"height":760}}'>
+class Component extends DCLogic {
+renderVals() {
+const torusDots = (level, rm) => {
+const A = [111, 168, 232], B = [82, 214, 182];
+const fill = '#' + A.map((a, i) => Math.round(a + (B[i] - a) * level).toString(16).padStart(2, '0')).join('');
+const scale = rm ? 0.72 : 0.64 + 0.16 * level;
+const ratio = rm ? 0.53 : 0.42 + 0.22 * level;
+const Rc = (scale * 100) / (1 + ratio);
+const r = ratio * Rc;
+const base = rm ? 1.7 : 1.15 + 0.75 * level;
+const bright = rm ? 0.75 + 0.25 * level : 1;
+const dots = [];
+for (let i = 1; i <= 620; i++) {
+const u = ((i * 0.6180339887) % 1) * 2 * Math.PI;
+const v = ((i * 0.7548776662) % 1) * 2 * Math.PI;
+const rho = Rc + r * Math.cos(v);
+const t = (Math.sin(v) + 1) / 2;
+dots.push({ x: +(100 + rho * Math.cos(u)).toFixed(1), y: +(100 + rho * Math.sin(u)).toFixed(1), r: +(base * (0.75 + 0.5 * t)).toFixed(2), o: +((0.45 + 0.55 * t) * bright).toFixed(2), f: fill, t: t });
+}
+dots.sort((a, b) => a.t - b.t);
+return dots;
+};
+
+const theme = 'dark';
+const levels = [0, 0.5, 1];
+const cells = [];
+[false, true].forEach((rm) => {
+levels.forEach((level) => {
+cells.push({ dots: torusDots(level, rm), level: level, rm: rm, label: (rm ? 'Reduce Motion · ' : 'Motion · ') + 'level ' + level });
+});
+});
+return { themeClass: 't-' + theme, theme: theme, cells: cells };
+}
+}
+</script>
+</body>
+</html>

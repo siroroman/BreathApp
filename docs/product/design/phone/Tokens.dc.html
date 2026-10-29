@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Colour tokens</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.tk td,.tk th{padding:10px 12px;text-align:left;border-bottom:1px solid #D5DEE5;font-size:14px;line-height:1.35;vertical-align:middle}
+.tk th{font-weight:600;color:#475766}
+.sw2{display:inline-block;width:20px;height:20px;border-radius:6px;border:1px solid #7D8E9C;vertical-align:middle;margin-right:8px}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;font-variant-numeric:tabular-nums}
+</style>
+</helmet>
+<main style="width: 900px; height: 980px; box-sizing: border-box; background: #FFFFFF; color: #12202C; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif; padding: 40px; overflow: hidden">
+<h1 style="margin: 0; font-size: 28px; font-weight: 600; letter-spacing: -0.01em">Colour tokens</h1>
+<p style="margin: 6px 0 20px; font-size: 15px; color: #475766; line-height: 1.4">Contrast is WCAG 2.x against the ground of the same mode, unless the last column says otherwise. Text needs 4.5:1, shape and ring 3:1.</p>
+<table class="tk" style="width: 100%; border-collapse: collapse">
+<thead>
+<tr><th>Token</th><th>Light</th><th>Dark</th><th>Contrast L / D</th><th>Use</th></tr>
+</thead>
+<tbody>
+<tr><td>bg</td><td><span class="sw2" style="background: #F3F6F8"></span><span class="mono">#F3F6F8</span></td><td><span class="sw2" style="background: #000000"></span><span class="mono">#000000</span></td><td>n/a</td><td>Screen ground</td></tr>
+<tr><td>surface</td><td><span class="sw2" style="background: #FFFFFF"></span><span class="mono">#FFFFFF</span></td><td><span class="sw2" style="background: #121F2E"></span><span class="mono">#121F2E</span></td><td>n/a</td><td>List group, Haptics row, Safety note</td></tr>
+<tr><td>fg</td><td><span class="sw2" style="background: #12202C"></span><span class="mono">#12202C</span></td><td><span class="sw2" style="background: #E9F0F6"></span><span class="mono">#E9F0F6</span></td><td class="mono">15.25 / 18.26</td><td>Text, primary button fill (button text is bg: same ratio)</td></tr>
+<tr><td>fg2</td><td><span class="sw2" style="background: #475766"></span><span class="mono">#475766</span></td><td><span class="sw2" style="background: #A7B6C4"></span><span class="mono">#A7B6C4</span></td><td class="mono">6.85 / 10.13</td><td>Secondary text, Stop outline. On surface: 7.44 / 8.03</td></tr>
+<tr><td>ring</td><td><span class="sw2" style="background: #1F7A8C"></span><span class="mono">#1F7A8C</span></td><td><span class="sw2" style="background: #5CC7D6"></span><span class="mono">#5CC7D6</span></td><td class="mono">4.58 / 10.60</td><td>Lit ring arcs, Cancel, switch on</td></tr>
+<tr><td>track</td><td><span class="sw2" style="background: #CBD6DE"></span><span class="mono">#CBD6DE</span></td><td><span class="sw2" style="background: #2B3E53"></span><span class="mono">#2B3E53</span></td><td class="mono">1.36 / 1.92</td><td>Unlit ring, same width as the lit arc. The lit ring against it: 3.37 / 5.53</td></tr>
+<tr><td>outline</td><td><span class="sw2" style="background: #7D8E9C"></span><span class="mono">#7D8E9C</span></td><td><span class="sw2" style="background: #5E7389"></span><span class="mono">#5E7389</span></td><td class="mono">3.11 / 4.29</td><td>Chip outline, switch off, slider track, row glyph holds. On surface: 3.38 / 3.40</td></tr>
+<tr><td>dot-empty</td><td><span class="sw2" style="background: #2F6DB3"></span><span class="mono">#2F6DB3</span></td><td><span class="sw2" style="background: #6FA8E8"></span><span class="mono">#6FA8E8</span></td><td class="mono">4.89 / 8.44</td><td>Dots at Breath level 0</td></tr>
+<tr><td>dot-full</td><td><span class="sw2" style="background: #157A66"></span><span class="mono">#157A66</span></td><td><span class="sw2" style="background: #52D6B6"></span><span class="mono">#52D6B6</span></td><td class="mono">4.83 / 11.65</td><td>Dots at Breath level 1; in between, mix linearly in sRGB</td></tr>
+</tbody>
+</table>
+<h2 style="margin: 28px 0 8px; font-size: 18px; font-weight: 600">Rules in use</h2>
+<ul style="margin: 0; padding: 0 0 0 20px; font-size: 15px; line-height: 1.5; color: #475766">
+<li>The Phase is never carried by colour: the Phase name and the ring position say it. Lit and unlit arcs have the same width and differ in lightness.</li>
+<li>Dots in front of the torus are fully opaque at their depth; back dots are fainter and are decoration. With Reduce Motion, opacity stays between 75% and 100%, so the shape stays above 3:1 in light mode.</li>
+<li>Increase Contrast is not drawn here. Ship it as asset-catalog variants of fg2, outline and ring that are at least one step darker (light) or lighter (dark).</li>
+</ul>
+</main>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":900,"height":980}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

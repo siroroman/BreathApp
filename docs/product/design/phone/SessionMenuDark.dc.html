@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Session menu, dark</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.sw{appearance:none;-webkit-appearance:none;position:relative;flex:none;width:52px;height:32px;margin:0;border-radius:999px;background:var(--outline);transform-origin:right center}
+.sw:checked{background:var(--ring)}
+.sw::after{content:'';position:absolute;top:2px;left:2px;width:28px;height:28px;border-radius:50%;background:#FFFFFF}
+.sw:checked::after{left:22px}
+.t-dark{--pop:#1B2C42;--line:#22344A;--outline:#5E7389;--bg:#000000;--fg:#E9F0F6;--fg2:#A7B6C4;--track:#2B3E53;--ring:#5CC7D6}
+</style>
+</helmet>
+<main class="{{themeClass}}" style="position: relative; width: 390px; height: 844px; box-sizing: border-box; background: var(--bg); color: var(--fg); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 64px 16px 34px">
+<sc-if value="{{isSession}}" hint-placeholder-val="{{ true }}">
+<button aria-label="Settings" aria-haspopup="menu" aria-expanded="true" style="position: absolute; top: {{s.gearTop}}px; right: 16px; display: flex; align-items: center; justify-content: center; width: {{s.gearBox}}px; height: {{s.gearBox}}px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--ring)">
+<svg viewBox="0 0 24 24" aria-hidden="true" style="width: {{s.gearIcon}}px; height: {{s.gearIcon}}px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round">
+<circle cx="12" cy="12" r="3"></circle>
+<path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+</svg>
+</button>
+<div role="menu" aria-label="Settings" style="position: absolute; top: {{s.popTop}}px; right: 16px; z-index: 3; width: {{s.popW}}; box-sizing: border-box; background: var(--pop); border: 1px solid var(--line); border-radius: 22px; box-shadow: 0 12px 32px rgba(0,0,0,0.55)">
+<svg viewBox="0 0 16 9" aria-hidden="true" style="position: absolute; top: -8px; right: {{s.caretR}}px; width: 16px; height: 9px">
+<path d="M0.5 9 L8 1 L15.5 9" style="fill: var(--pop); stroke: var(--line); stroke-width: 1; stroke-linejoin: round"></path>
+</svg>
+<button aria-haspopup="menu" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: {{s.rowH}}px; box-sizing: border-box; padding: 0 16px; font-size: {{s.menuF}}px; font-weight: 500; width: 100%; border: 0; background: transparent; color: var(--fg); font: inherit; font-size: {{s.menuF}}px; font-weight: 500; text-align: left">
+<span>Sounds</span>
+<span style="display: flex; align-items: center; gap: 10px; color: var(--fg2)">
+<span>Soft bell</span>
+<svg viewBox="0 0 12 20" aria-hidden="true" style="flex: none; width: {{s.chev}}px; height: {{s.chevH}}px">
+<path d="M2 7.5 L6 3.5 L10 7.5 M2 12.5 L6 16.5 L10 12.5" style="fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"></path>
+</svg>
+</span>
+</button>
+<label style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: {{s.rowH}}px; box-sizing: border-box; padding: 0 16px; font-size: {{s.menuF}}px; font-weight: 500; border-top: 1px solid var(--line)">
+<span>Sound</span>
+<input class="sw" type="checkbox" role="switch" checked style="transform: scale({{s.swScale}})">
+</label>
+<label style="display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: {{s.rowH}}px; box-sizing: border-box; padding: 0 16px; font-size: {{s.menuF}}px; font-weight: 500; border-top: 1px solid var(--line)">
+<span>Haptics</span>
+<input class="sw" type="checkbox" role="switch" checked style="transform: scale({{s.swScale}})">
+</label>
+</div>
+<div style="display: flex; flex-direction: column; align-items: center; justify-content: space-between; flex: 1; width: 100%">
+<div style="display: flex; flex-direction: column; align-items: center; gap: {{s.gap}}px; width: 100%">
+<div style="text-align: center">
+<div style="font-size: {{s.time}}px; font-weight: 600; line-height: 1.2; font-variant-numeric: tabular-nums">{{time}}</div>
+<div style="font-size: {{s.cap}}px; color: var(--fg2); line-height: 1.3">remaining</div>
+</div>
+<div style="text-align: center">
+<h1 style="margin: 0; font-size: {{s.phase}}px; font-weight: 600; line-height: 1.15; letter-spacing: -0.01em">{{phaseName}}</h1>
+<p style="margin: 4px 0 0; min-height: {{s.subH}}px; font-size: {{s.sub}}px; color: var(--fg2); line-height: 1.4">{{sub}}</p>
+</div>
+</div>
+<div style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: {{s.ring}}px; height: {{s.ring}}px">
+<svg viewBox="0 0 300 300" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%">
+<sc-for list="{{arcs}}" as="a" hint-placeholder-count="8">
+<path d="{{a.d}}" style="{{a.s}}"></path>
+</sc-for>
+</svg>
+<div style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%)">
+<svg viewBox="0 0 200 200" aria-hidden="true" style="display: block; width: {{s.torus}}px; height: {{s.torus}}px">
+<sc-for list="{{dots}}" as="d" hint-placeholder-count="40">
+<circle cx="{{d.x}}" cy="{{d.y}}" r="{{d.r}}" fill="{{d.f}}" opacity="{{d.o}}"></circle>
+</sc-for>
+</svg>
+</div>
+</div>
+<div style="display: flex; flex-direction: {{s.btnDir}}; gap: 12px; width: 100%">
+<button style="flex: 1; min-height: {{s.btnH}}px; border: 0; border-radius: 999px; background: var(--fg); color: var(--bg); font: inherit; font-size: {{s.btnF}}px; font-weight: 600">{{pauseLabel}}</button>
+<button style="flex: 1; min-height: {{s.btnH}}px; border: 2px solid var(--fg2); border-radius: 999px; background: transparent; color: var(--fg); font: inherit; font-size: {{s.btnF}}px; font-weight: 600">Stop</button>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{isComplete}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; align-items: center; justify-content: space-between; flex: 1; width: 100%">
+<div></div>
+<div style="display: flex; flex-direction: column; align-items: center; gap: 24px; text-align: center">
+<svg viewBox="0 0 200 200" aria-hidden="true" style="display: block; width: {{s.doneTorus}}px; height: {{s.doneTorus}}px">
+<sc-for list="{{doneDots}}" as="d" hint-placeholder-count="40">
+<circle cx="{{d.x}}" cy="{{d.y}}" r="{{d.r}}" fill="{{d.f}}" opacity="{{d.o}}"></circle>
+</sc-for>
+</svg>
+<div>
+<h1 style="margin: 0; font-size: {{s.doneTitle}}px; font-weight: 600; line-height: 1.15; letter-spacing: -0.01em">Session complete</h1>
+<p style="margin: 8px 0 0; font-size: {{s.doneSub}}px; color: var(--fg2); line-height: 1.4">Box breathing · 19 Cycles · 5:04</p>
+</div>
+</div>
+<button style="width: 100%; min-height: {{s.btnH}}px; border: 0; border-radius: 999px; background: var(--fg); color: var(--bg); font: inherit; font-size: {{s.btnF}}px; font-weight: 600">Done</button>
+</div>
+</sc-if>
+</main>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"ax":{"editor":"boolean","default":false},"rm":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+const pr = this.props;
+const theme = 'dark';
+const mode = 'inhale';
+const ax = pr.ax === true || pr.ax === 'true';
+const rm = pr.rm === true || pr.rm === 'true';
+const torusDots = (level, rm) => {
+const A = [111, 168, 232], B = [82, 214, 182];
+const fill = '#' + A.map((a, i) => Math.round(a + (B[i] - a) * level).toString(16).padStart(2, '0')).join('');
+const scale = rm ? 0.72 : 0.64 + 0.16 * level;
+const ratio = rm ? 0.53 : 0.42 + 0.22 * level;
+const Rc = (scale * 100) / (1 + ratio);
+const r = ratio * Rc;
+const base = rm ? 1.7 : 1.15 + 0.75 * level;
+const bright = rm ? 0.75 + 0.25 * level : 1;
+const dots = [];
+for (let i = 1; i <= 620; i++) {
+const u = ((i * 0.6180339887) % 1) * 2 * Math.PI;
+const v = ((i * 0.7548776662) % 1) * 2 * Math.PI;
+const rho = Rc + r * Math.cos(v);
+const t = (Math.sin(v) + 1) / 2;
+dots.push({ x: +(100 + rho * Math.cos(u)).toFixed(1), y: +(100 + rho * Math.sin(u)).toFixed(1), r: +(base * (0.75 + 0.5 * t)).toFixed(2), o: +((0.45 + 0.55 * t) * bright).toFixed(2), f: fill, t: t });
+}
+dots.sort((a, b) => a.t - b.t);
+return dots;
+};
+const ease = (p) => (1 - Math.cos(Math.PI * p)) / 2;
+const M = {
+leadin: { name: 'Get ready', sub: 'Starting in 3', cur: -1, p: 0, n: 0, level: 0, time: '5:04' },
+inhale: { name: 'Inhale', sub: '', cur: 0, p: 0.55, n: 0, level: ease(0.55), time: '4:42' },
+hold: { name: 'Hold', sub: '', cur: 1, p: 1, n: 2, level: 1, time: '4:36' },
+exhale: { name: 'Exhale', sub: '', cur: 2, p: 0.4, n: 0, level: 1 - ease(0.4), time: '4:29' },
+paused: { name: 'Inhale', sub: 'Paused', cur: 0, p: 0.45, n: 0, level: ease(0.45), time: '4:41' },
+complete: { name: '', sub: '', cur: -1, p: 0, n: 0, level: 0, time: '' }
+};
+const st = M[mode] || M.inhale;
+const s = ax
+? { popTop: 138, popW: 'calc(100% - 32px)', caretR: 24, rowH: 92, menuF: 40, swScale: 1.5, chev: 14, chevH: 24, gearTop: 64, gearBox: 64, gearIcon: 38, gap: 16, time: 52, cap: 26, phase: 60, sub: 32, subH: 45, ring: 230, torus: 194, btnH: 76, btnF: 32, btnDir: 'column', doneTorus: 190, doneTitle: 52, doneSub: 32 }
+: { popTop: 110, popW: '280px', caretR: 14, rowH: 48, menuF: 17, swScale: 1, chev: 10, chevH: 17, gearTop: 56, gearBox: 44, gearIcon: 26, gap: 24, time: 32, cap: 13, phase: 44, sub: 17, subH: 24, ring: 330, torus: 278, btnH: 54, btnF: 19, btnDir: 'row', doneTorus: 240, doneTitle: 32, doneSub: 17 };
+const cx = 150, cy = 150, R = 140;
+const pt = (deg) => { const a = deg * Math.PI / 180; return [cx + R * Math.sin(a), cy - R * Math.cos(a)]; };
+const arc = (d0, d1) => {
+const a = pt(d0), b = pt(d1);
+return 'M ' + a[0].toFixed(2) + ' ' + a[1].toFixed(2) + ' A ' + R + ' ' + R + ' 0 ' + ((d1 - d0) > 180 ? 1 : 0) + ' 1 ' + b[0].toFixed(2) + ' ' + b[1].toFixed(2);
+};
+const lit = 'fill:none;stroke:var(--ring);stroke-width:8;stroke-linecap:round';
+const track = 'fill:none;stroke:var(--track);stroke-width:8;stroke-linecap:round';
+const kinds = ['move', 'hold', 'move', 'hold'];
+const arcs = [];
+kinds.forEach((k, i) => {
+const a0 = i * 90 + 4, a1 = (i + 1) * 90 - 4;
+if (k === 'move') {
+arcs.push({ d: arc(a0, a1), s: track });
+if (st.cur > i) arcs.push({ d: arc(a0, a1), s: lit });
+else if (st.cur === i && st.p > 0.01) arcs.push({ d: arc(a0, a0 + (a1 - a0) * st.p), s: lit });
+} else {
+const seg = (a1 - a0) / 4;
+for (let j = 0; j < 4; j++) {
+const on = st.cur > i || (st.cur === i && j < st.n);
+arcs.push({ d: arc(a0 + j * seg + 1.6, a0 + (j + 1) * seg - 1.6), s: on ? lit : track });
+}
+}
+});
+return {
+themeClass: 't-' + theme,
+theme: theme,
+rm: rm,
+s: s,
+isSession: mode !== 'complete',
+isComplete: mode === 'complete',
+phaseName: st.name,
+sub: st.sub,
+time: st.time,
+level: st.level,
+arcs: arcs,
+dots: torusDots(st.level, rm),
+doneDots: torusDots(0, rm),
+pauseLabel: mode === 'paused' ? 'Resume' : 'Pause'
+};
+}
+}
+</script>
+</body>
+</html>
