@@ -9,7 +9,8 @@ Stav k 2026-10-29. Odovzdávací dokument medzi sessions. Hotové body maž, aby
   - squash merge,
   - guardrails hook proti deštruktívnym git príkazom,
   - `/setup-matt-pocock-skills` (GitHub Issues, predvolené triage štítky, single-context),
-  - kostra `docs/agents/` a subagentov.
+  - kostra `docs/agents/` a subagentov,
+  - iOS feedback loop: XcodeGen, `BreathnestKit`, Makefile, simulátor na worktree, hooky (`docs/agents/commands.md`).
 - Product brief, prepis hlasovej poznámky a vizuálne referencie sú v `docs/product/`.
 - Mapa (#8) a špecifikácia (#22) sú hotové. Tickety sú pod #22: Kit (#23 až #26), iPhone (#28 až #36, #54 až #60), Watch (#38 až #51).
 - Rozhodnuté: v1 len iPhone, iOS 26+, zadarmo, systém najprv v tomto repe.
@@ -20,21 +21,8 @@ Stav k 2026-10-29. Odovzdávací dokument medzi sessions. Hotové body maž, aby
 1. Skontroluj draft PR #61 (iPhone dizajn do docs) a zmerguj ho.
 2. Rozhodni otvorené body dizajnu v #53. Najprv Safety note a light mode, blokujú #28. Potom slider vs 4-7-8, Settings, pravidlá Logu a pripomienok.
 3. Rozhodni zvuky v #49 (platí pre Watch aj iPhone).
-4. Spusti iOS feedback loop (sekcia 2). Bez neho sa nedá začať ani #23, ani #28.
 
-## 2. Paralelne: iOS feedback loop (samostatná session)
-
-Nezávisí od mapy, potrebuje len bundle ID (návrh `com.siroroman.breathnest`).
-
-- XcodeGen `project.yml` (`.xcodeproj` je v `.gitignore`).
-- Lokálny Swift package `BreathnestKit` len s Foundation, `swift test` bez simulátora.
-- Makefile: `gen`, `build`, `test`, `lint`, `format`, `run`, výstup cez `xcbeautify --quiet`.
-- Simulátor s pevným menom, klon na každý worktree.
-- swiftformat hook, povolenia bezpečných príkazov, Stop hook `make lint test`.
-- Vyplniť TODO v `docs/agents/{commands,ios,testing,definition-of-done,workflow}.md`.
-- Doménovú logiku bez UI zapísať do ADR (kvôli Watch neskôr a AFK ticketom v cloude).
-
-## 3. Po feedback loope
+## 3. Implementácia
 
 `/implement` na #23 (Kit). Prvý ticket ide HITL v čerstvej session, review v ďalšej čerstvej. Potom AFK pod dozorom, potom paralelné worktree. Poradie: Kit (#23 až #26), potom obrazovky (#28, #29), potom tvar, kruh a haptika (#30 až #32). Ďalšie iPhone časti (#54 až #60) idú až po #53.
 

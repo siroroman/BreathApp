@@ -16,3 +16,4 @@ Decided in [#12](https://github.com/siroroman/BreathApp/issues/12), amended by [
 
 - **No text in the Kit.** `Exercise` carries its fixed ID, Pattern and Duration options. Names, Phase names and spoken strings are looked up in the String Catalog by the app.
 - **Feel numbers are Kit data.** The Breath level curve is a pure function and the Haptic plan is plain data, both tested by `swift test`, although a Watch would play its own haptics. The Watch can ignore the plan and reuse the level curve. A thin adapter in the app turns the plan into `CHHapticPattern`.
+- **Wiring.** `BreathnestKit/` is a local package (`Package.swift`) that the app target depends on through `project.yml`. `make test-kit` runs `swift test` on it without a simulator, which is the inner loop of every Kit ticket. The Kit declares iOS, macOS and watchOS 26 as platforms so the Watch can reuse it.
