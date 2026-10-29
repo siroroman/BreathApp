@@ -34,7 +34,7 @@ The first end-to-end slice: **exercise list → exercise detail → breathing se
 
 | Topic | Decision |
 |---|---|
-| Platforms | iPhone only in v1. Apple Watch later, so the domain logic stays in a UI-free Swift package. |
+| Platforms | iPhone in v1, plus an Apple Watch app designed in [watch-design.md](watch-design.md) and specified in [#22](https://github.com/siroroman/BreathApp/issues/22). The domain logic stays in a UI-free Swift package so both apps share it. |
 | Minimum OS | iOS 26 |
 | Business model | Free, no paywall, no StoreKit in v1 |
 | Reusable system | Built in this repo first, extracted into a template or plugin after the tracer bullet |
@@ -48,7 +48,7 @@ The first end-to-end slice: **exercise list → exercise detail → breathing se
 
 ## Out of scope for v1
 
-- Apple Watch app
+- iPhone and Apple Watch sync, complications
 - Paywall and StoreKit
 - HealthKit (Mindful Minutes)
 - Live Activities, widgets, reminders

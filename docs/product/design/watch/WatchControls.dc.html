@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Watch controls</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.w{--bg:#000000;--fg:#E9F0F6;--fg2:#A7B6C4;--track:#2B3E53;--ring:#5CC7D6}
+</style>
+</helmet>
+<main class="w" style="width: 396px; height: 484px; box-sizing: border-box; background: var(--bg); color: var(--fg); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif; display: flex; flex-direction: column; padding: 32px 20px 28px">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 10px 14px">
+<h1 style="margin: 0; font-size: 32px; font-weight: 600; line-height: 1.15">Box</h1>
+<p style="margin: 0; font-size: 32px; font-weight: 600; line-height: 1.15; font-variant-numeric: tabular-nums">{{time}}</p>
+</div>
+<div style="display: flex; flex-direction: column; justify-content: center; gap: 14px; flex: 1; padding: 0 10px 34px">
+<sc-if value="{{isRunning}}" hint-placeholder-val="{{ true }}">
+<button style="flex: none; height: 92px; display: flex; align-items: center; justify-content: center; gap: 16px; border: 0; border-radius: 999px; background: var(--fg); color: var(--bg); font: inherit; font-size: 34px; font-weight: 600">
+<svg viewBox="0 0 24 28" aria-hidden="true" style="width: 26px; height: 30px">
+<rect x="2" y="2" width="7" height="24" rx="2" style="fill: currentColor"></rect>
+<rect x="15" y="2" width="7" height="24" rx="2" style="fill: currentColor"></rect>
+</svg>
+Pause
+</button>
+</sc-if>
+<sc-if value="{{isPaused}}" hint-placeholder-val="{{ false }}">
+<button style="flex: none; height: 92px; display: flex; align-items: center; justify-content: center; gap: 16px; border: 0; border-radius: 999px; background: var(--fg); color: var(--bg); font: inherit; font-size: 34px; font-weight: 600">
+<svg viewBox="0 0 12 14" aria-hidden="true" style="width: 24px; height: 28px">
+<path d="M1 1 L11 7 L1 13 Z" style="fill: currentColor"></path>
+</svg>
+Resume
+</button>
+</sc-if>
+<button style="flex: none; height: 92px; display: flex; align-items: center; justify-content: center; gap: 16px; border: 2px solid var(--fg2); border-radius: 999px; background: transparent; color: var(--fg); font: inherit; font-size: 34px; font-weight: 600">
+<svg viewBox="0 0 24 24" aria-hidden="true" style="width: 26px; height: 26px">
+<rect x="3" y="3" width="18" height="18" rx="4" style="fill: currentColor"></rect>
+</svg>
+Stop
+</button>
+</div>
+</main>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"enum","default":"running","options":["running","paused"]},"$preview":{"width":396,"height":484}}'>
+class Component extends DCLogic {
+renderVals() {
+const paused = this.props.mode === 'paused';
+return {
+isRunning: !paused,
+isPaused: paused,
+time: '4:42'
+};
+}
+}
+</script>
+</body>
+</html>

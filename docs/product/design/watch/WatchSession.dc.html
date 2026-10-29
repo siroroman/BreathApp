@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Watch session</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.w{--bg:#000000;--fg:#E9F0F6;--fg2:#A7B6C4;--track:#2B3E53;--ring:#5CC7D6}
+</style>
+</helmet>
+<main class="w" style="width: 396px; height: 484px; box-sizing: border-box; background: var(--bg); color: var(--fg); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif; position: relative; display: flex; flex-direction: column; align-items: center; padding: 32px 30px 28px">
+<sc-if value="{{isSession}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; align-items: center; justify-content: space-between; flex: 1; width: 100%">
+<div style="width: 100%">
+<div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px">
+<h1 style="margin: 0; font-size: 32px; font-weight: 600; line-height: 1.15">Box</h1>
+<div style="font-size: 32px; font-weight: 600; line-height: 1.15; font-variant-numeric: tabular-nums">{{time}}</div>
+</div>
+</div>
+<div style="position: absolute; left: 50%; top: 50%; width: 256px; height: 256px; transform: translate(-50%, -50%)">
+<svg viewBox="0 0 300 300" aria-hidden="true" style="position: absolute; left: 0; top: 0; width: 100%; height: 100%">
+<sc-for list="{{arcs}}" as="a" hint-placeholder-count="8">
+<path d="{{a.d}}" style="{{a.s}}"></path>
+</sc-for>
+</svg>
+<sc-if value="{{showTorus}}" hint-placeholder-val="{{ true }}">
+<div style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%)">
+<dc-import name="Torus" level="{{level}}" rm="false" theme="dark" size="216" hint-size="216px,216px"></dc-import>
+</div>
+</sc-if>
+<sc-if value="{{hasCount}}" hint-placeholder-val="{{ false }}">
+<p aria-live="polite" style="position: absolute; left: 50%; top: 50%; margin: 0; transform: translate(-50%, -50%); font-size: 160px; font-weight: 600; line-height: 1; font-variant-numeric: tabular-nums">{{count}}</p>
+</sc-if>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{isComplete}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; width: 100%; margin: 0 6px; text-align: center">
+<dc-import name="Torus" level="0" rm="false" theme="dark" size="100" hint-size="100px,100px"></dc-import>
+<h1 style="margin: 10px 0 0; font-size: 32px; font-weight: 600; line-height: 1.15">Session complete</h1>
+<p style="margin: 6px 0 0; font-size: 32px; color: var(--fg2); line-height: 1.2">Box breathing</p>
+<p style="margin: 18px 0 0; font-size: 32px; font-weight: 600; line-height: 1.2; color: var(--ring); font-variant-numeric: tabular-nums">19 Cycles · 5:04</p>
+<button style="width: 100%; min-height: 76px; margin-top: 28px; border: 0; border-radius: 999px; background: var(--fg); color: var(--bg); font: inherit; font-size: 32px; font-weight: 600">Done</button>
+</div>
+</sc-if>
+</main>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"enum","default":"inhale","options":["leadin","leadin2","leadin1","inhale","hold","exhale","paused","complete"]},"$preview":{"width":396,"height":484}}'>
+class Component extends DCLogic {
+renderVals() {
+const mode = this.props.mode ?? 'inhale';
+const ease = (p) => (1 - Math.cos(Math.PI * p)) / 2;
+const M = {
+leadin: { name: '', sub: '', count: '3', cur: -1, p: 0, n: 0, level: 0, time: '5:04' },
+leadin2: { name: '', sub: '', count: '2', cur: -1, p: 0, n: 0, level: 0, time: '5:04' },
+leadin1: { name: '', sub: '', count: '1', cur: -1, p: 0, n: 0, level: 0, time: '5:04' },
+inhale: { name: 'Inhale', sub: '', cur: 0, p: 0.55, n: 0, level: ease(0.55), time: '4:42' },
+hold: { name: 'Hold', sub: '', cur: 1, p: 1, n: 2, level: 1, time: '4:36' },
+exhale: { name: 'Exhale', sub: '', cur: 2, p: 0.4, n: 0, level: 1 - ease(0.4), time: '4:29' },
+paused: { name: 'Paused', sub: '', cur: 0, p: 0.45, n: 0, level: ease(0.45), time: '4:41' },
+complete: { name: '', sub: '', cur: -1, p: 0, n: 0, level: 0, time: '' }
+};
+const st = M[mode] || M.inhale;
+const cx = 150, cy = 150, R = 140;
+const pt = (deg) => { const a = deg * Math.PI / 180; return [cx + R * Math.sin(a), cy - R * Math.cos(a)]; };
+const arc = (d0, d1) => {
+const a = pt(d0), b = pt(d1);
+return 'M ' + a[0].toFixed(2) + ' ' + a[1].toFixed(2) + ' A ' + R + ' ' + R + ' 0 ' + ((d1 - d0) > 180 ? 1 : 0) + ' 1 ' + b[0].toFixed(2) + ' ' + b[1].toFixed(2);
+};
+const lit = 'fill:none;stroke:var(--ring);stroke-width:10;stroke-linecap:round';
+const track = 'fill:none;stroke:var(--track);stroke-width:10;stroke-linecap:round';
+const kinds = ['move', 'hold', 'move', 'hold'];
+const arcs = [];
+kinds.forEach((k, i) => {
+const a0 = i * 90 + 4, a1 = (i + 1) * 90 - 4;
+if (k === 'move') {
+arcs.push({ d: arc(a0, a1), s: track });
+if (st.cur > i) arcs.push({ d: arc(a0, a1), s: lit });
+else if (st.cur === i && st.p > 0.01) arcs.push({ d: arc(a0, a0 + (a1 - a0) * st.p), s: lit });
+} else {
+const seg = (a1 - a0) / 4;
+for (let j = 0; j < 4; j++) {
+const on = st.cur > i || (st.cur === i && j < st.n);
+arcs.push({ d: arc(a0 + j * seg + 1.6, a0 + (j + 1) * seg - 1.6), s: on ? lit : track });
+}
+}
+});
+return {
+isSession: mode !== 'complete',
+isComplete: mode === 'complete',
+hasCount: !!st.count,
+showTorus: !st.count,
+count: st.count || '',
+phaseName: st.name,
+sub: st.sub,
+time: st.time,
+level: st.level,
+arcs: arcs
+};
+}
+}
+</script>
+</body>
+</html>

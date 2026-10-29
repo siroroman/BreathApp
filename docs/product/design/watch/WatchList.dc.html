@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Watch exercises</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.w{--bg:#000000;--fg:#E9F0F6;--fg2:#A7B6C4;--track:#2B3E53;--outline:#5E7389;--ring:#5CC7D6;--surface:#14202E}
+</style>
+</helmet>
+<main class="w" style="width: 396px; height: 484px; box-sizing: border-box; background: var(--bg); color: var(--fg); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', system-ui, sans-serif; padding: 32px 20px 0; overflow: hidden">
+<h1 style="margin: 0 10px 14px; font-size: 32px; font-weight: 600; line-height: 1.15">Exercises</h1>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<section style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; background: var(--surface); color: var(--fg); border-radius: 28px">
+<div style="min-width: 0">
+<p style="margin: 0; font-size: 24px; line-height: 1.2; font-weight: 500; color: var(--fg2)">Quick Start</p>
+<p style="margin: 2px 0 0; font-size: 32px; font-weight: 600; line-height: 1.2">Box breathing</p>
+<p style="margin: 2px 0 0; font-size: 26px; line-height: 1.2; color: var(--fg2)">5 min</p>
+</div>
+<button aria-label="Start Box breathing" style="flex: none; display: flex; align-items: center; justify-content: center; width: 72px; height: 72px; border: 0; border-radius: 50%; background: var(--ring)">
+<svg viewBox="0 0 12 14" aria-hidden="true" style="width: 24px; height: 28px; margin-left: 4px">
+<path d="M1 1 L11 7 L1 13 Z" style="fill: #04141A"></path>
+</svg>
+</button>
+</section>
+<sc-for list="{{items}}" as="it" hint-placeholder-count="4">
+<button style="display: flex; align-items: center; gap: 14px; width: 100%; box-sizing: border-box; padding: 14px 20px; border: 0; border-radius: 28px; background: var(--surface); color: inherit; font: inherit; text-align: left">
+<svg viewBox="0 0 44 44" aria-hidden="true" style="flex: none; width: 56px; height: 56px">
+<sc-for list="{{it.segs}}" as="g" hint-placeholder-count="3">
+<path d="{{g.d}}" style="{{g.s}}"></path>
+</sc-for>
+</svg>
+<span style="flex: 1; min-width: 0">
+<span style="display: block; font-size: 32px; font-weight: 600; line-height: 1.2">{{it.name}}</span>
+<span style="display: block; margin-top: 2px; font-size: 26px; color: var(--fg2); line-height: 1.2; font-variant-numeric: tabular-nums">{{it.pattern}}</span>
+</span>
+</button>
+</sc-for>
+</div>
+</main>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":396,"height":484}}'>
+class Component extends DCLogic {
+renderVals() {
+const cx = 22, cy = 22, R = 17;
+const pt = (deg) => { const a = deg * Math.PI / 180; return [cx + R * Math.sin(a), cy - R * Math.cos(a)]; };
+const arc = (d0, d1) => {
+const a = pt(d0), b = pt(d1);
+return 'M ' + a[0].toFixed(2) + ' ' + a[1].toFixed(2) + ' A ' + R + ' ' + R + ' 0 ' + ((d1 - d0) > 180 ? 1 : 0) + ' 1 ' + b[0].toFixed(2) + ' ' + b[1].toFixed(2);
+};
+const move = 'fill:none;stroke:var(--ring);stroke-width:4;stroke-linecap:round';
+const hold = 'fill:none;stroke:var(--outline);stroke-width:4;stroke-linecap:round';
+const segs = (parts, kinds) => {
+const total = parts.reduce((x, y) => x + y, 0);
+const gap = 16;
+let a = 0;
+return parts.map((w, i) => {
+const span = 360 * w / total;
+const out = { d: arc(a + gap / 2, a + span - gap / 2), s: kinds[i] === 'h' ? hold : move };
+a += span;
+return out;
+});
+};
+const rows = [
+{ name: 'Box breathing', pattern: '4 · 4 · 4 · 4', parts: [4, 4, 4, 4], kinds: ['m', 'h', 'm', 'h'] },
+{ name: '4-7-8', pattern: '4 · 7 · 8', parts: [4, 7, 8], kinds: ['m', 'h', 'm'] },
+{ name: 'Coherent breathing', pattern: '5.5 · 5.5', parts: [5.5, 5.5], kinds: ['m', 'm'] },
+{ name: 'Physiological sigh', pattern: '2 · 1 · 6', parts: [2, 1, 6], kinds: ['m', 'm', 'm'] }
+];
+return { items: rows.map((r) => ({ name: r.name, pattern: r.pattern, segs: segs(r.parts, r.kinds) })) };
+}
+}
+</script>
+</body>
+</html>
