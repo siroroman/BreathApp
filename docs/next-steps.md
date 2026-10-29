@@ -9,7 +9,8 @@ Stav k 2026-10-23. Odovzdávací dokument medzi sessions. Hotové body maž, aby
   - squash merge,
   - guardrails hook proti deštruktívnym git príkazom,
   - `/setup-matt-pocock-skills` (GitHub Issues, predvolené triage štítky, single-context),
-  - kostra `docs/agents/` a subagentov.
+  - kostra `docs/agents/` a subagentov,
+  - iOS feedback loop: XcodeGen, `BreathnestKit`, Makefile, simulátor na worktree, hooky (`docs/agents/commands.md`).
 - Product brief, prepis hlasovej poznámky a vizuálne referencie sú v `docs/product/`.
 - Rozhodnuté: v1 len iPhone, iOS 26+, zadarmo, systém najprv v tomto repe.
 - Vizuál vznikne cez Claude Design až po špecifikácii.
@@ -21,18 +22,6 @@ Stav k 2026-10-23. Odovzdávací dokument medzi sessions. Hotové body maž, aby
 3. `/wayfinder` s destináciou: „Spec for the Breathnest tracer bullet (list → detail → breathing session), ready for `/to-tickets`.“
    - Do Notes: `swiftui-expert-skill`, `swift-concurrency-pro`, `domain-modeling`.
    - Mal by vzniknúť research ticket o technikách, prototype o pocite z kruhu a haptiky a grilling o rozsahu MVP.
-
-## 2. Paralelne: iOS feedback loop (samostatná session)
-
-Nezávisí od mapy, potrebuje len bundle ID (návrh `com.siroroman.breathnest`).
-
-- XcodeGen `project.yml` (`.xcodeproj` je v `.gitignore`).
-- Lokálny Swift package `BreathnestKit` len s Foundation, `swift test` bez simulátora.
-- Makefile: `gen`, `build`, `test`, `lint`, `format`, `run`, výstup cez `xcbeautify --quiet`.
-- Simulátor s pevným menom, klon na každý worktree.
-- swiftformat hook, povolenia bezpečných príkazov, Stop hook `make lint test`.
-- Vyplniť TODO v `docs/agents/{commands,ios,testing,definition-of-done,workflow}.md`.
-- Doménovú logiku bez UI zapísať do ADR (kvôli Watch neskôr a AFK ticketom v cloude).
 
 ## 3. Po mape
 

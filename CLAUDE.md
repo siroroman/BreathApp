@@ -4,6 +4,10 @@
 
 GitHub flow with Conventional Commits, checked by the `commit-msg` hook (`git config core.hooksPath .githooks`). Read `docs/agents/git.md` before creating a branch, commit or pull request.
 
+## Build and run
+
+`make gen build test lint` must pass, `make run` launches the app on the simulator. Read `docs/agents/commands.md` for the commands and `docs/agents/ios.md` before touching Swift code.
+
 ## Skills
 
 Before installing a Claude Code skill, read `docs/agents/skills.md` (Node version check, verifying leaderboard counts).

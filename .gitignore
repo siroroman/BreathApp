@@ -1,7 +1,7 @@
 # macOS
 .DS_Store
 
-# Xcode (project is generated, see project.yml once added)
+# Xcode (project is generated, see project.yml)
 *.xcodeproj
 *.xcworkspace
 xcuserdata/

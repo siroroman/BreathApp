@@ -1,4 +1,32 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(make gen)",
+      "Bash(make build)",
+      "Bash(make test)",
+      "Bash(make test-kit)",
+      "Bash(make test-app)",
+      "Bash(make lint)",
+      "Bash(make format)",
+      "Bash(make run)",
+      "Bash(make screenshot)",
+      "Bash(make sim)",
+      "Bash(scripts/simulator.sh:*)",
+      "Bash(swift test:*)",
+      "Bash(swift build:*)",
+      "Bash(swiftformat:*)",
+      "Bash(xcodegen generate:*)",
+      "Bash(xcrun simctl list:*)",
+      "Bash(xcrun simctl io:*)",
+      "Bash(xcrun simctl launch:*)",
+      "Bash(xcrun simctl terminate:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(gh issue view:*)",
+      "Bash(gh pr view:*)"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {
@@ -7,6 +35,28 @@
           {
             "type": "command",
             "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-dangerous-git.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/format-swift.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/stop-check.sh",
+            "timeout": 600
           }
         ]
       }
