@@ -3,9 +3,10 @@
 #   scripts/simulator.sh          print the UDID
 #   scripts/simulator.sh boot     print the UDID after booting the simulator
 #
-# A base simulator named "Breathnest" (iPhone 17 Pro, iOS 26.2) is the template. Every other worktree
-# gets a clone named "Breathnest-<worktree folder>", so parallel sessions never share a running device.
-# The main checkout uses the base simulator itself. Details: docs/agents/ios.md
+# The main checkout uses a simulator named "Breathnest" (iPhone 17 Pro, iOS 26.2). Every other worktree
+# gets its own, named "Breathnest-<worktree folder>", so parallel sessions never share a running device.
+# A device is created, never cloned: `simctl clone` needs its source shut down, which would kill the
+# simulator another session is using. Details: docs/agents/ios.md
 set -euo pipefail
 
 DEVICE_TYPE="com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro"
@@ -27,17 +28,7 @@ find_udid() {
 
 UDID=$(find_udid "$NAME")
 if [ -z "$UDID" ]; then
-  BASE=$(find_udid "$BASE_NAME")
-  if [ -z "$BASE" ]; then
-    BASE=$(xcrun simctl create "$BASE_NAME" "$DEVICE_TYPE" "$RUNTIME")
-  fi
-  if [ "$NAME" = "$BASE_NAME" ]; then
-    UDID=$BASE
-  else
-    # simctl clone needs the template shut down.
-    xcrun simctl shutdown "$BASE" 2>/dev/null || true
-    UDID=$(xcrun simctl clone "$BASE" "$NAME")
-  fi
+  UDID=$(xcrun simctl create "$NAME" "$DEVICE_TYPE" "$RUNTIME")
 fi
 
 if [ "${1:-}" = boot ]; then

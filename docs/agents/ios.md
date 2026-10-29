@@ -15,10 +15,10 @@ Product name Breathnest, bundle ID `com.siroroman.breathnest`, iPhone only (`TAR
 
 `scripts/simulator.sh` owns the simulator, the Makefile calls it.
 
-- The template is a simulator named **`Breathnest`** (iPhone 17 Pro, iOS 26.2). It is created on first use.
-- The main checkout uses the template itself. Every linked worktree gets a clone named **`Breathnest-<worktree folder>`**, made with `simctl clone`, so parallel sessions never fight over one running device.
+- The main checkout uses a simulator named **`Breathnest`** (iPhone 17 Pro, iOS 26.2). It is created on first use.
+- Every linked worktree gets its own named **`Breathnest-<worktree folder>`**, created the same way, so parallel sessions never fight over one running device. It is created with `simctl create`, not `simctl clone`: a clone needs its source shut down, which would stop the simulator another session is running.
 - `make run` boots this checkout's simulator; `scripts/simulator.sh` prints its UDID. Always pass the UDID, never `booted`, because several simulators may be running.
-- Delete a clone together with its worktree: `xcrun simctl delete "Breathnest-<folder>"`.
+- Delete a worktree's simulator together with its worktree: `xcrun simctl delete "Breathnest-<folder>"`.
 - To test on another OS version, change `RUNTIME` in `scripts/simulator.sh`, not the Makefile.
 
 ## Conventions

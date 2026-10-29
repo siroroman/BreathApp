@@ -25,7 +25,7 @@ An AFK session that hits a decision it cannot make stops and writes the question
 4. `make build test lint`, and `make run screenshot` for UI ([commands](commands.md)).
 5. Push the feature branch, open a **draft** PR with the `pr` skill. Check CI.
 6. Review in a **fresh** session with `/code-review`, never in the session that wrote the code. Fix findings, then mark the PR ready.
-7. The user merges (squash). Do not merge yourself unless asked. Afterwards remove the worktree and its simulator clone (`xcrun simctl delete "Breathnest-<folder>"`).
+7. The user merges (squash). Do not merge yourself unless asked. Afterwards remove the worktree and its simulator (`xcrun simctl delete "Breathnest-<folder>"`).
 
 ## Handoffs
 
