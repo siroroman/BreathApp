@@ -1,6 +1,6 @@
 # Breathnest: ďalšie kroky
 
-Stav k 2026-10-23. Odovzdávací dokument medzi sessions. Hotové body maž, aby nezavádzal.
+Stav k 2026-10-29. Odovzdávací dokument medzi sessions. Hotové body maž, aby nezavádzal.
 
 ## Kde sme
 
@@ -12,20 +12,19 @@ Stav k 2026-10-23. Odovzdávací dokument medzi sessions. Hotové body maž, aby
   - kostra `docs/agents/` a subagentov,
   - iOS feedback loop: XcodeGen, `BreathnestKit`, Makefile, simulátor na worktree, hooky (`docs/agents/commands.md`).
 - Product brief, prepis hlasovej poznámky a vizuálne referencie sú v `docs/product/`.
+- Mapa (#8) a špecifikácia (#22) sú hotové. Tickety sú pod #22: Kit (#23 až #26), iPhone (#28 až #36, #54 až #60), Watch (#38 až #51).
 - Rozhodnuté: v1 len iPhone, iOS 26+, zadarmo, systém najprv v tomto repe.
-- Vizuál vznikne cez Claude Design až po špecifikácii.
+- Vizuál je hotový v Claude Design: `docs/product/phone-design.md` (iPhone) a `docs/product/watch-design.md` (Watch), zdroje v `docs/product/design/`. Návrhy sú záväzné.
 
 ## 1. Teraz (ty)
 
-1. Skontroluj stĺpec „Take“ v `docs/product/references/README.md` a oprav, čo nesedí.
-2. `/observe` s odkazom na sekciu „How the system is measured“ v `docs/product/brief.md`.
-3. `/wayfinder` s destináciou: „Spec for the Breathnest tracer bullet (list → detail → breathing session), ready for `/to-tickets`.“
-   - Do Notes: `swiftui-expert-skill`, `swift-concurrency-pro`, `domain-modeling`.
-   - Mal by vzniknúť research ticket o technikách, prototype o pocite z kruhu a haptiky a grilling o rozsahu MVP.
+1. Skontroluj draft PR #61 (iPhone dizajn do docs) a zmerguj ho.
+2. Rozhodni otvorené body dizajnu v #53. Najprv Safety note a light mode, blokujú #28. Potom slider vs 4-7-8, Settings, pravidlá Logu a pripomienok.
+3. Rozhodni zvuky v #49 (platí pre Watch aj iPhone).
 
-## 3. Po mape
+## 3. Implementácia
 
-`/to-spec` → `/to-tickets` → `/implement`. Prvý ticket ide HITL v čerstvej session, review v ďalšej čerstvej. Potom AFK pod dozorom, potom paralelné worktree.
+`/implement` na #23 (Kit). Prvý ticket ide HITL v čerstvej session, review v ďalšej čerstvej. Potom AFK pod dozorom, potom paralelné worktree. Poradie: Kit (#23 až #26), potom obrazovky (#28, #29), potom tvar, kruh a haptika (#30 až #32). Ďalšie iPhone časti (#54 až #60) idú až po #53.
 
 Pravidlá: jeden ticket na jednu session (približne 100K tokenov), reset namiesto compactu, odovzdanie cez ticket alebo ADR.
 

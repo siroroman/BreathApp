@@ -13,18 +13,20 @@ Two goals, and when they conflict the first one wins:
 
 ## Screens
 
+The designed screens are in [phone-design.md](phone-design.md) (iPhone) and [watch-design.md](watch-design.md) (Apple Watch). The sketch below is the original intent; the designs refine it.
+
 ### Exercises
 
 - **Quick Start** at the top repeats the last session in one tap: the same exercise, duration and settings.
-- Below it, the **list of exercises**. Each row has:
-  - an icon and the name,
-  - the phase pattern (inhale, hold, exhale, rest), for example `4 · 7 · 8`,
-  - a play button and an edit button.
+- Below it, a **Custom exercise** row and the **list of exercises**. Each row has a glyph of the phase pattern, the name and the pattern (inhale, hold, exhale, rest), for example `4 · 7 · 8`. The whole row is one tap target; there is no play or edit button on a row.
 
-### History
+### Stats
 
-- At the top, a **weekly view** of the days with practice, similar to the Activity app on iPhone.
-- Below it, the full **chronological list of sessions**.
+- A second tab with two sections. **Stats**: a **weekly view** of the days with practice, similar to the Activity app on iPhone, and the **chronological log of sessions**. **Reminder**: reminders at chosen times and days.
+
+### Settings
+
+- A sheet with Appearance, Health access, Share the app and the version. Details are open (see phone-design.md).
 
 ## Tracer bullet
 
@@ -38,7 +40,7 @@ The first end-to-end slice: **exercise list → exercise detail → breathing se
 | Minimum OS | iOS 26 |
 | Business model | Free, no paywall, no StoreKit in v1 |
 | Reusable system | Built in this repo first, extracted into a template or plugin after the tracer bullet |
-| Visual design | Made with Claude Design after the spec is written |
+| Visual design | Made with Claude Design: [phone-design.md](phone-design.md) and [watch-design.md](watch-design.md). The designs are binding. |
 
 ## Assumptions to confirm during wayfinding
 
@@ -50,8 +52,9 @@ The first end-to-end slice: **exercise list → exercise detail → breathing se
 
 - iPhone and Apple Watch sync, complications
 - Paywall and StoreKit
-- HealthKit (Mindful Minutes)
-- Live Activities, widgets, reminders
+- Live Activities and widgets
+
+The designs added reminders, custom exercises, a week view and log, sound, and a Settings sheet with a Health access row. They are specified in [#22](https://github.com/siroroman/BreathApp/issues/22) as slices after the tracer bullet. What Health access does (HealthKit, Mindful Minutes) is still undecided.
 
 ## How the system is measured
 

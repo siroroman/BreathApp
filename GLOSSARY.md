@@ -22,6 +22,10 @@ _Avoid_: Stage, step, segment
 One pass through every Phase of a Pattern.
 _Avoid_: Round, rep, breath
 
+**Custom exercise**:
+An Exercise the user makes: a name, an icon, a description and a Pattern of inhale, hold, exhale and hold in whole seconds.
+_Avoid_: Custom pattern, own technique
+
 ### Session
 
 **Session**:
@@ -33,8 +37,20 @@ A Session length offered for one Exercise, one of which is its default.
 _Avoid_: Preset, timer length
 
 **Lead-in**:
-The short countdown between Start and the first Phase of a Session, during which the circle sits at its smallest size (Breath level 0). It does not count toward the Session's length.
+The short countdown between Start and the first Phase of a Session, shown as a large 3, 2, 1 with the shape not drawn (Breath level 0). It does not count toward the Session's length.
 _Avoid_: Warm-up, intro, get-ready
+
+**Quick Start**:
+A shortcut on the Exercises screen that starts the last Session that was started, with the same Exercise, length and settings.
+_Avoid_: Repeat, resume, favourite
+
+**Log**:
+The newest-first list of the Sessions the user has done, shown on the Stats tab with the week view.
+_Avoid_: History, journal
+
+**Reminder**:
+A notification at a chosen time on chosen days that invites the user to practise one Exercise.
+_Avoid_: Alarm, schedule
 
 **Safety note**:
 The short, non-blocking text shown with every Exercise about when not to practise and what to do if dizzy.
