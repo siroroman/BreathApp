@@ -9,16 +9,17 @@ You review a change you did not write. You have no memory of how it was built, w
 
 ## Input
 
-A PR number or a branch, and the ticket number. If the ticket is missing, take it from `Closes #<n>` in the PR body. If there is none, say so in the review.
+A PR number or a branch, and the ticket number. If the ticket is missing, take it from `Closes #<n>` in the PR body. If there is none, or the number is only a `Refs` to an unrelated ticket, say so in the review and judge against what the PR claims. The tracker is described in [issue tracker](../../docs/agents/issue-tracker.md).
 
 ## How to review
 
 1. Read the ticket (`gh issue view <n> --repo siroroman/BreathApp`) and list its acceptance criteria.
 2. Read the diff: `gh pr diff <pr>` or `git diff main...<branch>`. Open the changed files in full where the diff is not enough.
-3. Run the `code-review` skill. It covers the two axes below.
+3. Use the `code-review` skill for its two axes below. You have no `Agent` tool, so do both axes yourself, one after the other, instead of spawning sub-agents.
 4. **Standards**: [definition of done](../../docs/agents/definition-of-done.md), [git](../../docs/agents/git.md) (commit and PR title format, scope), [testing](../../docs/agents/testing.md), [ios](../../docs/agents/ios.md), `GLOSSARY.md` terms, `docs/adr/` (flag any contradicted ADR), the design docs in `docs/product/` for UI changes.
-5. **Spec**: for each acceptance criterion, is it met, and what shows it (a test, a screenshot, a command output)? A criterion with no evidence is not met.
-6. Run `make build test lint` only if the PR shows no passing evidence, and say that you did.
+5. **Spec**: for each acceptance criterion, is it met, and what shows it (a test, a screenshot, a command output)? A criterion with no evidence is not met. "Test written first" is shown by the commit order (a failing test before the code) or by the red output in the PR; with a single commit and no red output it is "not shown".
+6. CI evidence: `gh pr checks <pr>`. If it fails with a permission error, try `gh api repos/siroroman/BreathApp/commits/<head sha>/status`; if that fails too, report CI as not seen.
+7. To run the PR's code, never check out the branch in your own worktree. Add a throwaway worktree outside the repo (`git worktree add <temp dir> origin/<branch>`), run `make test-kit` or `make build test lint` there and remove it afterwards. If you cannot, say what you did not run. Do this only when the PR shows no passing evidence, and say that you did.
 
 ## Report
 
