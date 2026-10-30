@@ -20,11 +20,15 @@
       "Bash(xcrun simctl io:*)",
       "Bash(xcrun simctl launch:*)",
       "Bash(xcrun simctl terminate:*)",
+      "Bash(xcrun simctl ui:*)",
       "Bash(git status:*)",
       "Bash(git diff:*)",
       "Bash(git log:*)",
+      "Bash(git fetch:*)",
       "Bash(gh issue view:*)",
-      "Bash(gh pr view:*)"
+      "Bash(gh pr view:*)",
+      "Bash(gh pr diff:*)",
+      "Bash(gh pr checks:*)"
     ]
   },
   "hooks": {
