@@ -7,6 +7,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+env:
+  SWIFTFORMAT_VERSION: "0.51.13"
+
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -41,7 +44,17 @@ jobs:
           xcodebuild -version
           xcrun simctl list runtimes
       - name: Install tools
-        run: brew install xcodegen xcbeautify swiftformat
+        run: brew install xcodegen xcbeautify
+      # Pinned: the runner's Homebrew swiftformat is newer than the one the code is formatted with, and
+      # its extra rules fail `make lint` on files nobody touched. Bump it together with the local install.
+      - name: Install swiftformat ${{ env.SWIFTFORMAT_VERSION }}
+        run: |
+          curl -fsSL "https://github.com/nicklockwood/SwiftFormat/releases/download/${SWIFTFORMAT_VERSION}/swiftformat.zip" -o "$RUNNER_TEMP/swiftformat.zip"
+          mkdir -p "$RUNNER_TEMP/swiftformat"
+          unzip -q "$RUNNER_TEMP/swiftformat.zip" -d "$RUNNER_TEMP/swiftformat"
+          chmod +x "$RUNNER_TEMP/swiftformat/swiftformat"
+          echo "$RUNNER_TEMP/swiftformat" >> "$GITHUB_PATH"
+      - run: swiftformat --version
       - run: make gen build test lint
       - name: Screenshot
         run: make run screenshot
