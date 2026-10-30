@@ -35,7 +35,7 @@ Four subagents live in `.claude/agents/`. Each one's file is its definition; thi
 |---|---|---|
 | `implementer` | One `ready-for-agent` ticket, AFK in a worktree, up to a draft PR. | Code, commits, the draft PR. |
 | `code-reviewer` | Step 6: review of a branch or PR in a fresh context. | Only the review comment. |
-| `ui-verifier` | Step 4 for UI: screenshots at default size and AX5, compared with the design. | Screenshots in `build/`. |
+| `ui-verifier` | Step 4 for UI: screenshots at default size and AX5, compared with the design. The `implementer` cannot run it, so the caller runs it on the finished branch and attaches the screenshots to the PR by hand. | Screenshots in `build/` (git-ignored). |
 | `researcher` | A research ticket, answered from primary sources. | One note in `docs/product/research/`. |
 
 ## Handoffs

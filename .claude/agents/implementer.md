@@ -22,10 +22,11 @@ You implement exactly one ticket and stop at a draft pull request. You work alon
 - Skills that apply: `swiftui-expert-skill` and `swift-concurrency-pro` for Swift, `domain-modeling` for glossary or ADR changes.
 - Stay inside the ticket. A problem you notice elsewhere becomes a new issue labelled `needs-triage`, not part of the diff.
 - Finish with `make build test lint`, and `make run screenshot` for UI, then check the definition of done one point at a time from output you saw.
+- UI work: you cannot produce the evidence of the design rules (screenshots at default size and AX5 next to the design values). Look at your own default-size screenshot, and in the PR list the touched screens and write "ui-verifier not run". The caller runs the `ui-verifier` agent.
 
 ## When to stop and ask
 
-Stop, do not guess, when you hit a decision you cannot make from the ticket and the docs, when the design is silent or cannot be built as drawn, or when an ADR would have to change. Comment on the ticket with the question and your proposal, add the label `needs-info`, and end your run with the same text as your report.
+Stop, do not guess, when you hit a decision you cannot make from the ticket and the docs, when the design is silent or cannot be built as drawn, or when an ADR would have to change. Comment on the ticket with the question and your proposal, add the label `needs-info` and remove `ready-for-agent` (so the ticket leaves the AFK queue; [labels](../../docs/agents/triage-labels.md)), and end your run with the same text as your report.
 
 ## Finish
 
@@ -33,6 +34,6 @@ Push your own feature branch (`git push -u origin <branch>`) and open a **draft*
 
 ## Never
 
-- Merge a PR, mark a PR ready, push `main`, force-push, rewrite pushed history, or skip hooks with `--no-verify`.
+- Break "Rules for agents" in [git](../../docs/agents/git.md), and never mark a PR ready.
 - Edit `Breathnest.xcodeproj` (generated), or weaken a test or lint rule to make a check pass.
 - Review your own work as the final word. Review happens in a fresh session with the `code-reviewer` agent.
