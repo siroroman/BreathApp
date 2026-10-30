@@ -23,7 +23,7 @@ An AFK session that hits a decision it cannot make stops and writes the question
 2. `git fetch`, then create `<type>/<issue>-<slug>` from the latest `main` in a worktree ([git](git.md)). `git config core.hooksPath .githooks` once per clone.
 3. Red-green slices with `make test-kit` ([testing](testing.md)). Commit each slice.
 4. `make build test lint`, and `make run screenshot` for UI ([commands](commands.md)).
-5. Push the feature branch, open a **draft** PR with the `pr` skill. Check CI.
+5. Push the feature branch, run `scripts/pr-facts.sh`, and open a **draft** PR with the `pr` skill, extended as in [pull requests](pull-requests.md). Check CI.
 6. Review in a **fresh** session with `/code-review`, never in the session that wrote the code. Fix findings, then mark the PR ready.
 7. The user merges (squash). Do not merge yourself unless asked. Afterwards remove the worktree and its simulator (`xcrun simctl delete "Breathnest-<folder>"`).
 
