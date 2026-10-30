@@ -20,6 +20,7 @@
       "Bash(xcrun simctl io:*)",
       "Bash(xcrun simctl launch:*)",
       "Bash(xcrun simctl terminate:*)",
+      "Bash(xcrun simctl ui:*)",
       "Bash(git status:*)",
       "Bash(git diff:*)",
       "Bash(git log:*)",

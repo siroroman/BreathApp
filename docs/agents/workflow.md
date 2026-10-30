@@ -27,6 +27,17 @@ An AFK session that hits a decision it cannot make stops and writes the question
 6. Review in a **fresh** session with `/code-review`, never in the session that wrote the code. Fix findings, then mark the PR ready.
 7. The user merges (squash). Do not merge yourself unless asked. Afterwards remove the worktree and its simulator (`xcrun simctl delete "Breathnest-<folder>"`).
 
+## Agents
+
+Four subagents live in `.claude/agents/`. Each one's file is its definition; this table only says when to use it.
+
+| Agent | Use it for | Writes |
+|---|---|---|
+| `implementer` | One `ready-for-agent` ticket, AFK in a worktree, up to a draft PR. | Code, commits, the draft PR. |
+| `code-reviewer` | Step 6: review of a branch or PR in a fresh context. | Only the review comment. |
+| `ui-verifier` | Step 4 for UI: screenshots at default size and AX5, compared with the design. | Screenshots in `build/`. |
+| `researcher` | A research ticket, answered from primary sources. | One note in `docs/product/research/`. |
+
 ## Handoffs
 
 Leave state where the next session will look: the ticket (progress, open questions), the PR description, an ADR for a decision that outlives the ticket. Notes for the user's other sessions go in the shared notes folder the session was given, not in the repo.
