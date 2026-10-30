@@ -15,6 +15,8 @@ The body starts from the `pr` skill (Summary, Evidence, Merge Danger) and adds t
 Closes #<issue>
 ```
 
+`.github/pull_request_template.md` opens a new PR with this skeleton, and CI (`pr-body.yml`) fails a body with a missing, misordered or empty section or without `Closes #<issue>` as the last line of your text. Attribution lines the tooling appends after it are fine.
+
 Every section is present. A section with nothing to say says so in one line ("No UI change."), it is not deleted: a missing section reads as forgotten.
 
 ## Get the facts first

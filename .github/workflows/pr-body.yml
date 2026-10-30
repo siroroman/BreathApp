@@ -1,0 +1,34 @@
+name: PR body
+
+# Enforces docs/agents/pull-requests.md and docs/agents/critical-paths.md. The title is checked by pr-title.yml.
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize, ready_for_review]
+
+jobs:
+  check-body:
+    name: check-body
+    # Dependabot writes its own body. A skipped job counts as passed for a required check.
+    if: github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: scripts/test-check-pr-body.sh
+      - name: Validate PR body against docs/agents/pull-requests.md
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: printf '%s' "$PR_BODY" | scripts/check-pr-body.sh -
+
+  critical-paths:
+    name: critical-paths
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - run: scripts/test-check-critical-paths.sh
+      - name: Critical path changes need a test or a warning
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          BASE_REF: ${{ github.base_ref }}
+        run: scripts/check-critical-paths.sh "origin/$BASE_REF"

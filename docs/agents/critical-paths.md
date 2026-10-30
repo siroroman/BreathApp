@@ -2,6 +2,8 @@
 
 The parts of Breathnest where a mistake costs the user a Session, their data or the feel of the app. A pull request that touches one of them says so under **Critical paths touched** in its body ([pull requests](pull-requests.md)), and the reviewer checks that evidence for it exists.
 
+CI (`pr-body.yml`, `scripts/check-critical-paths.sh`) fails a pull request that changes source under `BreathnestKit/Sources/` or `App/Breathnest/` matching one of these globs without changing any test file. Start the PR body with `> **Warning:** ...` when the change really has no test; the check then passes and the reviewer sees the warning first. The Build, project and CI area is exempt, a test cannot cover it.
+
 `scripts/pr-facts.sh` matches the changed files against the `Paths:` lines below. The code base is young, so the globs follow the names in `GLOSSARY.md` and the module map of [ADR 0001](../adr/0001-domain-logic-in-a-ui-free-swift-package.md). **Whoever adds a module in one of these areas adds or fixes its glob in the same pull request.** A glob is a shell `case` pattern on the repo-relative path, `*` also matches `/`. Write it with the full directory prefix: the module and app names (`BreathnestKit`, `Breathnest`) contain words like `Breath`, so `*Breath*` alone would match every file.
 
 A path that is not listed can still be critical. If the diff changes behaviour from the list below through a file the globs miss, name it by hand in the PR.

@@ -144,8 +144,8 @@ footer { color: var(--ink-2); font-size: 13px; }
   <div class="bar" id="bar" role="img" aria-label="Pomer stavov"></div>
 
   <div class="finding">
-    <b>Najväčšia diera: pravidlá procesu sú zatiaľ len v dokumentoch.</b>
-    <span>Brána pred <code>main</code> už drží: PR, štyri povinné checky a secret scanning s push protection. Definition of done, kontrakt tela PR a kritické cesty ale nič nevynúti, takže ich môže agent aj človek obísť bez červeného checku. Ďalší krok je PR šablóna a CI kontrola tela PR.</span>
+    <b>Najväčšia diera: nové checky ešte nie sú povinné v rulesete.</b>
+    <span>Brána pred <code>main</code> drží: PR, štyri povinné checky a secret scanning s push protection. Telo PR a kritické cesty už kontroluje CI (<code>check-body</code>, <code>critical-paths</code>), ale ruleset ich ešte nevyžaduje, takže zatiaľ len svietia červeno. Ďalší krok je pridať ich medzi povinné checky.</span>
   </div>
 
   <section>
@@ -193,12 +193,12 @@ const stations = [
     ["ok", "Auto-formát po každej editácii", "<code>format-swift.sh</code> pustí swiftformat na zmenený súbor. Nikdy neblokuje."],
     ["part", "Stop hook: lint a testy na konci", "<code>stop-check.sh</code> pustí <code>make lint test</code>, len keď sa zmenilo Swift alebo projektové súbory. Po prvom zlyhaní už druhý pokus nechá prejsť."],
     ["part", "Pravidlá v CLAUDE.md a docs/agents", "Definition of done, kritické cesty, workflow. Agent ich číta, ale nič nezlyhá, keď ich poruší."],
-    ["miss", "Zoznam zakázaných vecí (deny)", "V <code>settings.json</code> je len <code>allow</code>. Nič nebráni čítaniu <code>.env</code>, <code>~/.ssh</code> alebo <code>curl | sh</code>, ak to používateľ odklikne."]
+    ["ok", "Zoznam zakázaných vecí (deny)", "<code>settings.json</code> má aj <code>deny</code>: čítanie <code>.env</code>, kľúčov a certifikátov, <code>~/.ssh</code>, <code>~/.aws</code>, príkazy <code>curl</code>, <code>wget</code>, <code>sudo</code> a čokoľvek zreťazené do <code>sh</code>/<code>bash</code>. Pravidlá <code>Read</code> sa týkajú nástroja Read, nie <code>cat</code> v shelli.", "2026-10-30"]
   ]},
   { title: "Lokálny commit", sub: "Na tvojom disku", items: [
     ["part", "commit-msg: Conventional Commits", "<code>.githooks/commit-msg</code> kontroluje formát. Zapína sa ručne <code>git config core.hooksPath .githooks</code> v každom klone a dá sa obísť <code>--no-verify</code>."],
     ["miss", "pre-commit: lint a formát", "Zlý formát sa zistí až v CI alebo v Stop hooku."],
-    ["miss", "pre-push: rýchle Kit testy", "<code>make test-kit</code> trvá pár sekúnd a vedel by zastaviť push so zlým testom."],
+    ["ok", "pre-push: rýchle Kit testy", "<code>.githooks/pre-push</code> pustí <code>make test-kit</code>. Zapína sa rovnako ako <code>commit-msg</code> cez <code>core.hooksPath</code> a dá sa obísť <code>--no-verify</code>.", "2026-10-30"],
     ["miss", "Lokálny sken tajomstiev", "Nič (gitleaks a pod.) nekontroluje, čo ide do commitu."]
   ]},
   { title: "Pull request", sub: "CI a kontrola", items: [
@@ -207,11 +207,11 @@ const stations = [
     ["ok", "CI: build, app testy, lint", "Job <code>ios</code> pustí <code>make gen build test lint</code>. Swiftformat je pripnutý na verziu <code>0.51.13</code>."],
     ["ok", "Kontrola názvu PR", "<code>pr-title.yml</code> overí Conventional Commits, takže squash commit na main má správny formát."],
     ["part", "pr-facts.sh", "Vypíše testy, dotknuté kritické cesty a UI súbory. Je to len podklad pre telo PR, nič nezlyhá."],
-    ["part", "Kontrakt tela PR", "6 povinných sekcií a <code>Closes #</code> sú len v <code>docs/agents/pull-requests.md</code>. Nie je šablóna ani CI kontrola."],
+    ["ok", "Kontrakt tela PR", "<code>pr-body.yml</code> volá <code>scripts/check-pr-body.sh</code>: 6 sekcií v poradí, žiadna prázdna, <code>Closes #N</code> ako posledný riadok. Dependabot PR sa preskakujú. Povinný check v rulesete sa ešte musí pridať ručne.", "2026-10-30"],
     ["part", "Draft a /code-review vo fresh session", "Pravidlo procesu a agent <code>code-reviewer</code>. Spúšťa sa ručne, nič nezabráni označiť PR ako ready bez neho."],
     ["part", "Screenshot z CI", "<code>make run screenshot</code> sa uloží ako artifact. Nikto ani nič ho nekontroluje."],
-    ["miss", "PR šablóna", "Chýba <code>.github/pull_request_template.md</code>, takže PR začína prázdny."],
-    ["miss", "Kritické cesty ako automatická kontrola", "Zmena v Session engine alebo Log bez testu iba spustí upozornenie v texte PR. Check, ktorý by zlyhal, nie je."],
+    ["ok", "PR šablóna", "<code>.github/pull_request_template.md</code> otvorí PR so všetkými sekciami.", "2026-10-30"],
+    ["ok", "Kritické cesty ako automatická kontrola", "<code>scripts/check-critical-paths.sh</code> zlyhá, keď zmena zdrojov v kritickej ceste nemá zmenu v testoch a telo PR nezačína <code>&gt; **Warning:**</code>. Povinný check v rulesete sa ešte musí pridať ručne.", "2026-10-30"],
     ["miss", "Hranica pokrytia testami", "Kit má zatiaľ len test hodín a placeholder. Pokrytie sa nemeria."],
     ["miss", "Automatické UI testy a AX5", "Pozerá sa na screenshot ručne cez agenta <code>ui-verifier</code>."],
     ["miss", "SwiftLint a warnings ako chyby", "Kontroluje sa len formát (swiftformat). Varovania kompilátora nezastavia build."]
@@ -229,7 +229,7 @@ const stations = [
     ["ok", "Secret scanning", "Zapnuté, overené cez GitHub API.", "2026-10-30"],
     ["ok", "Push protection", "Zapnuté. GitHub zablokuje push s kľúčom alebo tokenom.", "2026-10-30"],
     ["ok", "Dependabot", "Upozornenia na zraniteľné závislosti a automatické bezpečnostné opravy sú zapnuté. <code>.github/dependabot.yml</code> (PR 77) otvára raz týždenne PR pre staré verzie Actions s predponou <code>ci</code>. Prvé PR ešte neprišli.", "2026-10-30"],
-    ["miss", "Actions pripnuté na SHA", "<code>actions/checkout@v4</code> a <code>upload-artifact@v4</code> sa dajú zmeniť zvonku."],
+    ["part", "Actions pripnuté na SHA", "<code>pr-title.yml</code> a <code>pr-body.yml</code> sú pripnuté na SHA s komentárom verzie. <code>ci.yml</code> (PR 76) ešte používa <code>@v4</code> a <code>upload-artifact@v4</code>."],
     ["miss", "CodeQL alebo iná statická analýza", "Žiadna bezpečnostná analýza Swift kódu."]
   ]}
 ];
@@ -239,10 +239,10 @@ const todo = [
   ["Zapnúť secret scanning a push protection", "Hotovo: oba prepínače sú podľa GitHub API zapnuté. Dependabot alerts a security updates tiež.", ["GitHub nastavenia", "~2 min"], "2026-10-30"],
   ["Dependabot pre Actions", "Hotovo v PR 77: <code>.github/dependabot.yml</code> s ekosystémom <code>github-actions</code>.", ["malý PR", "~15 min"], "2026-10-30"],
   ["Pripnúť Actions na SHA", "Verzie v <code>ci.yml</code> a <code>pr-title.yml</code> pripnúť na SHA commitu. Dependabot ich potom aktualizuje sám.", ["malý PR", "~15 min"]],
-  ["PR šablóna a CI kontrola tela PR", "Šablóna so 6 sekciami a malý job, ktorý zlyhá, ak chýba sekcia alebo <code>Closes #</code>.", ["malý PR", "~30 min"]],
-  ["Deny zoznam pre Claude", "V <code>.claude/settings.json</code> zakázať čítanie <code>.env</code>, kľúčov a sieťových príkazov typu <code>curl | sh</code>.", ["malý PR", "~10 min"]],
-  ["Pre-push hook s make test-kit", "Rýchla brána v <code>.githooks/</code>. Doplniť do README/CLAUDE.md, že sa zapína raz na klon.", ["malý PR", "~15 min"]],
-  ["Check kritických ciest", "Rozšíriť <code>pr-facts.sh</code> tak, aby CI zlyhalo, keď sa dotkne kritickej cesty bez nového testu. Dáva zmysel, až keď v Kit pribudne reálny kód.", ["neskôr", "~1 hod"]],
+  ["PR šablóna a CI kontrola tela PR", "Hotovo: šablóna so 6 sekciami a job <code>check-body</code>, ktorý zlyhá, ak chýba sekcia alebo <code>Closes #</code>.", ["malý PR", "~30 min"], "2026-10-30"],
+  ["Deny zoznam pre Claude", "Hotovo: <code>deny</code> v <code>.claude/settings.json</code> zakazuje čítanie <code>.env</code>, kľúčov a príkazy <code>curl</code>, <code>wget</code>, <code>sudo</code> a <code>| sh</code>.", ["malý PR", "~10 min"], "2026-10-30"],
+  ["Pre-push hook s make test-kit", "Hotovo: <code>.githooks/pre-push</code>, zapína sa raz na klon (<code>docs/agents/git.md</code>).", ["malý PR", "~15 min"], "2026-10-30"],
+  ["Check kritických ciest", "Hotovo: job <code>critical-paths</code> zlyhá, keď zmena kritickej cesty nemá test ani riadok Warning. Teraz pokrýva len pravidlá z <code>critical-paths.md</code>, kým v Kit nie je reálny kód.", ["neskôr", "~1 hod"], "2026-10-30"],
   ["Pokrytie, SwiftLint, CodeQL", "Pridať, keď bude v repe viac než placeholder. Teraz by hlásili skoro nič.", ["neskôr"]]
 ];
 
