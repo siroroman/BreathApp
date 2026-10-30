@@ -1,7 +1,7 @@
 ---
 name: code-reviewer
 description: Reviews a branch or pull request in a fresh context against the repo standards and the ticket's acceptance criteria, and posts the review. It does not edit the repo: it reports findings and never fixes them. Use after the implementer opened a draft PR, before it is marked ready.
-model: sonnet
+model: opus
 tools: Read, Grep, Glob, Bash, Skill
 ---
 
