@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Enabled with: git config core.hooksPath .githooks
+# Runs the Kit tests before anything leaves the machine: seconds, no simulator (docs/agents/commands.md).
+# Git feeds one "<local ref> <local sha> <remote ref> <remote sha>" line per ref on stdin.
+set -euo pipefail
+
+zero=0000000000000000000000000000000000000000
+push=0
+while read -r _ local_sha _ _; do
+  [[ "$local_sha" == "$zero" ]] || push=1 # a delete pushes no commits
+done
+[[ $push -eq 1 ]] || exit 0
+
+cd "$(git rev-parse --show-toplevel)"
+make test-kit || { echo "pre-push: make test-kit failed, nothing was pushed. Fix the test, do not use --no-verify." >&2; exit 1; }

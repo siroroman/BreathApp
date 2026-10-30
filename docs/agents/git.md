@@ -56,12 +56,14 @@ GitHub flow with Conventional Commits. Read this before creating a branch, a com
 |---|---|
 | Commit message format | `commit-msg` hook, `.githooks/commit-msg` calling `scripts/check-commit-msg.sh` |
 | PR title format | CI, `.github/workflows/pr-title.yml` calling `scripts/check-commit-msg.sh -` on `$PR_TITLE` |
-| PR body sections (Tests, Snapshots, Merge Danger with critical paths, Reviewer notes) | not enforced; the `code-reviewer` agent checks them against the diff ([pull requests](pull-requests.md)) |
+| PR body: the six sections in order, none empty, `Closes #<issue>` last | CI, `.github/workflows/pr-body.yml` calling `scripts/check-pr-body.sh`, tested by `scripts/test-check-pr-body.sh`. `.github/pull_request_template.md` starts a PR with the sections. Dependabot PRs are skipped. Whether the content is true is checked by the `code-reviewer` agent ([pull requests](pull-requests.md)) |
+| Critical path source changed with no test change | CI, `.github/workflows/pr-body.yml` calling `scripts/check-critical-paths.sh`, tested by `scripts/test-check-critical-paths.sh`. A PR body that starts with `> **Warning:**` passes ([critical paths](critical-paths.md)) |
+| Kit tests before a push | `pre-push` hook, `.githooks/pre-push` running `make test-kit`. Skipped when the push only deletes a branch |
 | Squash merge, PR title as commit title | repository setting: only squash merge is allowed, the PR title is the commit title, branches are deleted after the merge |
-| No direct commits to `main` | not enforced yet |
+| No direct commits to `main`, no force push, no deleting it, required checks green | repository ruleset `Main branch ruleset`; only the Admin role can bypass it |
 | Destructive commands: force push (also `-fu`, `--force-with-lease`), deleting or mirroring remote refs, push to `main`, hard reset, forced clean, forced branch delete, `checkout .` / `restore .` | Claude Code `PreToolUse` hook, `.claude/hooks/block-dangerous-git.sh`, registered in `.claude/settings.json`, tested by `scripts/test-block-dangerous-git.sh`. Needs `jq` and refuses everything without it. Pushing a feature branch is allowed. Options before the subcommand (`git -C dir ...`) are ignored when matching. The hook matches the command text, so a commit message or PR body that quotes a blocked command is blocked too, reword it |
 
-Enable the `commit-msg` hook once per clone (linked worktrees share it). The Claude Code hook needs no setup, it is registered in the checked-in `.claude/settings.json`:
+Enable the `commit-msg` and `pre-push` hooks once per clone (linked worktrees share it). The Claude Code hook needs no setup, it is registered in the checked-in `.claude/settings.json`:
 
 ```bash
 git config core.hooksPath .githooks
