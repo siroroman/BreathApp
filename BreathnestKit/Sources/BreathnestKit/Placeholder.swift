@@ -11,4 +11,8 @@ public struct Placeholder: Equatable, Sendable {
     public var greeting: String {
         "Breathe with \(name)"
     }
+
+    public var shout: String {
+        greeting.uppercased()
+    }
 }
