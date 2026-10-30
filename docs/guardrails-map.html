@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="sk">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mapa guardrails</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Schibsted+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* Layout: a route of 5 stations (agent -> commit -> pull request -> merge -> repo). Each station stacks its guardrails as cards coloured by state. */
+:root {
+  --bg: #f3f5f8;
+  --surface: #ffffff;
+  --ink: #14202e;
+  --ink-2: #4a5a6c;
+  --line: #d6dde6;
+  --route: #14202e;
+  --ok: #1d7a4f;
+  --ok-bg: #e3f4ea;
+  --part: #a8620a;
+  --part-bg: #fcefd6;
+  --miss: #b3261e;
+  --miss-bg: #fbe4e1;
+  --font-display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --font-body: "Schibsted Grotesk", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1620; --surface: #172230; --ink: #e8eef5; --ink-2: #9fb0c3; --line: #2b3a4b; --route: #e8eef5;
+    --ok: #5fd39a; --ok-bg: #12382a; --part: #f2b25c; --part-bg: #3d2c10; --miss: #ff8a80; --miss-bg: #451a17;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1620; --surface: #172230; --ink: #e8eef5; --ink-2: #9fb0c3; --line: #2b3a4b; --route: #e8eef5;
+  --ok: #5fd39a; --ok-bg: #12382a; --part: #f2b25c; --part-bg: #3d2c10; --miss: #ff8a80; --miss-bg: #451a17;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5;
+  padding-block: 32px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.wrap { max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px; }
+code, .mono { font-family: var(--font-mono); font-size: 0.84em; }
+
+/* header */
+header { display: flex; flex-wrap: wrap; gap: 24px 48px; align-items: end; justify-content: space-between; }
+h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(34px, 6vw, 60px); line-height: 1; letter-spacing: -0.02em; margin: 0 0 10px; text-wrap: balance; }
+.sub { color: var(--ink-2); margin: 0; max-width: 52ch; }
+.score { display: flex; gap: 10px; flex-wrap: wrap; }
+.tile { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 18px; min-width: 112px; }
+.tile b { display: block; font-family: var(--font-display); font-size: 40px; line-height: 1; font-variant-numeric: tabular-nums; }
+.tile span { font-size: 13px; color: var(--ink-2); }
+.tile.ok b { color: var(--ok); } .tile.part b { color: var(--part); } .tile.miss b { color: var(--miss); }
+
+/* coverage bar */
+.bar { display: flex; height: 14px; border-radius: 7px; overflow: hidden; background: var(--line); }
+.bar i { display: block; height: 100%; }
+.bar .ok { background: var(--ok); } .bar .part { background: var(--part); } .bar .miss { background: var(--miss); }
+
+/* legend + filter */
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.controls .lbl { color: var(--ink-2); font-size: 13px; margin-right: 4px; }
+.chip { font: inherit; font-size: 14px; font-weight: 500; padding: 7px 14px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
+.chip:focus-visible, .card:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex: none; }
+.dot.ok { background: var(--ok); } .dot.part { background: var(--part); } .dot.miss { background: var(--miss); }
+
+/* route */
+.route { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; position: relative; }
+.station { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.stop { position: relative; padding-top: 38px; }
+.stop::before { /* rail */ content: ""; position: absolute; top: 11px; left: -8px; right: -8px; height: 4px; background: var(--route); border-radius: 2px; }
+.station:first-child .stop::before { left: 0; }
+.station:last-child .stop::before { right: 0; }
+.stop::after { /* station dot */ content: ""; position: absolute; top: 2px; left: 0; width: 22px; height: 22px; border-radius: 50%; background: var(--bg); border: 4px solid var(--route); }
+.stop h2 { font-family: var(--font-display); font-weight: 800; font-size: 21px; line-height: 1.1; margin: 0 0 2px; letter-spacing: -0.01em; }
+.stop p { margin: 0; color: var(--ink-2); font-size: 13px; }
+.mini { display: flex; height: 6px; border-radius: 3px; overflow: hidden; background: var(--line); margin-top: 10px; }
+.mini i { height: 100%; }
+.mini .ok { background: var(--ok); } .mini .part { background: var(--part); } .mini .miss { background: var(--miss); }
+
+.card { text-align: left; font: inherit; color: inherit; width: 100%; background: var(--surface); border-radius: 10px; padding: 11px 12px 11px 12px; border: 1.5px solid var(--line); cursor: pointer; display: flex; flex-direction: column; gap: 4px; transition: opacity .15s, transform .15s; }
+.card:hover { transform: translateY(-1px); }
+.card.ok { border-color: var(--ok); background: var(--ok-bg); }
+.card.part { border-color: var(--part); border-style: dashed; background: var(--part-bg); }
+.card.miss { border-color: var(--miss); border-style: dotted; background: var(--miss-bg); }
+.card .top { display: flex; gap: 8px; align-items: flex-start; }
+.card .top .dot { margin-top: 6px; }
+.card .name { font-weight: 600; font-size: 14px; line-height: 1.3; }
+.card .more { display: none; font-size: 13px; color: var(--ink-2); }
+.card .more code { color: var(--ink); }
+.card[aria-expanded="true"] .more { display: block; }
+.card.dim { opacity: 0.18; }
+
+/* priorities */
+h3 { font-family: var(--font-display); font-weight: 800; font-size: 28px; margin: 0 0 4px; letter-spacing: -0.01em; }
+.lead { color: var(--ink-2); margin: 0 0 20px; }
+.todo { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 14px; }
+.t { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; }
+.t .head { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.t h4 { margin: 0; font-size: 16px; line-height: 1.3; }
+.t p { margin: 0; color: var(--ink-2); font-size: 14px; }
+.rank { font-family: var(--font-display); font-weight: 800; font-size: 30px; color: var(--miss); line-height: 1; flex: none; }
+.tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: auto; padding-top: 4px; }
+.tag { font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 6px; background: var(--bg); border: 1px solid var(--line); color: var(--ink-2); }
+
+/* key finding */
+.finding { background: var(--ink); color: var(--bg); border-radius: 16px; padding: 22px 26px; display: grid; gap: 6px; }
+.finding b { font-family: var(--font-display); font-size: 22px; line-height: 1.2; text-wrap: balance; }
+.finding span { opacity: .8; max-width: 80ch; }
+.finding code { background: color-mix(in srgb, var(--bg) 18%, transparent); padding: 1px 6px; border-radius: 4px; }
+
+.card .done { font-size: 12px; font-weight: 600; color: var(--ok); padding-left: 18px; }
+.t.finished { border-color: var(--ok); }
+.t.finished h4 { text-decoration: line-through; text-decoration-thickness: 1.5px; }
+.t.finished .rank { color: var(--ok); }
+.tag.fin { color: var(--ok); border-color: var(--ok); background: var(--ok-bg); }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+footer { color: var(--ink-2); font-size: 13px; }
+
+@media (max-width: 1100px) { .route { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 28px; } .stop::before, .station:first-child .stop::before, .station:last-child .stop::before { left: 0; right: 0; } }
+@media (max-width: 640px) { .route { grid-template-columns: minmax(0, 1fr); } .score { width: 100%; } .tile { flex: 1; min-width: 0; } }
+@media (prefers-reduced-motion: reduce) { .card { transition: none; } .card:hover { transform: none; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Mapa guardrails</h1>
+      <p class="sub">Čo BreathApp už hlási, blokuje alebo kontroluje, kde je len odporúčanie v dokumentoch a čo úplne chýba. Stav k 30. 10. 2026, podľa repa a nastavení GitHubu.</p>
+    </div>
+    <div class="score" id="score"></div>
+  </header>
+
+  <div class="bar" id="bar" role="img" aria-label="Pomer stavov"></div>
+
+  <div class="finding">
+    <b>Najväčšia diera: CI beží, ale nič ho nepovinne vyžaduje.</b>
+    <span>Vetva <code>main</code> nemá žiadne pravidlá ani ruleset, takže zelené testy nie sú podmienka merge a priamy push na <code>main</code> zastaví len hook v Claude session. Z toho istého dôvodu sú hooky v <code>.claude/</code> ochrana pred agentom, nie pred ľuďmi alebo inými nástrojmi.</span>
+  </div>
+
+  <section>
+    <div class="controls" id="controls">
+      <span class="lbl">Ukáž:</span>
+      <button class="chip" data-f="all" aria-pressed="true">Všetko</button>
+      <button class="chip" data-f="ok" aria-pressed="false"><i class="dot ok"></i>Máme</button>
+      <button class="chip" data-f="part" aria-pressed="false"><i class="dot part"></i>Čiastočne</button>
+      <button class="chip" data-f="miss" aria-pressed="false"><i class="dot miss"></i>Chýba</button>
+      <span class="lbl" style="margin-left:auto">Klikni na kartu pre detail</span>
+    </div>
+    <p class="lead" style="margin:10px 0 22px;font-size:13px">
+      <i class="dot ok"></i> Máme = automaticky vynútené. &nbsp;
+      <i class="dot part"></i> Čiastočne = existuje, ale len ako dokument, ručný krok alebo s dierou. &nbsp;
+      <i class="dot miss"></i> Chýba = nič také nie je.
+    </p>
+    <div class="route" id="route"></div>
+  </section>
+
+  <section>
+    <h3>Čo doplniť ako prvé</h3>
+    <p class="lead">Zoradené podľa toho, koľko rizika zavrú za málo práce.</p>
+    <div class="todo" id="todo"></div>
+  </section>
+
+  <footer>Zdroje: <code>.github/workflows/*</code>, <code>.claude/settings.json</code>, <code>.claude/hooks/*</code>, <code>.githooks/commit-msg</code>, <code>docs/agents/*</code>, <code>gh api</code> pre ochranu vetvy, rulesety a bezpečnostné nastavenia repa.</footer>
+</div>
+
+<script>
+/*
+  Ako trackovať progress:
+  - karta v `stations`: ["stav", "názov", "detail", "RRRR-MM-DD"]. Keď sa kontrola dokončí, zmeň stav na "ok"
+    a pridaj dátum ako 4. prvok. Počty a lišty hore sa prepočítajú samé.
+  - karta v `todo`: pridaj dátum ako 4. prvok, riadok sa označí ako hotový.
+  - aktualizuj aj "Stav k" v hlavičke.
+*/
+const S = {
+  ok: "Máme", part: "Čiastočne", miss: "Chýba"
+};
+
+const stations = [
+  { title: "Claude session", sub: "Kým agent píše kód", items: [
+    ["ok", "Zoznam povolených príkazov", "<code>.claude/settings.json</code> povoľuje len <code>make</code>, <code>swift</code>, <code>simctl</code> a čítacie <code>git</code>/<code>gh</code> príkazy."],
+    ["ok", "Hook proti nebezpečnému gitu", "<code>block-dangerous-git.sh</code> zastaví force push, push na main, <code>reset --hard</code>, <code>clean -f</code>, <code>branch -D</code>. Má vlastné testy v CI. Funguje len v Claude session a číta text príkazu, takže ho nepokryje príkaz skrytý v skripte."],
+    ["ok", "Auto-formát po každej editácii", "<code>format-swift.sh</code> pustí swiftformat na zmenený súbor. Nikdy neblokuje."],
+    ["part", "Stop hook: lint a testy na konci", "<code>stop-check.sh</code> pustí <code>make lint test</code>, len keď sa zmenilo Swift alebo projektové súbory. Po prvom zlyhaní už druhý pokus nechá prejsť."],
+    ["part", "Pravidlá v CLAUDE.md a docs/agents", "Definition of done, kritické cesty, workflow. Agent ich číta, ale nič nezlyhá, keď ich poruší."],
+    ["miss", "Zoznam zakázaných vecí (deny)", "V <code>settings.json</code> je len <code>allow</code>. Nič nebráni čítaniu <code>.env</code>, <code>~/.ssh</code> alebo <code>curl | sh</code>, ak to používateľ odklikne."]
+  ]},
+  { title: "Lokálny commit", sub: "Na tvojom disku", items: [
+    ["part", "commit-msg: Conventional Commits", "<code>.githooks/commit-msg</code> kontroluje formát. Zapína sa ručne <code>git config core.hooksPath .githooks</code> v každom klone a dá sa obísť <code>--no-verify</code>."],
+    ["miss", "pre-commit: lint a formát", "Zlý formát sa zistí až v CI alebo v Stop hooku."],
+    ["miss", "pre-push: rýchle Kit testy", "<code>make test-kit</code> trvá pár sekúnd a vedel by zastaviť push so zlým testom."],
+    ["miss", "Lokálny sken tajomstiev", "Nič (gitleaks a pod.) nekontroluje, čo ide do commitu."]
+  ]},
+  { title: "Pull request", sub: "CI a kontrola", items: [
+    ["ok", "CI: testy skriptov a hookov", "Job <code>scripts</code> pustí <code>test-pr-facts.sh</code> a <code>test-block-dangerous-git.sh</code>."],
+    ["ok", "CI: Kit testy", "Job <code>kit</code> pustí <code>make test-kit</code> na macOS."],
+    ["ok", "CI: build, app testy, lint", "Job <code>ios</code> pustí <code>make gen build test lint</code>. Swiftformat je pripnutý na verziu <code>0.51.13</code>."],
+    ["ok", "Kontrola názvu PR", "<code>pr-title.yml</code> overí Conventional Commits, takže squash commit na main má správny formát."],
+    ["part", "pr-facts.sh", "Vypíše testy, dotknuté kritické cesty a UI súbory. Je to len podklad pre telo PR, nič nezlyhá."],
+    ["part", "Kontrakt tela PR", "6 povinných sekcií a <code>Closes #</code> sú len v <code>docs/agents/pull-requests.md</code>. Nie je šablóna ani CI kontrola."],
+    ["part", "Draft a /code-review vo fresh session", "Pravidlo procesu a agent <code>code-reviewer</code>. Spúšťa sa ručne, nič nezabráni označiť PR ako ready bez neho."],
+    ["part", "Screenshot z CI", "<code>make run screenshot</code> sa uloží ako artifact. Nikto ani nič ho nekontroluje."],
+    ["miss", "PR šablóna", "Chýba <code>.github/pull_request_template.md</code>, takže PR začína prázdny."],
+    ["miss", "Kritické cesty ako automatická kontrola", "Zmena v Session engine alebo Log bez testu iba spustí upozornenie v texte PR. Check, ktorý by zlyhal, nie je."],
+    ["miss", "Hranica pokrytia testami", "Kit má zatiaľ len test hodín a placeholder. Pokrytie sa nemeria."],
+    ["miss", "Automatické UI testy a AX5", "Pozerá sa na screenshot ručne cez agenta <code>ui-verifier</code>."],
+    ["miss", "SwiftLint a warnings ako chyby", "Kontroluje sa len formát (swiftformat). Varovania kompilátora nezastavia build."]
+  ]},
+  { title: "Merge do main", sub: "Brána pred hlavnou vetvou", items: [
+    ["ok", "Len squash merge", "Merge commity a rebase merge sú vypnuté v nastavení repa."],
+    ["ok", "Vetva sa po merge zmaže", "<code>deleteBranchOnMerge</code> je zapnuté."],
+    ["miss", "Ochrana vetvy main / ruleset", "GitHub vracia „Branch not protected“, rulesety sú prázdne. Kto má prístup, môže pushnúť rovno na main."],
+    ["miss", "Povinné zelené CI pred merge", "Bez pravidla ide PR zmergovať aj s červeným CI."],
+    ["miss", "Povinná review", "Pri jednom vývojárovi je to voliteľné, ale code-review agent by mohol byť povinný status."],
+    ["miss", "CODEOWNERS pre kritické cesty", "Žiadny súbor nehovorí, kto musí schváliť zmenu v engine, Logu alebo CI."]
+  ]},
+  { title: "Repo a závislosti", sub: "Bezpečnosť a dodávateľský reťazec", items: [
+    ["ok", "Token v Actions len na čítanie", "Predvolené oprávnenia workflowov sú <code>read</code> (nastavenie repa)."],
+    ["miss", "Secret scanning", "Vypnuté, hoci repo je verejné a nástroj je zadarmo."],
+    ["miss", "Push protection", "Vypnuté. GitHub by blokoval push s kľúčom alebo tokenom."],
+    ["miss", "Dependabot", "Vypnutý. Nehlási zraniteľné závislosti ani staré verzie Actions (<code>@v4</code>)."],
+    ["miss", "Actions pripnuté na SHA", "<code>actions/checkout@v4</code> a <code>upload-artifact@v4</code> sa dajú zmeniť zvonku."],
+    ["miss", "CodeQL alebo iná statická analýza", "Žiadna bezpečnostná analýza Swift kódu."]
+  ]}
+];
+
+const todo = [
+  ["Ruleset na main", "Zákaz priameho pushu, povinný zelený job <code>ios</code>, <code>kit</code>, <code>scripts</code> a <code>check-title</code>, povinné squash. Zmení CI z odporúčania na bránu.", ["GitHub nastavenia", "~5 min", "najväčší efekt"]],
+  ["Zapnúť secret scanning, push protection a Dependabot", "Tri prepínače v Settings > Code security. Pri verejnom repe sú zadarmo.", ["GitHub nastavenia", "~2 min"]],
+  ["Dependabot pre Actions a pripnutie na SHA", "<code>.github/dependabot.yml</code> s ekosystémom <code>github-actions</code>. Verzie v <code>ci.yml</code> pripnúť na SHA.", ["malý PR", "~15 min"]],
+  ["PR šablóna a CI kontrola tela PR", "Šablóna so 6 sekciami a malý job, ktorý zlyhá, ak chýba sekcia alebo <code>Closes #</code>.", ["malý PR", "~30 min"]],
+  ["Deny zoznam pre Claude", "V <code>.claude/settings.json</code> zakázať čítanie <code>.env</code>, kľúčov a sieťových príkazov typu <code>curl | sh</code>.", ["malý PR", "~10 min"]],
+  ["Pre-push hook s make test-kit", "Rýchla brána v <code>.githooks/</code>. Doplniť do README/CLAUDE.md, že sa zapína raz na klon.", ["malý PR", "~15 min"]],
+  ["Check kritických ciest", "Rozšíriť <code>pr-facts.sh</code> tak, aby CI zlyhalo, keď sa dotkne kritickej cesty bez nového testu. Dáva zmysel, až keď v Kit pribudne reálny kód.", ["neskôr", "~1 hod"]],
+  ["Pokrytie, SwiftLint, CodeQL", "Pridať, keď bude v repe viac než placeholder. Teraz by hlásili skoro nič.", ["neskôr"]]
+];
+
+const counts = { ok: 0, part: 0, miss: 0 };
+stations.forEach(s => s.items.forEach(i => counts[i[0]]++));
+const total = counts.ok + counts.part + counts.miss;
+
+document.getElementById("score").innerHTML =
+  `<div class="tile ok"><b>${counts.ok}</b><span>máme</span></div>
+   <div class="tile part"><b>${counts.part}</b><span>čiastočne</span></div>
+   <div class="tile miss"><b>${counts.miss}</b><span>chýba</span></div>`;
+
+const seg = c => `<i class="${c}" style="width:${(counts[c] / total * 100).toFixed(1)}%"></i>`;
+document.getElementById("bar").innerHTML = seg("ok") + seg("part") + seg("miss");
+document.getElementById("bar").setAttribute("aria-label",
+  `${counts.ok} máme, ${counts.part} čiastočne, ${counts.miss} chýba z ${total}`);
+
+const route = document.getElementById("route");
+stations.forEach(s => {
+  const c = { ok: 0, part: 0, miss: 0 };
+  s.items.forEach(i => c[i[0]]++);
+  const n = s.items.length;
+  const mini = ["ok", "part", "miss"].map(k => `<i class="${k}" style="width:${c[k] / n * 100}%"></i>`).join("");
+  const cards = s.items.map(([st, name, more, done]) =>
+    `<button class="card ${st}" data-st="${st}" aria-expanded="false">
+       <span class="top"><i class="dot ${st}"></i><span class="name">${name}<span class="sr"> (${S[st]})</span></span></span>
+       ${done ? `<span class="done">hotové ${done}</span>` : ""}
+       <span class="more">${more}</span>
+     </button>`).join("");
+  route.insertAdjacentHTML("beforeend",
+    `<div class="station"><div class="stop"><h2>${s.title}</h2><p>${s.sub} · ${c.ok}/${n} máme</p><div class="mini">${mini}</div></div>${cards}</div>`);
+});
+
+route.addEventListener("click", e => {
+  const card = e.target.closest(".card");
+  if (!card) return;
+  card.setAttribute("aria-expanded", card.getAttribute("aria-expanded") === "true" ? "false" : "true");
+});
+
+document.getElementById("controls").addEventListener("click", e => {
+  const b = e.target.closest(".chip");
+  if (!b) return;
+  document.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+  const f = b.dataset.f;
+  document.querySelectorAll(".card").forEach(c => c.classList.toggle("dim", f !== "all" && c.dataset.st !== f));
+});
+
+document.getElementById("todo").innerHTML = todo.map(([h, p, tags, done], i) =>
+  `<div class="t${done ? " finished" : ""}"><div class="head"><h4>${h}</h4><span class="rank">${i + 1}</span></div><p>${p}</p>
+   <div class="tags">${done ? `<span class="tag fin">hotové ${done}</span>` : ""}${tags.map(t => `<span class="tag">${t}</span>`).join("")}</div></div>`).join("");
+</script>
+</html>
