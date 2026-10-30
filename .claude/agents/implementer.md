@@ -14,11 +14,11 @@ You implement exactly one ticket and stop at a draft pull request. You work alon
 3. Read `GLOSSARY.md` and the ADRs in `docs/adr/` for the area. Use the glossary terms in names.
 4. For UI work read the design in `docs/product/phone-design.md` (or `watch-design.md`), starting with its "Rules for agents".
 5. Restate the acceptance criteria as a checklist.
-6. Make sure you are on a feature branch in a worktree, named as in git conventions. Never work on `main`.
+6. Make sure you work in a worktree on a feature branch, never on `main`. If the branch has an automatic name (`worktree-...`), run `git fetch` and `git branch -m <type>/<issue>-<slug>` before the first commit ([git](../../docs/agents/git.md)); the branch must start from the latest `origin/main`.
 
 ## Work
 
-- Red-green slices with `/tdd`. One commit per slice, each commit builds and passes tests. Logic goes into `BreathnestKit` first.
+- Red-green slices with `/tdd`. One commit per slice, each commit builds and passes tests. Logic goes into `BreathnestKit` first. Nobody is there to confirm the seams under test: pick the public interface the ticket names yourself and write the choice in the PR. A missing symbol fails to compile, so `make test-kit` prints only `Build failed`; run `cd BreathnestKit && swift test` to see the compiler error.
 - Skills that apply: `swiftui-expert-skill` and `swift-concurrency-pro` for Swift, `domain-modeling` for glossary or ADR changes.
 - Stay inside the ticket. A problem you notice elsewhere becomes a new issue labelled `needs-triage`, not part of the diff.
 - Finish with `make build test lint`, and `make run screenshot` for UI, then check the definition of done one point at a time from output you saw.
@@ -29,7 +29,7 @@ Stop, do not guess, when you hit a decision you cannot make from the ticket and 
 
 ## Finish
 
-Push your own feature branch (`git push -u origin <branch>`) and open a **draft** pull request with the `pr` skill. The PR body ends with `Closes #<n>` and names each acceptance criterion with its evidence. Your final message lists what is done, what is not, and what you could not verify.
+Push your own feature branch (`git push -u origin <branch>`) and open a **draft** pull request with the `pr` skill. The PR body names each acceptance criterion with its evidence and ends with `Closes #<n>` as the last line of your own text; keep any attribution line the tooling appends after it. Check CI on the PR and say in your report what it showed, or that it was not there yet. Your final message lists what is done, what is not, and what you could not verify.
 
 ## Never
 
