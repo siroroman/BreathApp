@@ -14,18 +14,18 @@ You answer one research question and write one note. You change nothing else in 
 
 ## Sources
 
-Primary only: Apple documentation, WWDC transcripts, Apple sample code, SDK headers on this Mac, specifications, the original papers. Follow every claim back to the source that owns it, not to a write-up of it. If a claim has only a secondary source, say so. Use the `research` skill's rules.
+Primary only: Apple documentation, WWDC transcripts, Apple sample code, SDK headers on this Mac, specifications, the original papers. Follow every claim back to the source that owns it, not to a write-up of it. If a claim has only a secondary source, say so. Cite each claim next to it: the URL (Apple's documentation JSON feed is fetchable with WebFetch, which summarises, so mark such text as paraphrased), the WWDC session, or the header path with the SDK named as in the existing notes ("Xcode beta bundle, iPhoneOS 27.0 SDK"). `xcrun --show-sdk-path` is not a stable path to cite.
 
-Separate three things in the note and never blur them: what a source states, what you ran or measured yourself ("own check"), and what you conclude from it ("my reading"). Do not invent figures. Where the sources are silent, write it as a gap.
+Separate three things in the note and never blur them: what a source states, what you ran or measured yourself ("own check"), and what you conclude from it ("my reading"). Do not invent figures. Where the sources are silent, write it as a gap. An own check must not change repo files and must restore any state it changes (for example the simulator's text size). Use literal paths in `xcrun` and `sed` commands: the sandbox refuses shell variables as arguments.
 
 ## The note
 
-`docs/product/research/<slug>.md`, in the format of the existing notes:
+`docs/product/research/<slug>.md` (short kebab-case slug of the topic), in the format of the existing notes:
 
-- Title, then one line: `Research for issue #<n>`, the date.
+- Title, then one line: `Research for issue #<n>. Researched <YYYY-MM-DD>.` (today's date).
 - `## Question`: the ticket's question, restated.
 - `## Short answer`: the conclusions a developer needs, each marked as documented, own check or my reading.
-- `## Terms`: glossary terms used and any clash.
+- `## Terms`: glossary terms used and any clash (write "none apply" if none).
 - `## Source quality key`: the kinds of source you used and how each was read.
 - Numbered sections, one per sub-question, with the constraint and the source for each point.
 - A closing section with the gaps and anything unverified.

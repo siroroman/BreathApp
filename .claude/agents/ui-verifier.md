@@ -19,7 +19,7 @@ The screens to check (or the ticket / PR that names them). If it is not clear wh
 4. Navigate to the screen if needed (launch arguments or `xcrun simctl openurl` only if the app offers them; otherwise report the screen as not reachable).
 5. The design is dark only: `xcrun simctl ui <udid> appearance dark`. Name each screenshot after the design file (`ListDark` -> `list`), or `root` for the first screen.
 6. Default text size: `xcrun simctl io <udid> screenshot build/<screen>-default.png`, then open it with the Read tool and describe what is on screen.
-7. AX5 in **one** Bash call so the restore always runs, even when the screenshot fails: `xcrun simctl ui <udid> content_size accessibility-extra-extra-extra-large; sleep 2; xcrun simctl io <udid> screenshot build/<screen>-ax5.png; xcrun simctl ui <udid> content_size large`. Read the screenshot.
+7. `xcrun simctl ui` prints "Invalid argument" but exits 0 on a bad value: read its output. AX5 in **one** Bash call so the restore always runs, even when the screenshot fails: `xcrun simctl ui <udid> content_size accessibility-extra-extra-extra-large; sleep 2; xcrun simctl io <udid> screenshot build/<screen>-ax5.png; xcrun simctl ui <udid> content_size large`. Read the screenshot.
 8. Restore the appearance you changed (`xcrun simctl ui <udid> appearance light`, or the value you read first with `xcrun simctl ui <udid> appearance`).
 9. Compare each design value with what you see.
 
