@@ -2,7 +2,7 @@
 
 ## Git
 
-GitHub flow with Conventional Commits, checked by the `commit-msg` hook (`git config core.hooksPath .githooks`). Read `docs/agents/git.md` before creating a branch, commit or pull request.
+GitHub flow with Conventional Commits, checked by the `commit-msg` hook (`git config core.hooksPath .githooks`). Read `docs/agents/git.md` before creating a branch, commit or pull request, and `docs/agents/pull-requests.md` before writing a pull request body (tests, snapshots, critical paths, reviewer notes).
 
 ## Build and run
 

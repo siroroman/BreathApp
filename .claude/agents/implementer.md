@@ -30,7 +30,9 @@ Stop, do not guess, when you hit a decision you cannot make from the ticket and 
 
 ## Finish
 
-Push your own feature branch (`git push -u origin <branch>`) and open a **draft** pull request with the `pr` skill. The PR body names each acceptance criterion with its evidence and ends with `Closes #<n>` as the last line of your own text; keep any attribution line the tooling appends after it. Check CI on the PR and say in your report what it showed, or that it was not there yet. Your final message lists what is done, what is not, and what you could not verify.
+Push your own feature branch (`git push -u origin <branch>`), run `scripts/pr-facts.sh` and open a **draft** pull request with the `pr` skill, extended as in [pull requests](../../docs/agents/pull-requests.md). The PR body names each acceptance criterion with its evidence, lists the tests for the change and the new ones, names the critical paths the diff touches ([critical paths](../../docs/agents/critical-paths.md)) and ends with `Closes #<n>` as the last line of your own text; keep any attribution line the tooling appends after it.
+
+Keep a list while you work, in the order you meet them: every place the ticket, the design or an ADR was unclear and what you chose, every workaround, and everything you could not run. It becomes **Reviewer notes** in the body, each with `file:line`. Do not tidy it into "no issues" at the end. Check CI on the PR and say in your report what it showed, or that it was not there yet. Your final message lists what is done, what is not, and what you could not verify.
 
 ## Never
 

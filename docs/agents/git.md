@@ -39,7 +39,7 @@ GitHub flow with Conventional Commits. Read this before creating a branch, a com
 ## Pull requests
 
 - Title is a valid Conventional Commit header. Squash merge makes it the commit message on `main`.
-- Body follows the `pr` skill (summary, before/after evidence, merge danger) and ends with `Closes #<issue>`.
+- Body follows [pull requests](pull-requests.md), which extends the `pr` skill with the tests, snapshots, critical paths and reviewer notes, and ends with `Closes #<issue>`.
 - Open as a draft until `/code-review` has run in a fresh session and the checks are green.
 - Merge with **squash**. Linear history on `main`.
 
@@ -56,6 +56,7 @@ GitHub flow with Conventional Commits. Read this before creating a branch, a com
 |---|---|
 | Commit message format | `commit-msg` hook, `.githooks/commit-msg` calling `scripts/check-commit-msg.sh` |
 | PR title format | CI, `.github/workflows/pr-title.yml` calling `scripts/check-commit-msg.sh -` on `$PR_TITLE` |
+| PR body sections (Tests, Snapshots, Merge Danger with critical paths, Reviewer notes) | not enforced; the `code-reviewer` agent checks them against the diff ([pull requests](pull-requests.md)) |
 | Squash merge, PR title as commit title | repository setting: only squash merge is allowed, the PR title is the commit title, branches are deleted after the merge |
 | No direct commits to `main` | not enforced yet |
 | Destructive commands: force push (also `-fu`, `--force-with-lease`), deleting or mirroring remote refs, push to `main`, hard reset, forced clean, forced branch delete, `checkout .` / `restore .` | Claude Code `PreToolUse` hook, `.claude/hooks/block-dangerous-git.sh`, registered in `.claude/settings.json`, tested by `scripts/test-block-dangerous-git.sh`. Needs `jq` and refuses everything without it. Pushing a feature branch is allowed. Options before the subcommand (`git -C dir ...`) are ignored when matching. The hook matches the command text, so a commit message or PR body that quotes a blocked command is blocked too, reword it |

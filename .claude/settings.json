@@ -12,6 +12,7 @@
       "Bash(make screenshot)",
       "Bash(make sim)",
       "Bash(scripts/simulator.sh:*)",
+      "Bash(scripts/pr-facts.sh:*)",
       "Bash(swift test:*)",
       "Bash(swift build:*)",
       "Bash(swiftformat:*)",
