@@ -136,7 +136,7 @@ footer { color: var(--ink-2); font-size: 13px; }
   <header>
     <div>
       <h1>Mapa guardrails</h1>
-      <p class="sub">Čo BreathApp už hlási, blokuje alebo kontroluje, kde je len odporúčanie v dokumentoch a čo úplne chýba. Stav k 30. 10. 2026, podľa repa a nastavení GitHubu.</p>
+      <p class="sub">Čo BreathApp už hlási, blokuje alebo kontroluje, kde je len odporúčanie v dokumentoch a čo úplne chýba. Stav k 31. 10. 2026, podľa repa a nastavení GitHubu.</p>
     </div>
     <div class="score" id="score"></div>
   </header>
@@ -144,8 +144,8 @@ footer { color: var(--ink-2); font-size: 13px; }
   <div class="bar" id="bar" role="img" aria-label="Pomer stavov"></div>
 
   <div class="finding">
-    <b>Najväčšia diera: nové checky ešte nie sú povinné v rulesete.</b>
-    <span>Brána pred <code>main</code> drží: PR, štyri povinné checky a secret scanning s push protection. Telo PR a kritické cesty už kontroluje CI (<code>check-body</code>, <code>critical-paths</code>), ale ruleset ich ešte nevyžaduje, takže zatiaľ len svietia červeno. Ďalší krok je pridať ich medzi povinné checky.</span>
+    <b>Brána pred main drží, najväčšia diera je teraz obchádzanie lokálne.</b>
+    <span>Brána pred <code>main</code> drží: PR, šesť povinných checkov (vrátane <code>check-body</code> a <code>critical-paths</code>) a secret scanning s push protection. Ostáva lokálna strana: commit na <code>main</code> nič nezastaví a <code>--no-verify</code> obíde hooky. Ďalší krok je <code>pre-commit</code> hook a blokovanie <code>--no-verify</code> (#66).</span>
   </div>
 
   <section>
@@ -207,11 +207,11 @@ const stations = [
     ["ok", "CI: build, app testy, lint", "Job <code>ios</code> pustí <code>make gen build test lint</code>. Swiftformat je pripnutý na verziu <code>0.51.13</code>."],
     ["ok", "Kontrola názvu PR", "<code>pr-title.yml</code> overí Conventional Commits, takže squash commit na main má správny formát."],
     ["part", "pr-facts.sh", "Vypíše testy, dotknuté kritické cesty a UI súbory. Je to len podklad pre telo PR, nič nezlyhá."],
-    ["ok", "Kontrakt tela PR", "<code>pr-body.yml</code> volá <code>scripts/check-pr-body.sh</code>: 6 sekcií v poradí, žiadna prázdna, <code>Closes #N</code> ako posledný riadok. Dependabot PR sa preskakujú. Povinný check v rulesete sa ešte musí pridať ručne.", "2026-10-30"],
+    ["ok", "Kontrakt tela PR", "<code>pr-body.yml</code> volá <code>scripts/check-pr-body.sh</code>: 6 sekcií v poradí, žiadna prázdna, <code>Closes #N</code> ako posledný riadok. Dependabot PR sa preskakujú (preskočený job sa v povinnom checku počíta ako prešiel). Check je povinný v rulesete.", "2026-10-31"],
     ["part", "Draft a /code-review vo fresh session", "Pravidlo procesu a agent <code>code-reviewer</code>. Spúšťa sa ručne, nič nezabráni označiť PR ako ready bez neho."],
     ["part", "Screenshot z CI", "<code>make run screenshot</code> sa uloží ako artifact. Nikto ani nič ho nekontroluje."],
     ["ok", "PR šablóna", "<code>.github/pull_request_template.md</code> otvorí PR so všetkými sekciami.", "2026-10-30"],
-    ["ok", "Kritické cesty ako automatická kontrola", "<code>scripts/check-critical-paths.sh</code> zlyhá, keď zmena zdrojov v kritickej ceste nemá zmenu v testoch a telo PR nezačína <code>&gt; **Warning:**</code>. Povinný check v rulesete sa ešte musí pridať ručne.", "2026-10-30"],
+    ["ok", "Kritické cesty ako automatická kontrola", "<code>scripts/check-critical-paths.sh</code> zlyhá, keď zmena zdrojov v kritickej ceste nemá zmenu v testoch a telo PR nezačína <code>&gt; **Warning:**</code>. Check je povinný v rulesete.", "2026-10-31"],
     ["miss", "Hranica pokrytia testami", "Kit má zatiaľ len test hodín a placeholder. Pokrytie sa nemeria."],
     ["miss", "Automatické UI testy a AX5", "Pozerá sa na screenshot ručne cez agenta <code>ui-verifier</code>."],
     ["miss", "SwiftLint a warnings ako chyby", "Kontroluje sa len formát (swiftformat). Varovania kompilátora nezastavia build."]
@@ -220,7 +220,7 @@ const stations = [
     ["ok", "Len squash merge", "Merge commity a rebase merge sú vypnuté v nastavení repa."],
     ["ok", "Vetva sa po merge zmaže", "<code>deleteBranchOnMerge</code> je zapnuté."],
     ["ok", "Ochrana vetvy main / ruleset", "<code>Main branch ruleset</code> (active) na predvolenej vetve: zákaz zmazania, zákaz force pushu, zmeny len cez PR. Obísť ho môže len rola Admin (bypass always).", "2026-10-30"],
-    ["ok", "Povinné zelené CI pred merge", "Povinné sú <code>Script tests</code>, <code>Kit tests</code>, <code>Build, app tests, lint</code> a <code>check-title</code>, vetva musí byť aktuálna s main. Admin to môže obísť.", "2026-10-30"],
+    ["ok", "Povinné zelené CI pred merge", "Povinné sú <code>Script tests</code>, <code>Kit tests</code>, <code>Build, app tests, lint</code>, <code>check-title</code>, <code>check-body</code> a <code>critical-paths</code>, vetva musí byť aktuálna s main. Admin to môže obísť.", "2026-10-30"],
     ["part", "Povinná review", "Ruleset vyžaduje 0 schválení, lebo je jediný autor. Review robí ručne spustený <code>/code-review</code> vo fresh session, nič ho nevynúti.", "2026-10-30"],
     ["miss", "CODEOWNERS pre kritické cesty", "Žiadny súbor nehovorí, kto musí schváliť zmenu v engine, Logu alebo CI."]
   ]},
@@ -235,7 +235,7 @@ const stations = [
 ];
 
 const todo = [
-  ["Ruleset na main s povinnými checkmi", "Hotovo: zákaz priameho pushu, štyri povinné checky, 0 povinných schválení, bypass len pre Admin.", ["GitHub nastavenia", "~5 min", "najväčší efekt"], "2026-10-30"],
+  ["Ruleset na main s povinnými checkmi", "Hotovo: zákaz priameho pushu, šesť povinných checkov, 0 povinných schválení, bypass len pre Admin.", ["GitHub nastavenia", "~5 min", "najväčší efekt"], "2026-10-30"],
   ["Zapnúť secret scanning a push protection", "Hotovo: oba prepínače sú podľa GitHub API zapnuté. Dependabot alerts a security updates tiež.", ["GitHub nastavenia", "~2 min"], "2026-10-30"],
   ["Dependabot pre Actions", "Hotovo v PR 77: <code>.github/dependabot.yml</code> s ekosystémom <code>github-actions</code>.", ["malý PR", "~15 min"], "2026-10-30"],
   ["Pripnúť Actions na SHA", "Verzie v <code>ci.yml</code> a <code>pr-title.yml</code> pripnúť na SHA commitu. Dependabot ich potom aktualizuje sám.", ["malý PR", "~15 min"]],
