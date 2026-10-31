@@ -229,7 +229,7 @@ const stations = [
     ["ok", "Secret scanning", "Zapnuté, overené cez GitHub API.", "2026-10-30"],
     ["ok", "Push protection", "Zapnuté. GitHub zablokuje push s kľúčom alebo tokenom.", "2026-10-30"],
     ["ok", "Dependabot", "Upozornenia na zraniteľné závislosti a automatické bezpečnostné opravy sú zapnuté. <code>.github/dependabot.yml</code> (PR 77) otvára raz týždenne PR pre staré verzie Actions s predponou <code>ci</code>. Prvé PR ešte neprišli.", "2026-10-30"],
-    ["part", "Actions pripnuté na SHA", "<code>pr-title.yml</code> a <code>pr-body.yml</code> sú pripnuté na SHA s komentárom verzie. <code>ci.yml</code> (PR 76) ešte používa <code>@v4</code> a <code>upload-artifact@v4</code>."],
+    ["ok", "Actions pripnuté na SHA", "Všetky <code>uses:</code> v <code>ci.yml</code>, <code>pr-title.yml</code> a <code>pr-body.yml</code> sú pripnuté na SHA s komentárom verzie. Dependabot ich aktualizuje sám.", "2026-10-31"],
     ["miss", "CodeQL alebo iná statická analýza", "Žiadna bezpečnostná analýza Swift kódu."]
   ]}
 ];
@@ -238,7 +238,7 @@ const todo = [
   ["Ruleset na main s povinnými checkmi", "Hotovo: zákaz priameho pushu, štyri povinné checky, 0 povinných schválení, bypass len pre Admin.", ["GitHub nastavenia", "~5 min", "najväčší efekt"], "2026-10-30"],
   ["Zapnúť secret scanning a push protection", "Hotovo: oba prepínače sú podľa GitHub API zapnuté. Dependabot alerts a security updates tiež.", ["GitHub nastavenia", "~2 min"], "2026-10-30"],
   ["Dependabot pre Actions", "Hotovo v PR 77: <code>.github/dependabot.yml</code> s ekosystémom <code>github-actions</code>.", ["malý PR", "~15 min"], "2026-10-30"],
-  ["Pripnúť Actions na SHA", "Verzie v <code>ci.yml</code> a <code>pr-title.yml</code> pripnúť na SHA commitu. Dependabot ich potom aktualizuje sám.", ["malý PR", "~15 min"]],
+  ["Pripnúť Actions na SHA", "Hotovo: všetky workflowy sú pripnuté na SHA commitu. Dependabot ich aktualizuje sám.", ["malý PR", "~15 min"], "2026-10-31"],
   ["PR šablóna a CI kontrola tela PR", "Hotovo: šablóna so 6 sekciami a job <code>check-body</code>, ktorý zlyhá, ak chýba sekcia alebo <code>Closes #</code>.", ["malý PR", "~30 min"], "2026-10-30"],
   ["Deny zoznam pre Claude", "Hotovo: <code>deny</code> v <code>.claude/settings.json</code> zakazuje čítanie <code>.env</code>, kľúčov a príkazy <code>curl</code>, <code>wget</code>, <code>sudo</code> a <code>| sh</code>.", ["malý PR", "~10 min"], "2026-10-30"],
   ["Pre-push hook s make test-kit", "Hotovo: <code>.githooks/pre-push</code>, zapína sa raz na klon (<code>docs/agents/git.md</code>).", ["malý PR", "~15 min"], "2026-10-30"],
