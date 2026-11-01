@@ -26,7 +26,7 @@ Typical order: `make test-kit` while working, `make format lint` before a commit
 
 The safe commands above are allowlisted in `.claude/settings.json`, so they run without a prompt.
 
-`.claude/settings.json` also has a `deny` list that no prompt can approve: reading `.env` files, private keys and certificates (`*.pem`, `*.p12`, `*.key`, `*.mobileprovision`), `~/.ssh`, `~/.aws` and `~/.config/gh`, and the shell commands `curl`, `wget`, `sudo` and anything piped into `sh`, `bash` or `zsh`. Use `gh` for GitHub and `make` for everything else. The `Read` rules cover the Read tool, not `cat` in a shell command, so the allowlist stays narrow and a Bash command outside it still needs approval.
+`.claude/settings.json` also has a `deny` list that no prompt can approve: reading `.env` files, private keys and certificates (`*.pem`, `*.p12`, `*.key`, `*.mobileprovision`), `~/.ssh`, `~/.aws` and `~/.config/gh`, and the shell commands `curl`, `wget`, `sudo`, anything piped into `sh`, `bash` or `zsh`, and the `gh` commands `gh pr merge`, `gh api` and `gh repo delete`. Merging a pull request is the user's. Use `gh` for GitHub (not `gh api`, which can write around the git hook) and `make` for everything else. The `Read` rules cover the Read tool, not `cat` in a shell command, so the allowlist stays narrow and a Bash command outside it still needs approval.
 
 ## Tools
 
