@@ -136,7 +136,7 @@ footer { color: var(--ink-2); font-size: 13px; }
   <header>
     <div>
       <h1>Mapa guardrails</h1>
-      <p class="sub">Čo BreathApp už hlási, blokuje alebo kontroluje, kde je len odporúčanie v dokumentoch a čo úplne chýba. Stav k 31. 10. 2026, podľa repa a nastavení GitHubu.</p>
+      <p class="sub">Čo BreathApp už hlási, blokuje alebo kontroluje, kde je len odporúčanie v dokumentoch a čo úplne chýba. Stav k 1. 11. 2026, podľa repa a nastavení GitHubu.</p>
     </div>
     <div class="score" id="score"></div>
   </header>
@@ -145,7 +145,7 @@ footer { color: var(--ink-2); font-size: 13px; }
 
   <div class="finding">
     <b>Brána pred main drží, najväčšia diera je teraz obchádzanie lokálne.</b>
-    <span>Brána pred <code>main</code> drží: PR, šesť povinných checkov (vrátane <code>check-body</code> a <code>critical-paths</code>) a secret scanning s push protection. Ostáva lokálna strana: commit na <code>main</code> nič nezastaví a <code>--no-verify</code> obíde hooky. Ďalší krok je <code>pre-commit</code> hook a blokovanie <code>--no-verify</code> (#66).</span>
+    <span>Brána pred <code>main</code> drží: PR, šesť povinných checkov (vrátane <code>check-body</code> a <code>critical-paths</code>) a secret scanning s push protection. Push na <code>main</code> neprejde nikomu, ani adminovi. Ostáva lokálna strana: lokálny commit na <code>main</code> nič nezastaví a <code>--no-verify</code> obíde hooky. Ďalší krok je <code>pre-commit</code> hook a blokovanie <code>--no-verify</code> (#66).</span>
   </div>
 
   <section>
@@ -219,8 +219,8 @@ const stations = [
   { title: "Merge do main", sub: "Brána pred hlavnou vetvou", items: [
     ["ok", "Len squash merge", "Merge commity a rebase merge sú vypnuté v nastavení repa."],
     ["ok", "Vetva sa po merge zmaže", "<code>deleteBranchOnMerge</code> je zapnuté."],
-    ["ok", "Ochrana vetvy main / ruleset", "<code>Main branch ruleset</code> (active) na predvolenej vetve: zákaz zmazania, zákaz force pushu, zmeny len cez PR. Obísť ho môže len rola Admin (bypass always).", "2026-10-30"],
-    ["ok", "Povinné zelené CI pred merge", "Povinné sú <code>Script tests</code>, <code>Kit tests</code>, <code>Build, app tests, lint</code>, <code>check-title</code>, <code>check-body</code> a <code>critical-paths</code>, vetva musí byť aktuálna s main. Admin to môže obísť.", "2026-10-30"],
+    ["ok", "Ochrana vetvy main / ruleset", "<code>Main branch ruleset</code> (active) na predvolenej vetve: zákaz zmazania, zákaz force pushu, zmeny len cez PR. Rola Admin ho môže obísť len pri merge PR (bypass <code>pull_request</code>), priamy push na main GitHub odmietne aj adminovi.", "2026-11-01"],
+    ["ok", "Povinné zelené CI pred merge", "Povinné sú <code>Script tests</code>, <code>Kit tests</code>, <code>Build, app tests, lint</code>, <code>check-title</code>, <code>check-body</code> a <code>critical-paths</code>, vetva musí byť aktuálna s main. Admin to môže obísť len vedome pri merge PR.", "2026-11-01"],
     ["part", "Povinná review", "Ruleset vyžaduje 0 schválení, lebo je jediný autor. Review robí ručne spustený <code>/code-review</code> vo fresh session, nič ho nevynúti.", "2026-10-30"],
     ["miss", "CODEOWNERS pre kritické cesty", "Žiadny súbor nehovorí, kto musí schváliť zmenu v engine, Logu alebo CI."]
   ]},
@@ -235,7 +235,7 @@ const stations = [
 ];
 
 const todo = [
-  ["Ruleset na main s povinnými checkmi", "Hotovo: zákaz priameho pushu, šesť povinných checkov, 0 povinných schválení, bypass len pre Admin.", ["GitHub nastavenia", "~5 min", "najväčší efekt"], "2026-10-30"],
+  ["Ruleset na main s povinnými checkmi", "Hotovo: zákaz priameho pushu, šesť povinných checkov, 0 povinných schválení, Admin obchádza len cez PR (od 1. 11.).", ["GitHub nastavenia", "~5 min", "najväčší efekt"], "2026-11-01"],
   ["Zapnúť secret scanning a push protection", "Hotovo: oba prepínače sú podľa GitHub API zapnuté. Dependabot alerts a security updates tiež.", ["GitHub nastavenia", "~2 min"], "2026-10-30"],
   ["Dependabot pre Actions", "Hotovo v PR 77: <code>.github/dependabot.yml</code> s ekosystémom <code>github-actions</code>.", ["malý PR", "~15 min"], "2026-10-30"],
   ["Pripnúť Actions na SHA", "Hotovo: všetky workflowy sú pripnuté na SHA commitu. Dependabot ich aktualizuje sám.", ["malý PR", "~15 min"], "2026-10-31"],
