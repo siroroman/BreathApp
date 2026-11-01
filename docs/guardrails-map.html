@@ -193,7 +193,8 @@ const stations = [
     ["ok", "Auto-formát po každej editácii", "<code>format-swift.sh</code> pustí swiftformat na zmenený súbor. Nikdy neblokuje."],
     ["part", "Stop hook: lint a testy na konci", "<code>stop-check.sh</code> pustí <code>make lint test</code>, len keď sa zmenilo Swift alebo projektové súbory. Po prvom zlyhaní už druhý pokus nechá prejsť."],
     ["part", "Pravidlá v CLAUDE.md a docs/agents", "Definition of done, kritické cesty, workflow. Agent ich číta, ale nič nezlyhá, keď ich poruší."],
-    ["ok", "Zoznam zakázaných vecí (deny)", "<code>settings.json</code> má aj <code>deny</code>: čítanie <code>.env</code>, kľúčov a certifikátov, <code>~/.ssh</code>, <code>~/.aws</code>, príkazy <code>curl</code>, <code>wget</code>, <code>sudo</code> a čokoľvek zreťazené do <code>sh</code>/<code>bash</code>. Pravidlá <code>Read</code> sa týkajú nástroja Read, nie <code>cat</code> v shelli.", "2026-10-30"]
+    ["ok", "Zoznam zakázaných vecí (deny)", "<code>settings.json</code> má aj <code>deny</code>: čítanie <code>.env</code>, kľúčov a certifikátov, <code>~/.ssh</code>, <code>~/.aws</code>, príkazy <code>curl</code>, <code>wget</code>, <code>sudo</code> a čokoľvek zreťazené do <code>sh</code>/<code>bash</code>. Pravidlá <code>Read</code> sa týkajú nástroja Read, nie <code>cat</code> v shelli.", "2026-10-30"],
+    ["part", "Deny pre gh: merge, API, zmazanie repa", "Chýba <code>Bash(gh pr merge:*)</code>, <code>Bash(gh api:*)</code> a <code>Bash(gh repo delete:*)</code>. Zápis cez <code>gh api</code> obíde hook proti nebezpečnému gitu. Issue #90.", "2026-11-01"]
   ]},
   { title: "Lokálny commit", sub: "Na tvojom disku", items: [
     ["part", "commit-msg: Conventional Commits", "<code>.githooks/commit-msg</code> kontroluje formát. Zapína sa ručne <code>git config core.hooksPath .githooks</code> v každom klone a dá sa obísť <code>--no-verify</code>."],
@@ -211,6 +212,7 @@ const stations = [
     ["part", "Draft a /code-review vo fresh session", "Pravidlo procesu a agent <code>code-reviewer</code>. Spúšťa sa ručne, nič nezabráni označiť PR ako ready bez neho."],
     ["part", "Screenshot z CI", "<code>make run screenshot</code> sa uloží ako artifact. Nikto ani nič ho nekontroluje."],
     ["ok", "PR šablóna", "<code>.github/pull_request_template.md</code> otvorí PR so všetkými sekciami.", "2026-10-30"],
+    ["part", "Improver nepíše riadok Guardrails touched", "<code>~/.claude/improver/run.sh</code> je mimo repa a telo PR zatiaľ nedopĺňa. Jeho PR menia guardrail súbory často, takže budú v <code>check-body</code> padať, kým sa to nedoplní. Issue #90.", "2026-11-01"],
     ["ok", "Kritické cesty ako automatická kontrola", "<code>scripts/check-critical-paths.sh</code> zlyhá, keď zmena zdrojov v kritickej ceste nemá zmenu v testoch a telo PR nezačína <code>&gt; **Warning:**</code>. Check je povinný v rulesete.", "2026-10-31"],
     ["ok", "Zmena guardrails je v tele PR", "<code>scripts/check-guardrail-paths.sh</code> v jobe <code>check-body</code> zlyhá, keď PR mení hook, workflow, kontrolný skript, lint alebo register a telo nemá riadok <code>**Guardrails touched:**</code>. Cesty sú v <code>docs/agents/guardrail-paths.md</code>, číta ich z main aj z vetvy. Dependabot sa preskakuje.", "2026-11-01"],
     ["miss", "Hranica pokrytia testami", "Kit má zatiaľ len test hodín a placeholder. Pokrytie sa nemeria."],
@@ -231,11 +233,19 @@ const stations = [
     ["ok", "Push protection", "Zapnuté. GitHub zablokuje push s kľúčom alebo tokenom.", "2026-10-30"],
     ["ok", "Dependabot", "Upozornenia na zraniteľné závislosti a automatické bezpečnostné opravy sú zapnuté. <code>.github/dependabot.yml</code> (PR 77) otvára raz týždenne PR pre staré verzie Actions s predponou <code>ci</code>. Prvé PR ešte neprišli.", "2026-10-30"],
     ["ok", "Actions pripnuté na SHA", "Všetky <code>uses:</code> v <code>ci.yml</code>, <code>pr-title.yml</code> a <code>pr-body.yml</code> sú pripnuté na SHA s komentárom verzie. Dependabot ich aktualizuje sám.", "2026-10-31"],
+    ["part", "Timeouty a práva vo workflowoch", "Predvolené práva repa sú <code>read</code>, ale súbory workflowov nemajú <code>permissions:</code> ani <code>timeout-minutes</code>. Zaseknutý macOS job by bežal až 6 hodín. Issue #90.", "2026-11-01"],
+    ["part", "Dependabot aj pre Swift balík", "<code>dependabot.yml</code> hlási len <code>github-actions</code>. Závislosti <code>BreathnestKit/Package.swift</code> (ekosystém <code>swift</code>) nikto nesleduje. Issue #90.", "2026-11-01"],
     ["miss", "CodeQL alebo iná statická analýza", "Žiadna bezpečnostná analýza Swift kódu."]
   ]}
 ];
 
 const todo = [
+  ["Warnings ako chyby v CI", "<code>SWIFT_TREAT_WARNINGS_AS_ERRORS=YES</code> v CI builde a <code>-warnings-as-errors</code> pre Kit. Swift 6 už vynucuje súbežnosť, varovania však nepadnú.", ["malý PR", "~15 min"]],
+  ["Timeouty a práva vo workflowoch", "<code>permissions: contents: read</code> a <code>timeout-minutes</code> na každom jobe.", ["malý PR", "~15 min"]],
+  ["Deny pre gh príkazy", "Pridať <code>gh pr merge</code>, <code>gh api</code>, <code>gh repo delete</code>. Merge ostáva tvoj.", ["malý PR", "~10 min"]],
+  ["Improver dopíše Guardrails touched", "Upraviť <code>~/.claude/improver/run.sh</code> (mimo repa), aby telo PR malo riadok, inak jeho PR padnú v <code>check-body</code>.", ["mimo repa", "~15 min"]],
+  ["Dependabot pre Swift balík", "Pridať ekosystém <code>swift</code> pre <code>BreathnestKit</code>.", ["malý PR", "~10 min"]],
+  ["Guardrail cesty v tele PR", "Hotovo v PR 89: <code>check-guardrail-paths.sh</code> a register <code>guardrail-paths.md</code>.", ["malý PR", "~1 hod"], "2026-11-01"],
   ["Ruleset na main s povinnými checkmi", "Hotovo: zákaz priameho pushu, šesť povinných checkov, 0 povinných schválení, Admin obchádza len cez PR (od 1. 11.).", ["GitHub nastavenia", "~5 min", "najväčší efekt"], "2026-11-01"],
   ["Zapnúť secret scanning a push protection", "Hotovo: oba prepínače sú podľa GitHub API zapnuté. Dependabot alerts a security updates tiež.", ["GitHub nastavenia", "~2 min"], "2026-10-30"],
   ["Dependabot pre Actions", "Hotovo v PR 77: <code>.github/dependabot.yml</code> s ekosystémom <code>github-actions</code>.", ["malý PR", "~15 min"], "2026-10-30"],
