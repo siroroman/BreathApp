@@ -44,5 +44,5 @@ Vytiahnuť znovupoužiteľné časti (skilly, hooky, `docs/agents/`, Makefile, C
 - Prvý commit `Initial commit: .gitignore` nespĺňa konvenciu, históriu neprepisovať.
 - `npx skills` nefunguje, kým nemáš Node ≥ 22.20.
 - Headless observer (`claude -p`) potrebuje vlastné `claude auth login`, chyby sú v `.observer/log.txt` vo vaulte.
-- Zákaz commitov na `main` zatiaľ nie je vynútený.
+- Lokálny commit na `main` nič nezastaví, push na `main` GitHub odmietne každému vrátane admina.
 - CI macOS minúty sa na súkromnom repe počítajú 10×, workflow držať štíhly.
