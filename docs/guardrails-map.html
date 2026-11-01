@@ -136,7 +136,7 @@ footer { color: var(--ink-2); font-size: 13px; }
   <header>
     <div>
       <h1>Mapa guardrails</h1>
-      <p class="sub">Čo BreathApp už hlási, blokuje alebo kontroluje, kde je len odporúčanie v dokumentoch a čo úplne chýba. Stav k 31. 10. 2026, podľa repa a nastavení GitHubu.</p>
+      <p class="sub">Čo BreathApp už hlási, blokuje alebo kontroluje, kde je len odporúčanie v dokumentoch a čo úplne chýba. Stav k 1. 11. 2026, podľa repa a nastavení GitHubu.</p>
     </div>
     <div class="score" id="score"></div>
   </header>
@@ -212,6 +212,7 @@ const stations = [
     ["part", "Screenshot z CI", "<code>make run screenshot</code> sa uloží ako artifact. Nikto ani nič ho nekontroluje."],
     ["ok", "PR šablóna", "<code>.github/pull_request_template.md</code> otvorí PR so všetkými sekciami.", "2026-10-30"],
     ["ok", "Kritické cesty ako automatická kontrola", "<code>scripts/check-critical-paths.sh</code> zlyhá, keď zmena zdrojov v kritickej ceste nemá zmenu v testoch a telo PR nezačína <code>&gt; **Warning:**</code>. Check je povinný v rulesete.", "2026-10-31"],
+    ["ok", "Zmena guardrails je v tele PR", "<code>scripts/check-guardrail-paths.sh</code> v jobe <code>check-body</code> zlyhá, keď PR mení hook, workflow, kontrolný skript, lint alebo register a telo nemá riadok <code>**Guardrails touched:**</code>. Cesty sú v <code>docs/agents/guardrail-paths.md</code>, číta ich z main aj z vetvy. Dependabot sa preskakuje.", "2026-11-01"],
     ["miss", "Hranica pokrytia testami", "Kit má zatiaľ len test hodín a placeholder. Pokrytie sa nemeria."],
     ["miss", "Automatické UI testy a AX5", "Pozerá sa na screenshot ručne cez agenta <code>ui-verifier</code>."],
     ["miss", "SwiftLint a warnings ako chyby", "Kontroluje sa len formát (swiftformat). Varovania kompilátora nezastavia build."]
