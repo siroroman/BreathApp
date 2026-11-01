@@ -1,14 +1,14 @@
 <!doctype html>
-<html lang="sk">
+<html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mapa guardrails</title>
+<title>Guardrails Map</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Schibsted+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* Layout: a route of 5 stations (agent -> commit -> pull request -> merge -> repo). Each station stacks its guardrails as cards coloured by state. */
+/* Layout: a route of 5 stations side by side (agent -> disk -> pull request -> merge -> repo). Each station is a column of guardrail cards coloured by state; a card opens a detail dialog: problem, example, how it works, where it falls short. */
 :root {
   --bg: #f3f5f8;
   --surface: #ffffff;
@@ -41,19 +41,21 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 body {
   background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5;
+  margin: 0;
   padding-block: 32px 64px;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
 }
 .wrap { max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px; }
-code, .mono { font-family: var(--font-mono); font-size: 0.84em; }
+code { font-family: var(--font-mono); font-size: 0.84em; overflow-wrap: anywhere; }
 
 /* header */
 header { display: flex; flex-wrap: wrap; gap: 24px 48px; align-items: end; justify-content: space-between; }
-h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(34px, 6vw, 60px); line-height: 1; letter-spacing: -0.02em; margin: 0 0 10px; text-wrap: balance; }
-.sub { color: var(--ink-2); margin: 0; max-width: 52ch; }
+h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(34px, 6vw, 60px); line-height: 1; letter-spacing: -0.02em; margin: 0 0 12px; text-wrap: balance; }
+.sub { color: var(--ink-2); margin: 0; max-width: 62ch; }
 .score { display: flex; gap: 10px; flex-wrap: wrap; }
 .tile { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 18px; min-width: 112px; }
 .tile b { display: block; font-family: var(--font-display); font-size: 40px; line-height: 1; font-variant-numeric: tabular-nums; }
@@ -65,16 +67,26 @@ h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(34px, 
 .bar i { display: block; height: 100%; }
 .bar .ok { background: var(--ok); } .bar .part { background: var(--part); } .bar .miss { background: var(--miss); }
 
+/* key finding */
+.finding { background: var(--ink); color: var(--bg); border-radius: 16px; padding: 22px 26px; display: grid; gap: 8px; }
+.finding b { font-family: var(--font-display); font-size: 22px; line-height: 1.2; text-wrap: balance; }
+.finding span { opacity: .85; max-width: 80ch; }
+.finding code { background: color-mix(in srgb, var(--bg) 18%, transparent); padding: 1px 6px; border-radius: 4px; }
+
 /* legend + filter */
 .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
 .controls .lbl { color: var(--ink-2); font-size: 13px; margin-right: 4px; }
+.controls .hint { margin-left: auto; }
 .chip { font: inherit; font-size: 14px; font-weight: 500; padding: 7px 14px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
-.chip:focus-visible, .card:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.chip:focus-visible, .card:focus-visible, .nav button:focus-visible, .close:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex: none; }
 .dot.ok { background: var(--ok); } .dot.part { background: var(--part); } .dot.miss { background: var(--miss); }
+.legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 8px 24px; margin: 14px 0 28px; font-size: 13px; color: var(--ink-2); }
+.legend div { display: flex; gap: 8px; align-items: baseline; }
+.legend b { color: var(--ink); font-weight: 600; }
 
-/* route */
+/* route: 5 columns, a rail across the top, one stop per column */
 .route { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; position: relative; }
 .station { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .stop { position: relative; padding-top: 38px; }
@@ -82,230 +94,621 @@ h1 { font-family: var(--font-display); font-weight: 800; font-size: clamp(34px, 
 .station:first-child .stop::before { left: 0; }
 .station:last-child .stop::before { right: 0; }
 .stop::after { /* station dot */ content: ""; position: absolute; top: 2px; left: 0; width: 22px; height: 22px; border-radius: 50%; background: var(--bg); border: 4px solid var(--route); }
-.stop h2 { font-family: var(--font-display); font-weight: 800; font-size: 21px; line-height: 1.1; margin: 0 0 2px; letter-spacing: -0.01em; }
+.stop h2 { font-family: var(--font-display); font-weight: 800; font-size: 21px; line-height: 1.1; margin: 0 0 4px; letter-spacing: -0.01em; text-wrap: balance; }
 .stop p { margin: 0; color: var(--ink-2); font-size: 13px; }
-.mini { display: flex; height: 6px; border-radius: 3px; overflow: hidden; background: var(--line); margin-top: 10px; }
+.stop .count { margin-top: 8px; font-size: 12px; font-weight: 600; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.mini { display: flex; height: 6px; border-radius: 3px; overflow: hidden; background: var(--line); margin-top: 6px; }
 .mini i { height: 100%; }
 .mini .ok { background: var(--ok); } .mini .part { background: var(--part); } .mini .miss { background: var(--miss); }
 
-.card { text-align: left; font: inherit; color: inherit; width: 100%; background: var(--surface); border-radius: 10px; padding: 11px 12px 11px 12px; border: 1.5px solid var(--line); cursor: pointer; display: flex; flex-direction: column; gap: 4px; transition: opacity .15s, transform .15s; }
+.cards { display: flex; flex-direction: column; gap: 10px; }
+.card { text-align: left; font: inherit; color: inherit; width: 100%; background: var(--surface); border-radius: 10px; padding: 11px 12px; border: 1.5px solid var(--line); cursor: pointer; display: flex; flex-direction: column; gap: 5px; transition: opacity .15s, transform .15s; }
 .card:hover { transform: translateY(-1px); }
 .card.ok { border-color: var(--ok); background: var(--ok-bg); }
 .card.part { border-color: var(--part); border-style: dashed; background: var(--part-bg); }
 .card.miss { border-color: var(--miss); border-style: dotted; background: var(--miss-bg); }
 .card .top { display: flex; gap: 8px; align-items: flex-start; }
 .card .top .dot { margin-top: 6px; }
-.card .name { font-weight: 600; font-size: 14px; line-height: 1.3; }
-.card .more { display: none; font-size: 13px; color: var(--ink-2); }
-.card .more code { color: var(--ink); }
-.card[aria-expanded="true"] .more { display: block; }
+.card .name { font-weight: 600; font-size: 14px; line-height: 1.3; text-wrap: pretty; }
+.card .line { font-size: 12.5px; line-height: 1.4; color: var(--ink-2); padding-left: 18px; }
+.card .meta { padding-left: 18px; display: flex; flex-wrap: wrap; gap: 6px; font-size: 12px; font-weight: 600; }
+.card .meta .done { color: var(--ok); }
+.card .meta .real { color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 5px; padding: 0 6px; }
+.card .meta .open { color: var(--ink-2); }
 .card.dim { opacity: 0.18; }
 
-/* priorities */
-h3 { font-family: var(--font-display); font-weight: 800; font-size: 28px; margin: 0 0 4px; letter-spacing: -0.01em; }
-.lead { color: var(--ink-2); margin: 0 0 20px; }
-.todo { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 14px; }
+/* detail dialog */
+dialog.detail { width: min(680px, calc(100vw - 24px)); max-height: min(88vh, 960px); padding: 0; border: 2px solid var(--line); border-radius: 16px; background: var(--surface); color: var(--ink); box-shadow: 0 24px 60px rgba(8, 14, 22, .35); overflow: auto; }
+dialog.detail::backdrop { background: rgba(8, 14, 22, .55); }
+dialog.detail[data-st="ok"] { border-color: var(--ok); }
+dialog.detail[data-st="part"] { border-color: var(--part); }
+dialog.detail[data-st="miss"] { border-color: var(--miss); }
+.d-body { padding: 22px 26px 20px; display: flex; flex-direction: column; gap: 18px; }
+.d-head { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
+.pill { font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; display: inline-flex; gap: 6px; align-items: center; }
+.pill.ok { background: var(--ok-bg); color: var(--ok); } .pill.part { background: var(--part-bg); color: var(--part); } .pill.miss { background: var(--miss-bg); color: var(--miss); }
+.close { margin-left: auto; font: inherit; font-size: 22px; line-height: 1; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.d-title { font-family: var(--font-display); font-weight: 800; font-size: clamp(24px, 4vw, 30px); line-height: 1.12; letter-spacing: -0.01em; margin: 0; text-wrap: balance; }
+.d-line { margin: -8px 0 0; color: var(--ink-2); }
+.sec { display: flex; flex-direction: column; gap: 6px; }
+.sec h3 { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
+.sec p { margin: 0; max-width: 64ch; }
+.sec.example { background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+.sec.example h3 { display: flex; gap: 8px; align-items: center; }
+.sec.example .badge { text-transform: none; letter-spacing: 0; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 5px; padding: 0 6px; }
+.d-foot { font-size: 13px; color: var(--ink-2); margin: 0; }
+.nav { display: flex; gap: 10px; align-items: center; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 14px; font-variant-numeric: tabular-nums; }
+.nav button { font: inherit; font-size: 14px; font-weight: 500; padding: 7px 14px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; }
+.nav button:disabled { opacity: .4; cursor: default; }
+.nav span { font-size: 13px; color: var(--ink-2); }
+
+/* what is left, what is done */
+.sec-h { font-family: var(--font-display); font-weight: 800; font-size: 28px; margin: 0 0 4px; letter-spacing: -0.01em; text-wrap: balance; }
+.lead { color: var(--ink-2); margin: 0 0 20px; max-width: 70ch; }
+.todo { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 14px; }
 .t { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; }
 .t .head { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
-.t h4 { margin: 0; font-size: 16px; line-height: 1.3; }
+.t h3 { margin: 0; font-size: 16px; line-height: 1.3; text-wrap: balance; }
 .t p { margin: 0; color: var(--ink-2); font-size: 14px; }
-.rank { font-family: var(--font-display); font-weight: 800; font-size: 30px; color: var(--miss); line-height: 1; flex: none; }
+.rank { font-family: var(--font-display); font-weight: 800; font-size: 30px; color: var(--miss); line-height: 1; flex: none; font-variant-numeric: tabular-nums; }
 .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: auto; padding-top: 4px; }
 .tag { font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 6px; background: var(--bg); border: 1px solid var(--line); color: var(--ink-2); }
+.history { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); gap: 0 32px; }
+.history li { display: grid; grid-template-columns: 92px minmax(0, 1fr) auto; gap: 12px; align-items: baseline; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.history time { color: var(--ok); font-weight: 600; font-size: 13px; font-variant-numeric: tabular-nums; }
+.history .ref { color: var(--ink-2); font-size: 12px; white-space: nowrap; }
+.history button { font: inherit; text-align: left; padding: 0; border: 0; background: none; color: var(--ink); cursor: pointer; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
+.history button:hover { text-decoration-color: var(--ink); }
+.history button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
 
-/* key finding */
-.finding { background: var(--ink); color: var(--bg); border-radius: 16px; padding: 22px 26px; display: grid; gap: 6px; }
-.finding b { font-family: var(--font-display); font-size: 22px; line-height: 1.2; text-wrap: balance; }
-.finding span { opacity: .8; max-width: 80ch; }
-.finding code { background: color-mix(in srgb, var(--bg) 18%, transparent); padding: 1px 6px; border-radius: 4px; }
-
-.card .done { font-size: 12px; font-weight: 600; color: var(--ok); padding-left: 18px; }
-.t.finished { border-color: var(--ok); }
-.t.finished h4 { text-decoration: line-through; text-decoration-thickness: 1.5px; }
-.t.finished .rank { color: var(--ok); }
-.tag.fin { color: var(--ok); border-color: var(--ok); background: var(--ok-bg); }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 footer { color: var(--ink-2); font-size: 13px; }
 
 @media (max-width: 1100px) { .route { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 28px; } .stop::before, .station:first-child .stop::before, .station:last-child .stop::before { left: 0; right: 0; } }
-@media (max-width: 640px) { .route { grid-template-columns: minmax(0, 1fr); } .score { width: 100%; } .tile { flex: 1; min-width: 0; } }
+@media (max-width: 640px) {
+  .route { grid-template-columns: minmax(0, 1fr); }
+  .controls .hint { margin-left: 0; width: 100%; }
+  .score { width: 100%; } .tile { flex: 1; min-width: 0; }
+  .d-body { padding: 18px 18px 16px; }
+  .history li { grid-template-columns: 84px minmax(0, 1fr); }
+  .history .ref { grid-column: 2; }
+}
 @media (prefers-reduced-motion: reduce) { .card { transition: none; } .card:hover { transform: none; } }
 </style>
 
 <div class="wrap">
   <header>
     <div>
-      <h1>Mapa guardrails</h1>
-      <p class="sub">Čo BreathApp už hlási, blokuje alebo kontroluje, kde je len odporúčanie v dokumentoch a čo úplne chýba. Stav k 1. 11. 2026, podľa repa a nastavení GitHubu.</p>
+      <h1>Guardrails map</h1>
+      <p class="sub">Guardrails are automatic barriers that catch a mistake by an agent or a person before it reaches <code>main</code>. The map follows one change on its way: from a Claude session on your Mac to the repo settings on GitHub. Status as of 1 November 2026, from the repo and the GitHub settings.</p>
     </div>
     <div class="score" id="score"></div>
   </header>
 
-  <div class="bar" id="bar" role="img" aria-label="Pomer stavov"></div>
+  <div class="bar" id="bar" role="img" aria-label="Share of states"></div>
 
   <div class="finding">
-    <b>Brána pred main drží, najväčšia diera je teraz obchádzanie lokálne.</b>
-    <span>Brána pred <code>main</code> drží: PR, šesť povinných checkov (vrátane <code>check-body</code> a <code>critical-paths</code>) a secret scanning s push protection. Push na <code>main</code> neprejde nikomu, ani adminovi. Ostáva lokálna strana: lokálny commit na <code>main</code> nič nezastaví a <code>--no-verify</code> obíde hooky. Ďalší krok je <code>pre-commit</code> hook a blokovanie <code>--no-verify</code> (#66).</span>
+    <b>The gate in front of main is solid. The weak spot is on your disk.</b>
+    <span><code>main</code> can only be reached through a pull request with six green checks, and GitHub rejects a push that contains a key or a token. On disk it is looser: git accepts a commit on <code>main</code>, the hooks have to be switched on by hand in every clone, and <code>--no-verify</code> skips them. Issue #66 covers this.</span>
   </div>
 
-  <section>
+  <section aria-labelledby="route-h">
+    <h2 class="sr" id="route-h">The route of one change</h2>
     <div class="controls" id="controls">
-      <span class="lbl">Ukáž:</span>
-      <button class="chip" data-f="all" aria-pressed="true">Všetko</button>
-      <button class="chip" data-f="ok" aria-pressed="false"><i class="dot ok"></i>Máme</button>
-      <button class="chip" data-f="part" aria-pressed="false"><i class="dot part"></i>Čiastočne</button>
-      <button class="chip" data-f="miss" aria-pressed="false"><i class="dot miss"></i>Chýba</button>
-      <span class="lbl" style="margin-left:auto">Klikni na kartu pre detail</span>
+      <span class="lbl">Show:</span>
+      <button class="chip" data-f="all" aria-pressed="true">All</button>
+      <button class="chip" data-f="ok" aria-pressed="false"><i class="dot ok"></i>In place</button>
+      <button class="chip" data-f="part" aria-pressed="false"><i class="dot part"></i>Partial</button>
+      <button class="chip" data-f="miss" aria-pressed="false"><i class="dot miss"></i>Missing</button>
+      <span class="lbl hint">Click a card for the problem it solves and an example</span>
     </div>
-    <p class="lead" style="margin:10px 0 22px;font-size:13px">
-      <i class="dot ok"></i> Máme = automaticky vynútené. &nbsp;
-      <i class="dot part"></i> Čiastočne = existuje, ale len ako dokument, ručný krok alebo s dierou. &nbsp;
-      <i class="dot miss"></i> Chýba = nič také nie je.
-    </p>
+    <div class="legend">
+      <div><i class="dot ok"></i><span><b>In place:</b> works automatically, nobody can forget it.</span></div>
+      <div><i class="dot part"></i><span><b>Partial:</b> exists, but has to be switched on by hand, can be bypassed, or only advises.</span></div>
+      <div><i class="dot miss"></i><span><b>Missing:</b> nothing like it yet.</span></div>
+    </div>
     <div class="route" id="route"></div>
   </section>
 
-  <section>
-    <h3>Čo doplniť ako prvé</h3>
-    <p class="lead">Zoradené podľa toho, koľko rizika zavrú za málo práce.</p>
+  <section aria-labelledby="todo-h">
+    <h2 class="sec-h" id="todo-h">What is left</h2>
+    <p class="lead">Open gaps from the map, ordered by how much risk they close for little work.</p>
     <div class="todo" id="todo"></div>
   </section>
 
-  <footer>Zdroje: <code>.github/workflows/*</code>, <code>.claude/settings.json</code>, <code>.claude/hooks/*</code>, <code>.githooks/commit-msg</code>, <code>docs/agents/*</code>, <code>gh api</code> pre ochranu vetvy, rulesety a bezpečnostné nastavenia repa.</footer>
+  <section aria-labelledby="hist-h">
+    <h2 class="sec-h" id="hist-h">What we have already finished</h2>
+    <p class="lead">Checks added since the first version of the map. Click a name for details.</p>
+    <ul class="history" id="history"></ul>
+  </section>
+
+  <footer>Sources: <code>.github/workflows/*</code>, <code>.github/dependabot.yml</code>, <code>.claude/settings.json</code>, <code>.claude/hooks/*</code>, <code>.githooks/*</code>, <code>scripts/check-*</code>, <code>Makefile</code>, <code>docs/agents/*</code>, pull request bodies and the repo settings on GitHub (ruleset, secret scanning, Dependabot).</footer>
 </div>
+
+<dialog class="detail" id="detail" aria-labelledby="d-title">
+  <div class="d-body">
+    <div class="d-head">
+      <span class="eyebrow" id="d-station"></span>
+      <span class="pill" id="d-state"></span>
+      <button class="close" id="d-close" aria-label="Close">&times;</button>
+    </div>
+    <h2 class="d-title" id="d-title"></h2>
+    <p class="d-line" id="d-line"></p>
+    <div class="sec"><h3 id="d-problem-h"></h3><p id="d-problem"></p></div>
+    <div class="sec example"><h3 id="d-example-h"></h3><p id="d-example"></p></div>
+    <div class="sec"><h3 id="d-how-h"></h3><p id="d-how"></p></div>
+    <div class="sec" id="d-gap-box"><h3 id="d-gap-h"></h3><p id="d-gap"></p></div>
+    <p class="d-foot" id="d-foot"></p>
+    <div class="nav">
+      <button id="d-prev">&larr; Previous</button>
+      <span id="d-pos"></span>
+      <button id="d-next">Next &rarr;</button>
+    </div>
+  </div>
+</dialog>
 
 <script>
 /*
-  Ako trackovať progress:
-  - karta v `stations`: ["stav", "názov", "detail", "RRRR-MM-DD"]. Keď sa kontrola dokončí, zmeň stav na "ok"
-    a pridaj dátum ako 4. prvok. Počty a lišty hore sa prepočítajú samé.
-  - karta v `todo`: pridaj dátum ako 4. prvok, riadok sa označí ako hotový.
-  - aktualizuj aj "Stav k" v hlavičke.
+  How to track progress:
+  - a card in `stations`: { st, t, s, problem, example, real, how, gap, done, ref }
+      st      "ok" | "part" | "miss"
+      t       title: what the check does, in plain words
+      s       one sentence on the card
+      problem the problem it solves (for "miss": what can happen)
+      example a short concrete example; real: true or a string like "PR 6" when it really happened ("real case" badge)
+      how     how it works, files and settings (for "miss": what we have today)
+      gap     where it falls short (for "miss": how to close the gap), may be left out
+      done    "YYYY-MM-DD" when the check landed; the card then shows up in "What we have already finished"
+      ref     the PR or place the check comes from
+  - when a gap is closed: set st to "ok", add done and ref, and remove the item from `todo`.
+  - update "Status as of" in the header too. Counts and bars recalculate themselves.
 */
-const S = {
-  ok: "Máme", part: "Čiastočne", miss: "Chýba"
+const S = { ok: "In place", part: "Partial", miss: "Missing" };
+const LABELS = {
+  ok: ["The problem it solves", "How it works", "Where it falls short"],
+  part: ["The problem it solves", "How it works today", "What is missing for full protection"],
+  miss: ["What can happen", "What we have today", "How to close the gap"]
 };
 
 const stations = [
-  { title: "Claude session", sub: "Kým agent píše kód", items: [
-    ["ok", "Zoznam povolených príkazov", "<code>.claude/settings.json</code> povoľuje len <code>make</code>, <code>swift</code>, <code>simctl</code> a čítacie <code>git</code>/<code>gh</code> príkazy."],
-    ["ok", "Hook proti nebezpečnému gitu", "<code>block-dangerous-git.sh</code> zastaví force push, push na main, <code>reset --hard</code>, <code>clean -f</code>, <code>branch -D</code>. Má vlastné testy v CI. Funguje len v Claude session a číta text príkazu, takže ho nepokryje príkaz skrytý v skripte."],
-    ["ok", "Auto-formát po každej editácii", "<code>format-swift.sh</code> pustí swiftformat na zmenený súbor. Nikdy neblokuje."],
-    ["part", "Stop hook: lint a testy na konci", "<code>stop-check.sh</code> pustí <code>make lint test</code>, len keď sa zmenilo Swift alebo projektové súbory. Po prvom zlyhaní už druhý pokus nechá prejsť."],
-    ["part", "Pravidlá v CLAUDE.md a docs/agents", "Definition of done, kritické cesty, workflow. Agent ich číta, ale nič nezlyhá, keď ich poruší."],
-    ["ok", "Zoznam zakázaných vecí (deny)", "<code>settings.json</code> má aj <code>deny</code>: čítanie <code>.env</code>, kľúčov a certifikátov, <code>~/.ssh</code>, <code>~/.aws</code>, príkazy <code>curl</code>, <code>wget</code>, <code>sudo</code> a čokoľvek zreťazené do <code>sh</code>/<code>bash</code>. Pravidlá <code>Read</code> sa týkajú nástroja Read, nie <code>cat</code> v shelli.", "2026-10-30"],
-    ["ok", "Deny pre gh: merge, API, zmazanie repa", "<code>deny</code> v <code>settings.json</code> zakazuje <code>gh pr merge</code>, <code>gh api</code> a <code>gh repo delete</code>. Merge ostáva tvoj a zápis cez <code>gh api</code> už neobíde hook proti nebezpečnému gitu. Pravidlo zhodí len príkaz na začiatku, nie ten skrytý v skripte alebo <code>bash -c</code> (PR 100).", "2026-11-01"]
+  { title: "While the agent works", sub: "A Claude Code session on your Mac. The rules apply before a command runs.", items: [
+    { st: "ok", t: "The agent runs safe commands without asking",
+      s: "Build, tests and read-only git run at once. Everything else waits for your yes.",
+      problem: "An agent works fast and mostly alone. Without a list it would either nag you on every <code>make test</code>, or you would allow everything at once out of convenience.",
+      example: "The agent runs <code>make test</code> and <code>git diff</code> immediately. When it wants to run <code>npm install</code> or <code>rm -rf build</code>, it stops and waits for your approval.",
+      how: "The <code>allow</code> list in <code>.claude/settings.json</code>: <code>make</code> targets, <code>swift</code>, <code>swiftformat</code>, <code>xcodegen</code>, selected <code>xcrun simctl</code> commands, read-only <code>git</code> (<code>status</code>, <code>diff</code>, <code>log</code>, <code>fetch</code>) and <code>gh</code> (<code>issue view</code>, <code>pr view</code>, <code>pr diff</code>, <code>pr checks</code>)." },
+    { st: "ok", t: "The agent cannot wipe work or push to main",
+      s: "A hook stops force push, push to main, reset --hard and similar commands.",
+      problem: "One git command can throw away hours of work or rewrite history on GitHub. An agent may run it in good faith, for example to tidy a tangled branch quickly.",
+      example: "The agent gets tangled in a rebase and wants to fix it with <code>git reset --hard origin/main</code>. The hook stops the command with a <code>BLOCKED</code> message and the agent has to find a gentler way. Pushing its own branch, for example <code>git push -u origin feat/12-box-breathing-timer</code>, goes through.",
+      how: "The PreToolUse hook <code>.claude/hooks/block-dangerous-git.sh</code> reads the command text before it runs. It strips options like <code>-C dir</code> so they cannot fool it. Without <code>jq</code> it refuses everything. Its tests run in CI.",
+      gap: "It sees only commands in a Claude session and reads their text. A command hidden in a script, or run in a terminal outside Claude, is invisible to it. It also blocks a commit message that merely quotes a blocked command.",
+      ref: "PR 6" },
+    { st: "ok", t: "Swift files are formatted right after an edit",
+      s: "swiftformat handles spacing and brackets, not the agent.",
+      problem: "When an agent writes Swift, the formatting drifts from the rest of the code. <code>make lint</code> then fails over indentation, not logic, and the agent spends time on fixes that mean nothing.",
+      example: "The agent edits <code>ContentView.swift</code> and leaves bad indentation. The hook runs swiftformat at once and the file is clean before anyone opens it.",
+      how: "The PostToolUse hook <code>.claude/hooks/format-swift.sh</code> runs after every Edit or Write on a <code>.swift</code> file. The rules are in <code>.swiftformat</code>.",
+      gap: "It never blocks anything. If swiftformat is not installed, it silently does nothing. The real check is <code>make lint</code>." },
+    { st: "ok", t: "The agent cannot read secrets or run scripts from the internet",
+      s: ".env, keys, ~/.ssh, curl, wget, sudo and | sh are denied.",
+      problem: "An agent that sees the whole disk can paste a key into a log, a commit or a PR body by mistake. A command like <code>curl … | sh</code> runs somebody else's code that nobody read.",
+      example: "A library README tells you to install a tool with <code>curl -fsSL https://… | sh</code>. The agent wants to do it and Claude Code refuses. A denied command cannot be approved even by accident.",
+      how: "The <code>deny</code> list in <code>.claude/settings.json</code>: reading <code>.env</code>, <code>*.pem</code>, <code>*.p12</code>, <code>*.key</code>, <code>*.mobileprovision</code>, <code>~/.ssh</code>, <code>~/.aws</code> and <code>~/.config/gh</code>; the commands <code>curl</code>, <code>wget</code> and <code>sudo</code>; and piping into <code>sh</code>, <code>bash</code> or <code>zsh</code>.",
+      gap: "The read rules apply to the Read tool. <code>cat .env</code> in a shell is not denied, it just waits for your approval because it is not on the allow list.",
+      done: "2026-10-30", ref: "PR 81" },
+    { st: "ok", t: "The agent cannot merge a PR or write to GitHub on the side",
+      s: "gh pr merge, gh api and gh repo delete are denied.",
+      problem: "Merging is your decision. <code>gh api</code> can write to GitHub directly, outside git, so it would bypass the hook against dangerous git. <code>gh repo delete</code> deletes the whole repo.",
+      example: "Checks are green and the agent wants to merge the PR right away with <code>gh pr merge --squash</code>. The command is denied, so the PR waits for you.",
+      how: "Three more rules in <code>deny</code> in <code>.claude/settings.json</code>. Instead of <code>gh api</code>, agents use <code>gh pr checks</code> and <code>gh search</code>.",
+      gap: "The rule matches the start of a command. A <code>gh api</code> hidden in a script or in <code>bash -c</code> is not caught.",
+      done: "2026-11-01", ref: "PR 100" },
+    { st: "part", t: "The agent cannot finish before lint and tests pass",
+      s: "At the end of a session it runs make lint test. It does nothing for committed work.",
+      problem: "An agent likes to announce it is done even when tests fail. Without a check at the end you find out from CI, or not at all.",
+      example: "The agent changes <code>Placeholder.swift</code>, a test fails and the agent wants to stop. The hook hands it the last 60 lines of the error and the agent carries on and fixes it.",
+      how: "The Stop hook <code>.claude/hooks/stop-check.sh</code> runs <code>make lint test</code> when <code>git status</code> shows changes in <code>App</code>, <code>BreathnestKit</code>, <code>project.yml</code>, <code>Makefile</code> or <code>.swiftformat</code>.",
+      gap: "A second attempt to stop is let through, so the agent does not loop. It also looks only at uncommitted changes: the agent commits after every step, so at the end the working tree is clean and the hook runs nothing (issue #63)." },
+    { st: "part", t: "Working rules are written down, but nothing enforces them",
+      s: "The agent reads CLAUDE.md and docs/agents, but breaking a rule stops nothing.",
+      problem: "Many process rules exist only as text: when work is done, how a review goes, what must not change. An agent usually follows them. When it does not, nothing turns red.",
+      example: "<code>critical-paths.md</code> says that changing a check so it passes is never the fix. If an agent loosens a test to make it green, no tool reports it by itself. Only the Guardrails touched line in the PR body and the review will point it out.",
+      how: "<code>CLAUDE.md</code> and <code>docs/agents/*.md</code>. Rules that already have their own check (PR body, critical paths, guardrail changes) are listed separately on this map.",
+      gap: "Rules that a machine can verify are gradually turned into checks. The Swift conventions, for example, are issue #64." }
   ]},
-  { title: "Lokálny commit", sub: "Na tvojom disku", items: [
-    ["part", "commit-msg: Conventional Commits", "<code>.githooks/commit-msg</code> kontroluje formát. Zapína sa ručne <code>git config core.hooksPath .githooks</code> v každom klone a dá sa obísť <code>--no-verify</code>."],
-    ["miss", "pre-commit: lint a formát", "Zlý formát sa zistí až v CI alebo v Stop hooku."],
-    ["ok", "pre-push: rýchle Kit testy", "<code>.githooks/pre-push</code> pustí <code>make test-kit</code>. Zapína sa rovnako ako <code>commit-msg</code> cez <code>core.hooksPath</code> a dá sa obísť <code>--no-verify</code>.", "2026-10-30"],
-    ["miss", "Lokálny sken tajomstiev", "Nič (gitleaks a pod.) nekontroluje, čo ide do commitu."]
+  { title: "Commit and push on disk", sub: "Git hooks in .githooks/. Switched on once per clone, and they can be skipped.", items: [
+    { st: "ok", t: "Quick Kit tests run before every push",
+      s: "make test-kit in a few seconds, no simulator.",
+      problem: "A push with a broken test starts CI on macOS, which takes minutes. The result arrives when you are already doing something else.",
+      example: "You change code in the Kit and the clock test fails. The push stops with <code>make test-kit failed, nothing was pushed</code> and you fix it right away, while it is still in your head.",
+      how: "<code>.githooks/pre-push</code> runs <code>make test-kit</code>. A push that only deletes a branch is skipped.",
+      gap: "It is switched on by hand, like the commit message check, and <code>--no-verify</code> skips it. It does not run the app tests that need the simulator, those run only in CI.",
+      done: "2026-10-30", ref: "PR 81" },
+    { st: "part", t: "A commit message must follow Conventional Commits",
+      s: "Git rejects a bad format. But the hook has to be switched on by hand in every clone.",
+      problem: "The type in a message (<code>feat</code>, <code>fix</code>, <code>docs</code>) makes history readable and filterable. A message like <code>fix stuff</code> says nothing and breaks the changelog too.",
+      example: "The very first commit in the repo is <code>Initial commit: .gitignore</code>. It does not meet the convention because it predates the hook. It stays, we do not rewrite history. Today the hook would reject it and show an example of the right shape.",
+      real: "first commit",
+      how: "<code>.githooks/commit-msg</code> calls <code>scripts/check-commit-msg.sh</code>. The same script checks the PR title in CI.",
+      gap: "It is switched on by hand with <code>git config core.hooksPath .githooks</code> in every clone, and <code>--no-verify</code> skips it. Issue #66 covers both.",
+      ref: "PR 1" },
+    { st: "miss", t: "Nothing runs before a commit",
+      s: "Not the format, and no ban on committing to main.",
+      problem: "A mistake that a quick local check would catch in a second shows up only minutes later in CI. And git on your disk accepts a commit straight on <code>main</code>.",
+      example: "You forget to create a branch and commit straight on <code>main</code>. Git accepts it, GitHub rejects only the push. You then have to move the commit to a new branch.",
+      how: "Nothing. <code>.githooks/</code> has only <code>commit-msg</code> and <code>pre-push</code>.",
+      gap: "Issue #66: a <code>pre-commit</code> hook that refuses a commit on <code>main</code>, and <code>make setup</code> that switches the hooks on by itself." },
+    { st: "miss", t: "Nobody looks for a key in a commit on disk",
+      s: "GitHub catches it at push, and only a known format.",
+      problem: "A key or token is a problem the moment it leaves the disk. Nothing catches it locally, so protection depends on GitHub knowing its format.",
+      example: "You paste a test API key into <code>Config.swift</code> and commit. Nothing complains on disk. Push protection on GitHub stops a known key type and lets a custom format through.",
+      how: "Nothing. Protection comes only from push protection on GitHub (see the Repo and third-party code stop).",
+      gap: "An option: gitleaks in a <code>pre-commit</code> hook. There is no ticket for it yet." }
   ]},
-  { title: "Pull request", sub: "CI a kontrola", items: [
-    ["ok", "CI: testy skriptov a hookov", "Job <code>scripts</code> pustí <code>test-pr-facts.sh</code> a <code>test-block-dangerous-git.sh</code>."],
-    ["ok", "CI: Kit testy", "Job <code>kit</code> pustí <code>make test-kit</code> na macOS."],
-    ["ok", "CI: build, app testy, lint", "Job <code>ios</code> pustí <code>make gen build test lint</code>. Swiftformat je pripnutý na verziu <code>0.51.13</code>."],
-    ["ok", "Zlyhaný xcodebuild zhodí make", "macOS má make 3.81, ktorý ignoruje <code>.SHELLFLAGS</code>, takže <code>make build</code> a <code>make test-app</code> vracali 0 aj pri zlyhaní. <code>SHELL := /bin/bash -o pipefail</code> to opravuje a <code>test-make-pipefail.sh</code> beží v jobe <code>Kit tests</code> na macOS (PR 98).", "2026-11-01"],
-    ["ok", "Warnings ako chyby", "<code>SWIFT_TREAT_WARNINGS_AS_ERRORS</code> v <code>project.yml</code> pre appku a <code>.treatAllWarnings(as: .error)</code> v <code>Package.swift</code> pre Kit. Nový warning, aj od nového Xcode, zhodí build (PR 96).", "2026-11-01"],
-    ["ok", "Kontrola názvu PR", "<code>pr-title.yml</code> overí Conventional Commits, takže squash commit na main má správny formát."],
-    ["part", "pr-facts.sh", "Vypíše testy, dotknuté kritické cesty a UI súbory. Je to len podklad pre telo PR, nič nezlyhá."],
-    ["ok", "Kontrakt tela PR", "<code>pr-body.yml</code> volá <code>scripts/check-pr-body.sh</code>: 6 sekcií v poradí, žiadna prázdna, <code>Closes #N</code> ako posledný riadok. Dependabot PR sa preskakujú (preskočený job sa v povinnom checku počíta ako prešiel). Check je povinný v rulesete.", "2026-10-31"],
-    ["part", "Draft a /code-review vo fresh session", "Pravidlo procesu a agent <code>code-reviewer</code>. Spúšťa sa ručne, nič nezabráni označiť PR ako ready bez neho."],
-    ["part", "Screenshot z CI", "<code>make run screenshot</code> sa uloží ako artifact. Nikto ani nič ho nekontroluje."],
-    ["ok", "PR šablóna", "<code>.github/pull_request_template.md</code> otvorí PR so všetkými sekciami.", "2026-10-30"],
-    ["ok", "Improver píše telo PR podľa kontraktu", "<code>~/.claude/improver/run.sh</code> vloží riadok <code>**Guardrails touched:**</code> pod Merge Danger, keď diff mení guardrail súbor, a pred PR vytvorí issue pre <code>Closes #N</code>. Šablóna v <code>~/.claude/agents/improver.md</code> má všetkých šesť sekcií. Vzorové telo prešlo <code>check-pr-body.sh</code> aj <code>check-guardrail-paths.sh</code>, skutočný beh improvera to ešte neoveril. Riadok píše skript z diffu a nehodnotí, či je zmena prísnejšia alebo voľnejšia, to ostáva na reviewerovi. Oba súbory sú mimo repa a nikto ich nesleduje v gite.", "2026-11-01"],
-    ["ok", "Kritické cesty ako automatická kontrola", "<code>scripts/check-critical-paths.sh</code> zlyhá, keď zmena zdrojov v kritickej ceste nemá zmenu v testoch a telo PR nezačína <code>&gt; **Warning:**</code>. Check je povinný v rulesete.", "2026-10-31"],
-    ["ok", "Zmena guardrails je v tele PR", "<code>scripts/check-guardrail-paths.sh</code> v jobe <code>check-body</code> zlyhá, keď PR mení hook, workflow, kontrolný skript, lint alebo register a telo nemá riadok <code>**Guardrails touched:**</code>. Cesty sú v <code>docs/agents/guardrail-paths.md</code>, číta ich z main aj z vetvy. Dependabot sa preskakuje.", "2026-11-01"],
-    ["miss", "Hranica pokrytia testami", "Kit má zatiaľ len test hodín a placeholder. Pokrytie sa nemeria."],
-    ["miss", "Automatické UI testy a AX5", "Pozerá sa na screenshot ručne cez agenta <code>ui-verifier</code>."],
-    ["miss", "SwiftLint", "Kontroluje sa len formát (swiftformat). Pravidlá štýlu a bežných chýb nikto nehlási."]
+  { title: "Pull request", sub: "CI and checks while the PR waits for a merge.", items: [
+    { st: "ok", t: "The guards have their own tests",
+      s: "CI checks that the hooks and check scripts really catch what they should.",
+      problem: "A check script is code too. When it breaks, it does not start failing. It quietly lets everything through and nobody notices.",
+      example: "The first version of the hook against dangerous git let <code>git -C dir push -f</code> and <code>git clean --force</code> through. The test script showed 36 failures on it. Today it runs on every PR, so the same hole cannot quietly return.",
+      real: "PR 6",
+      how: "The <code>Script tests</code> job in <code>ci.yml</code> runs <code>test-pr-facts.sh</code> and <code>test-block-dangerous-git.sh</code>. Tests of the other checks run in <code>pr-body.yml</code>, right before the check itself.",
+      ref: "PR 6, PR 76" },
+    { st: "ok", t: "Kit logic is tested on every PR",
+      s: "make test-kit on a macOS runner, a required check.",
+      problem: "Session, Phase and timing rules live in <code>BreathnestKit</code>. A mistake there shows up as a wrong exercise length that the user only feels and cannot name.",
+      example: "The Kit has only a clock test so far. When the Session engine lands, a change in Cycle counting that makes a five-minute Session one Cycle longer will be caught by a test with <code>ManualClock</code>, and the <code>Kit tests</code> check turns red.",
+      how: "The <code>Kit tests</code> job in <code>ci.yml</code> on macOS with a 10 minute limit.",
+      ref: "PR 76" },
+    { st: "ok", t: "The app must build, pass its tests and lint",
+      s: "make gen build test lint with a pinned swiftformat version.",
+      problem: "Code that works on only one Mac is not done. And a different tool version can fail lint on files nobody touched.",
+      example: "The Homebrew swiftformat on the runner was newer than the local one, and its new rules reported errors in untouched files. CI therefore installs exactly version <code>0.51.13</code>.",
+      real: true,
+      how: "The <code>Build, app tests, lint</code> job in <code>ci.yml</code> on macOS with a 30 minute limit.",
+      gap: "The local swiftformat version is not pinned, you have to match it by hand (issue #71).",
+      ref: "PR 76" },
+    { st: "ok", t: "A broken build really fails CI",
+      s: "Before, make reported success even on BUILD FAILED.",
+      problem: "macOS ships GNU Make 3.81, which ignores <code>.SHELLFLAGS</code>. For <code>xcodebuild … | xcbeautify</code> only the result of <code>xcbeautify</code> counted, and that was always a success.",
+      example: "During a trial a syntax error was added to <code>ContentView.swift</code>. <code>make build</code> printed <code>BUILD FAILED</code> and exited with code 0, so CI would have stayed green on a broken build. Today the same file ends with code 2.",
+      real: "PR 98",
+      how: "<code>SHELL := /bin/bash -o pipefail</code> in the <code>Makefile</code>. <code>scripts/test-make-pipefail.sh</code> verifies it in the <code>Kit tests</code> job on macOS.",
+      done: "2026-11-01", ref: "PR 98" },
+    { st: "ok", t: "Every compiler warning is an error",
+      s: "An unused variable or a deprecated API stops the build.",
+      problem: "Warnings pile up quietly. A few months later there are a hundred and the one important warning is lost among them.",
+      example: "During a trial the line <code>func warnProbe() { var x = 1 }</code> built with only a warning. Today the build ends with <code>initialization of variable 'x' was never used</code>.",
+      real: "PR 96",
+      how: "<code>SWIFT_TREAT_WARNINGS_AS_ERRORS</code> in <code>project.yml</code> for the app, <code>.treatAllWarnings(as: .error)</code> in <code>Package.swift</code> for the Kit.",
+      gap: "A new Xcode can bring new warnings and break a build that passed yesterday. That is intended, but expect it when you upgrade.",
+      done: "2026-11-01", ref: "PR 96" },
+    { st: "ok", t: "A PR title must be a valid commit message",
+      s: "With squash merge the title becomes the commit on main.",
+      problem: "With squash merge, the commit message on <code>main</code> comes from the PR title, not from the commits on the branch. The hook on disk never sees it.",
+      example: "A PR titled <code>Update map</code> is stopped by <code>check-title</code>. <code>docs(guardrails): rewrite the guardrails map</code> passes.",
+      how: "<code>pr-title.yml</code> sends the title to <code>scripts/check-commit-msg.sh</code>, the same script the hook uses. A required check.",
+      ref: "PR 3" },
+    { st: "ok", t: "A PR opens with a ready outline",
+      s: "The six sections that the PR body check requires.",
+      problem: "Without an outline every PR body looks different, and the important part goes missing: what can break and what the author did not verify.",
+      example: "A new PR on GitHub opens with the sections Summary, Tests, Snapshots, Evidence, Merge Danger and Reviewer notes, and a <code>Closes #</code> line at the end.",
+      how: "<code>.github/pull_request_template.md</code>, with comments saying when to add the Warning and Guardrails touched lines.",
+      done: "2026-10-30", ref: "PR 81" },
+    { st: "ok", t: "A PR body must have all six sections",
+      s: "A missing or empty section fails check-body.",
+      problem: "A reviewer needs to know what was tested, what can break and what the author did not verify. An empty PR body hides all of it.",
+      example: "Before PR 81, even a PR with an empty body got green checks. Today <code>check-body</code> fails and names the missing section, for example Merge Danger.",
+      how: "<code>pr-body.yml</code> calls <code>scripts/check-pr-body.sh</code>: sections in the right order, none empty (an HTML comment does not count) and <code>Closes #N</code> as the last line. Dependabot PRs are skipped.",
+      gap: "It checks the shape, not the truth. Whether the content matches the diff is judged by the <code>code-reviewer</code> agent.",
+      done: "2026-10-31", ref: "PR 81" },
+    { st: "ok", t: "A change in sensitive code needs a test",
+      s: "Session, Exercise, Log and Reminders do not pass without a test change.",
+      problem: "A mistake in the Session engine, the Log or Reminders costs the user an exercise or their data. The app is offline and has no backup.",
+      example: "A PR changes <code>BreathnestKit/Sources/BreathnestKit/SessionEngine.swift</code> and no test. The <code>critical-paths</code> check stops it. When a test really cannot be written, the PR body starts with <code>&gt; **Warning:**</code> and the reviewer sees it first.",
+      how: "<code>scripts/check-critical-paths.sh</code> in <code>pr-body.yml</code>. The paths are in <code>docs/agents/critical-paths.md</code>. A required check.",
+      gap: "It knows files by the names in the register. Critical behaviour in a differently named file has to be named by the author in the PR.",
+      done: "2026-10-31", ref: "PR 81" },
+    { st: "ok", t: "A change to a guardrail must be declared in the PR body",
+      s: "Editing a hook, CI or a check needs a Guardrails touched line.",
+      problem: "Agents edit hooks, workflows and check scripts too. A small change can switch a check off and no test turns red.",
+      example: "While this check was being built, a PR that emptied the register <code>guardrail-paths.md</code> passed, because the paths were read only from the branch. Today they are read from <code>main</code> as well, so deleting a path no longer hides its own change.",
+      real: "PR 89",
+      how: "<code>scripts/check-guardrail-paths.sh</code> in the <code>check-body</code> job. The paths are in <code>docs/agents/guardrail-paths.md</code>. A line that says <code>none</code> does not pass.",
+      gap: "It checks that the line exists. Whether the change is stricter or looser is for a person to judge.",
+      done: "2026-11-01", ref: "PR 89" },
+    { st: "ok", t: "The daily agent writes PRs by the same rules",
+      s: "The improver adds Guardrails touched and Closes #N by itself.",
+      problem: "The improver is an agent that turns process improvement ideas into a PR every day. It almost always changes guardrail files. If its PR body broke the rules, every one of its PRs would fail <code>check-body</code>.",
+      example: "The improver edits <code>.claude/hooks/stop-check.sh</code>. The script <code>run.sh</code> inserts a <code>**Guardrails touched:**</code> line under Merge Danger and, before the PR, creates an issue that the PR closes with <code>Closes #N</code>.",
+      how: "<code>~/.claude/improver/run.sh</code> and the template in <code>~/.claude/agents/improver.md</code>, both outside the repo.",
+      gap: "Verified on a sample body, not yet on a real improver run. The files are not in git. The script writes the line from the diff and does not judge whether the change is stricter.",
+      done: "2026-11-01", ref: "outside the repo" },
+    { st: "part", t: "Facts for the PR body can be generated",
+      s: "A script lists tests, critical paths and UI files. It checks nothing.",
+      problem: "A PR body written from memory leaves things out: a test that was added, a critical path the change touched, a screen that needs a screenshot.",
+      example: "After a commit, <code>scripts/pr-facts.sh</code> prints that <code>.githooks/pre-push</code> changed and prepares the Guardrails touched section to fill in.",
+      how: "<code>scripts/pr-facts.sh</code> reads the committed diff against <code>origin/main</code>. Its tests are in <code>test-pr-facts.sh</code>.",
+      gap: "It is a helper, not a check. If nobody runs it, nothing happens." },
+    { st: "part", t: "An agent reviews in a fresh session",
+      s: "Started by hand. A PR can be marked ready without it.",
+      problem: "An author does not see their own mistakes, whether a person or an agent. The session that wrote the code is attached to its solution and knows only its own assumptions.",
+      example: "A review of the first version of the hook against dangerous git found bypasses via <code>-C</code> and <code>-fu</code> and a false alarm on a branch named <code>feat-f</code>.",
+      real: "PR 6",
+      how: "<code>/code-review</code> or the <code>code-reviewer</code> agent in a fresh session. <code>docs/agents/git.md</code> says a PR stays a draft until the review has run.",
+      gap: "Nothing enforces that the review happened. It is a process rule.",
+      ref: "PR 6" },
+    { st: "part", t: "CI photographs the app, but nobody checks the photo",
+      s: "The screenshot is saved with the CI run. A comparison with a reference is missing.",
+      problem: "Tests do not notice that text overflowed or a button disappeared. Only an image shows it.",
+      example: "A colour change makes text unreadable in dark mode. Tests pass. The screenshot in the <code>screenshot</code> artifact would show it, if anyone opened it.",
+      how: "<code>make run screenshot</code> in the <code>Build, app tests, lint</code> job uploads <code>build/screenshot.png</code>.",
+      gap: "Nobody compares the image with a reference. The <code>ui-verifier</code> agent does it only when someone starts it." },
+    { st: "miss", t: "We do not know how much code the tests cover",
+      s: "Coverage is not measured and has no lower limit.",
+      problem: "Tests can be green even though a large part of the logic never runs in them.",
+      example: "The Session engine arrives with a test only for the normal flow. Pausing and returning from the background stay untested and CI is green anyway.",
+      how: "Nothing. The Kit has only a clock test and a placeholder so far.",
+      gap: "Add it once the Kit has real code. Today a measurement would report almost nothing." },
+    { st: "miss", t: "No automated UI tests check the screens",
+      s: "Neither at the largest text size AX5, nor an accessibility audit.",
+      problem: "Breathnest has to be readable at the largest system text size. A manual check is easy to skip, especially when there are many screens.",
+      example: "At AX5 an exercise name wraps to three lines and covers the Start button. No test reports it.",
+      how: "Nothing automatic. The <code>ui-verifier</code> agent takes screenshots at normal text size and at AX5 when someone starts it.",
+      gap: "Issue #72: a UI test target with <code>performAccessibilityAudit()</code> and a String Catalog check before the first screen." },
+    { st: "miss", t: "No linter checks the Swift conventions",
+      s: "swiftformat handles format only. SwiftLint does not run.",
+      problem: "Format is only a part. The project rules written in <code>docs/agents/ios.md</code> and <code>testing.md</code> are not reported automatically.",
+      example: "The agent uses <code>Date()</code> in the Kit instead of the injected <code>Clock</code>. According to <code>critical-paths.md</code> that is a mistake, but it passes lint and build.",
+      how: "Nothing. <code>make lint</code> runs only swiftformat.",
+      gap: "Issue #64: SwiftLint with the project rules, and a script that guards that the Kit does not import UI frameworks." }
   ]},
-  { title: "Merge do main", sub: "Brána pred hlavnou vetvou", items: [
-    ["ok", "Len squash merge", "Merge commity a rebase merge sú vypnuté v nastavení repa."],
-    ["ok", "Vetva sa po merge zmaže", "<code>deleteBranchOnMerge</code> je zapnuté."],
-    ["ok", "Ochrana vetvy main / ruleset", "<code>Main branch ruleset</code> (active) na predvolenej vetve: zákaz zmazania, zákaz force pushu, zmeny len cez PR. Rola Admin ho môže obísť len pri merge PR (bypass <code>pull_request</code>), priamy push na main GitHub odmietne aj adminovi.", "2026-11-01"],
-    ["ok", "Povinné zelené CI pred merge", "Povinné sú <code>Script tests</code>, <code>Kit tests</code>, <code>Build, app tests, lint</code>, <code>check-title</code>, <code>check-body</code> a <code>critical-paths</code>, vetva musí byť aktuálna s main. Admin to môže obísť len vedome pri merge PR.", "2026-11-01"],
-    ["part", "Povinná review", "Ruleset vyžaduje 0 schválení, lebo je jediný autor. Review robí ručne spustený <code>/code-review</code> vo fresh session, nič ho nevynúti.", "2026-10-30"],
-    ["miss", "CODEOWNERS pre kritické cesty", "Žiadny súbor nehovorí, kto musí schváliť zmenu v engine, Logu alebo CI."]
+  { title: "Merge into main", sub: "The gate every change passes through.", items: [
+    { st: "ok", t: "Main can be reached only through a pull request",
+      s: "Nobody can push straight to main, force push, or delete it.",
+      problem: "One direct push to <code>main</code> skips all checks at once. A force push can rewrite history so it cannot be undone.",
+      example: "You commit on <code>main</code> by mistake and push. GitHub rejects the push even if you are an admin. The change has to go through a branch and a PR.",
+      how: "The repository ruleset <code>Main branch ruleset</code>. An admin can bypass it only when merging a PR (<code>bypass_mode: pull_request</code>).",
+      done: "2026-11-01", ref: "GitHub setting" },
+    { st: "ok", t: "A merge needs green checks",
+      s: "Six required checks and a branch up to date with main.",
+      problem: "Without required checks, CI is only advice. The Merge button could be pressed over a red build.",
+      example: "A PR has a red <code>critical-paths</code>. The Merge button stays locked until the author adds a test or a Warning line.",
+      how: "The ruleset requires <code>Script tests</code>, <code>Kit tests</code>, <code>Build, app tests, lint</code>, <code>check-title</code>, <code>check-body</code> and <code>critical-paths</code>.",
+      gap: "A new job in a workflow is not required until someone adds it to the ruleset. An admin can knowingly bypass the rule when merging.",
+      done: "2026-11-01", ref: "GitHub setting" },
+    { st: "ok", t: "Every PR is one commit on main",
+      s: "Only squash merge is allowed.",
+      problem: "With an ordinary merge, intermediate steps like <code>wip</code> or <code>fix typo</code> reach <code>main</code>. History is hard to read and a change is hard to undo.",
+      example: "A PR with several commits shows up on <code>main</code> as one commit, <code>build: fail make when xcodebuild fails (#98)</code>. To undo the change, one revert is enough.",
+      how: "Repo setting: merge commits and rebase merge are off, and the PR title is the commit title.",
+      ref: "PR 5" },
+    { st: "ok", t: "The branch is deleted after the merge",
+      s: "No dead branches pile up on GitHub.",
+      problem: "Old branches pile up and it is unclear which one is still alive. An agent may carry on by mistake on a branch that is already merged.",
+      example: "After PR 105 was merged, the branch <code>docs/104-map-improver-done</code> disappeared from GitHub. Further work starts on a new branch from <code>main</code>.",
+      real: "PR 105",
+      how: "The repo setting <code>deleteBranchOnMerge</code>.",
+      gap: "The local copy of the branch stays on disk until you delete it." },
+    { st: "part", t: "Approval of a PR is not required",
+      s: "The ruleset asks for 0 approvals because there is one author.",
+      problem: "GitHub does not let an author approve their own PR. With one person in the repo, a required approval would block every merge.",
+      example: "Checks are green and nobody ran <code>/code-review</code>. The merge can still be done.",
+      how: "Ruleset: 0 required approvals. Review is replaced by <code>/code-review</code> in a fresh session.",
+      gap: "Nothing enforces that a review happened before the merge." },
+    { st: "miss", t: "Nobody is a required approver for sensitive areas",
+      s: "There is no CODEOWNERS file.",
+      problem: "When several people or agents work on a project, you need to know who has to see a change in the Session engine, the Log or CI.",
+      example: "A second developer joins and changes the Log migration. GitHub asks nobody in particular for a review.",
+      how: "Nothing.",
+      gap: "It starts to make sense once there is a second person in the repo." }
   ]},
-  { title: "Repo a závislosti", sub: "Bezpečnosť a dodávateľský reťazec", items: [
-    ["ok", "Token v Actions len na čítanie", "Predvolené oprávnenia workflowov sú <code>read</code> (nastavenie repa)."],
-    ["ok", "Secret scanning", "Zapnuté, overené cez GitHub API.", "2026-10-30"],
-    ["ok", "Push protection", "Zapnuté. GitHub zablokuje push s kľúčom alebo tokenom.", "2026-10-30"],
-    ["ok", "Dependabot", "Upozornenia na zraniteľné závislosti a automatické bezpečnostné opravy sú zapnuté. <code>.github/dependabot.yml</code> (PR 77) otvára raz týždenne PR pre staré verzie Actions s predponou <code>ci</code>. Prvé PR ešte neprišli.", "2026-10-30"],
-    ["ok", "Actions pripnuté na SHA", "Všetky <code>uses:</code> v <code>ci.yml</code>, <code>pr-title.yml</code> a <code>pr-body.yml</code> sú pripnuté na SHA s komentárom verzie. Dependabot ich aktualizuje sám.", "2026-10-31"],
-    ["ok", "Timeouty a práva vo workflowoch", "Každý workflow má <code>permissions: contents: read</code> a každý job <code>timeout-minutes</code> (5, 10 a 30). Zaseknutý macOS job už nebeží 6 hodín. Nový workflow to musí skopírovať, nič to nekontroluje (PR 99).", "2026-11-01"],
-    ["ok", "Dependabot aj pre Swift balík", "<code>dependabot.yml</code> sleduje aj <code>BreathnestKit/Package.swift</code> (ekosystém <code>swift</code>, predpona <code>build</code>). Balík zatiaľ nemá závislosť, takže prvý PR ešte neprišiel a nie je overené, že Dependabot prečíta <code>swift-tools-version: 6.2</code> (PR 101).", "2026-11-01"],
-    ["miss", "CodeQL alebo iná statická analýza", "Žiadna bezpečnostná analýza Swift kódu."]
+  { title: "Repo and third-party code", sub: "GitHub settings, secrets and dependencies.", items: [
+    { st: "ok", t: "The GitHub Actions token can only read the repo",
+      s: "A repo default, repeated in every workflow.",
+      problem: "Every job gets a token for GitHub. With write permission, a compromised third-party action could change code, tags or releases.",
+      example: "A tampered version of an action tries to push to the repo. With a read-only token GitHub refuses the write.",
+      how: "The repo setting Workflow permissions is <code>read</code>. Since PR 99 each workflow also says so itself with <code>permissions: contents: read</code>.",
+      ref: "GitHub setting, PR 99" },
+    { st: "ok", t: "A stuck job ends by itself",
+      s: "Limits of 5, 10 and 30 minutes instead of 6 hours.",
+      problem: "GitHub lets a job without a limit run for 6 hours. A stuck simulator would block a PR and burn macOS runner minutes.",
+      example: "The simulator hangs during <code>make test</code>. The <code>Build, app tests, lint</code> job is cancelled after 30 minutes and its check turns red. The slowest run so far took about 9 minutes.",
+      how: "<code>timeout-minutes</code> on every job in <code>ci.yml</code>, <code>pr-body.yml</code> and <code>pr-title.yml</code>.",
+      gap: "A new workflow has to copy the limits and permissions. Nothing checks that.",
+      done: "2026-11-01", ref: "PR 99" },
+    { st: "ok", t: "GitHub searches the repo for leaked keys",
+      s: "It warns about a token that has already got into the repo.",
+      problem: "A key stays in git history even after a later commit deletes it. Anyone with access to the repo can find it.",
+      example: "A token was left in an old commit. Secret scanning finds it and warns you to revoke it.",
+      how: "The repo setting Secret scanning, verified through the GitHub API.",
+      done: "2026-10-30", ref: "GitHub setting" },
+    { st: "ok", t: "GitHub rejects a push that contains a key",
+      s: "A token is stopped before it reaches GitHub.",
+      problem: "Once a key is in the repo it has to be revoked and replaced. It is better when it never gets there.",
+      example: "A commit contains a GitHub token starting with <code>ghp_</code>. The push ends with an error pointing at the file and line, and the commit has to be fixed.",
+      how: "The repo setting Push protection.",
+      gap: "It knows the formats of known providers. A custom key it will not recognise.",
+      done: "2026-10-30", ref: "GitHub setting" },
+    { st: "ok", t: "Dependabot watches CI actions and vulnerabilities",
+      s: "Weekly PRs for GitHub Actions and security alerts.",
+      problem: "Actions in CI get old and receive security fixes. Nobody will follow that by hand.",
+      example: "Dependabot opened PR 78 by itself, <code>ci: Bump actions/checkout from 4 to 7</code>. All that was needed was to check it and merge.",
+      real: "PR 78",
+      how: "<code>.github/dependabot.yml</code> with the <code>github-actions</code> ecosystem and the prefix <code>ci</code>, so the title passes <code>check-title</code>. Dependabot alerts and security updates are on.",
+      done: "2026-10-30", ref: "PR 77" },
+    { st: "ok", t: "CI actions are pinned to a specific commit",
+      s: "A tag can be moved, a SHA cannot.",
+      problem: "A tag like <code>v7</code> can be moved to different code by the action's author, or by someone who steals their account. The workflow would run it without warning.",
+      example: "<code>actions/checkout@3d3c42e… # v7.0.1</code> always runs the same code. A new version comes from Dependabot as a PR that you see and approve.",
+      how: "Every <code>uses:</code> in <code>ci.yml</code>, <code>pr-title.yml</code> and <code>pr-body.yml</code> has a SHA and a comment with the version.",
+      done: "2026-10-31", ref: "PR 81, PR 85" },
+    { st: "ok", t: "Dependabot is ready for the Swift package too",
+      s: "It starts reporting when BreathnestKit gets its first dependency.",
+      problem: "When the Kit gets its first library, its updates and fixes have to be tracked from day one, not once somebody remembers.",
+      example: "A package is added to <code>Package.swift</code>. When a new version of it is released, Dependabot opens a PR with the prefix <code>build</code>.",
+      how: "The <code>swift</code> ecosystem for <code>/BreathnestKit</code> in <code>dependabot.yml</code>.",
+      gap: "The Kit has no dependencies yet, so nobody has seen this work. It is also unverified whether Dependabot reads <code>swift-tools-version: 6.2</code>.",
+      done: "2026-11-01", ref: "PR 101" },
+    { st: "miss", t: "Code does not go through security analysis",
+      s: "No CodeQL or other static analysis of Swift.",
+      problem: "Some mistakes are found by neither tests nor lint, for example sensitive data written to a log or stored without encryption.",
+      example: "The app is offline and has no accounts, so today the risk is small. Once the Log stores more data, CodeQL could find, for example, that it is written to the system log.",
+      how: "Nothing.",
+      gap: "Add it when there is more code in the repo." }
   ]}
 ];
 
 const todo = [
-  ["Improver dopíše Guardrails touched", "Hotovo v <code>~/.claude/improver/run.sh</code> (mimo repa): riadok Guardrails touched, issue pre <code>Closes #N</code> a úplná šablóna tela PR. Neoverené skutočným behom.", ["mimo repa", "~15 min"], "2026-11-01"],
-  ["Warnings ako chyby v CI", "Hotovo v PR 96: <code>SWIFT_TREAT_WARNINGS_AS_ERRORS</code> pre appku a <code>.treatAllWarnings(as: .error)</code> pre Kit.", ["malý PR", "~15 min"], "2026-11-01"],
-  ["Timeouty a práva vo workflowoch", "Hotovo v PR 99: <code>permissions: contents: read</code> a <code>timeout-minutes</code> na každom jobe.", ["malý PR", "~15 min"], "2026-11-01"],
-  ["Deny pre gh príkazy", "Hotovo v PR 100: <code>gh pr merge</code>, <code>gh api</code>, <code>gh repo delete</code>. Merge ostáva tvoj.", ["malý PR", "~10 min"], "2026-11-01"],
-  ["Dependabot pre Swift balík", "Hotovo v PR 101: ekosystém <code>swift</code> pre <code>BreathnestKit</code>.", ["malý PR", "~10 min"], "2026-11-01"],
-  ["Zlyhaný xcodebuild zhodí make", "Hotovo v PR 98: <code>pipefail</code> v <code>SHELL</code>, lebo macOS make 3.81 ignoruje <code>.SHELLFLAGS</code>. Bez toho CI nezčervenelo na rozbitom builde.", ["malý PR", "~30 min", "našlo sa pri bode 1"], "2026-11-01"],
-  ["Guardrail cesty v tele PR", "Hotovo v PR 89: <code>check-guardrail-paths.sh</code> a register <code>guardrail-paths.md</code>.", ["malý PR", "~1 hod"], "2026-11-01"],
-  ["Ruleset na main s povinnými checkmi", "Hotovo: zákaz priameho pushu, šesť povinných checkov, 0 povinných schválení, Admin obchádza len cez PR (od 1. 11.).", ["GitHub nastavenia", "~5 min", "najväčší efekt"], "2026-11-01"],
-  ["Zapnúť secret scanning a push protection", "Hotovo: oba prepínače sú podľa GitHub API zapnuté. Dependabot alerts a security updates tiež.", ["GitHub nastavenia", "~2 min"], "2026-10-30"],
-  ["Dependabot pre Actions", "Hotovo v PR 77: <code>.github/dependabot.yml</code> s ekosystémom <code>github-actions</code>.", ["malý PR", "~15 min"], "2026-10-30"],
-  ["Pripnúť Actions na SHA", "Hotovo: všetky workflowy sú pripnuté na SHA commitu. Dependabot ich aktualizuje sám.", ["malý PR", "~15 min"], "2026-10-31"],
-  ["PR šablóna a CI kontrola tela PR", "Hotovo: šablóna so 6 sekciami a job <code>check-body</code>, ktorý zlyhá, ak chýba sekcia alebo <code>Closes #</code>.", ["malý PR", "~30 min"], "2026-10-30"],
-  ["Deny zoznam pre Claude", "Hotovo: <code>deny</code> v <code>.claude/settings.json</code> zakazuje čítanie <code>.env</code>, kľúčov a príkazy <code>curl</code>, <code>wget</code>, <code>sudo</code> a <code>| sh</code>.", ["malý PR", "~10 min"], "2026-10-30"],
-  ["Pre-push hook s make test-kit", "Hotovo: <code>.githooks/pre-push</code>, zapína sa raz na klon (<code>docs/agents/git.md</code>).", ["malý PR", "~15 min"], "2026-10-30"],
-  ["Check kritických ciest", "Hotovo: job <code>critical-paths</code> zlyhá, keď zmena kritickej cesty nemá test ani riadok Warning. Teraz pokrýva len pravidlá z <code>critical-paths.md</code>, kým v Kit nie je reálny kód.", ["neskôr", "~1 hod"], "2026-10-30"],
-  ["Pokrytie, SwiftLint, CodeQL", "Pridať, keď bude v repe viac než placeholder. Teraz by hlásili skoro nič.", ["neskôr"]]
+  ["Stop commits on main and bypassing the hooks", "Git accepts a commit on <code>main</code> today, the hooks have to be switched on by hand in every clone and <code>--no-verify</code> skips them. Add a <code>pre-commit</code> hook, block <code>--no-verify</code> in the Claude hook, and add a <code>make setup</code> that switches the hooks on by itself.", ["issue #66", "on disk"]],
+  ["Run the Stop hook after a commit too", "The agent commits after every step, so at the end of a session the working tree is clean and the hook runs nothing. The hook should compare the whole branch with <code>main</code>.", ["issue #63", "Claude session"]],
+  ["Swift conventions in make lint", "SwiftLint with the project rules (no <code>Date()</code> in Kit logic, no <code>DispatchQueue</code>) and a script that guards that the Kit does not import UI frameworks.", ["issue #64", "pull request"]],
+  ["The same tool versions everywhere", "A <code>Brewfile</code> and a check of the swiftformat and SwiftLint versions, so local lint gives the same result as CI.", ["issue #71", "on disk and in CI"]],
+  ["UI tests and an accessibility audit from the first screen", "A UI test target with <code>performAccessibilityAudit()</code> and a translations check, while there are few screens and adding them is cheap.", ["issue #72", "pull request"]],
+  ["Later: coverage, CodeQL, CODEOWNERS, a local secret scan", "They make sense once the repo has more code or more people. Today they would report almost nothing.", ["no ticket"]]
 ];
 
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const fmt = d => { const [y, m, day] = d.split("-"); return `${+day} ${MONTHS[+m - 1]} ${y}`; };
+
+const all = [];
+stations.forEach((s, si) => s.items.forEach(it => all.push({ ...it, station: s.title, si })));
+
 const counts = { ok: 0, part: 0, miss: 0 };
-stations.forEach(s => s.items.forEach(i => counts[i[0]]++));
-const total = counts.ok + counts.part + counts.miss;
+all.forEach(i => counts[i.st]++);
+const total = all.length;
 
 document.getElementById("score").innerHTML =
-  `<div class="tile ok"><b>${counts.ok}</b><span>máme</span></div>
-   <div class="tile part"><b>${counts.part}</b><span>čiastočne</span></div>
-   <div class="tile miss"><b>${counts.miss}</b><span>chýba</span></div>`;
+  `<div class="tile ok"><b>${counts.ok}</b><span>in place</span></div>
+   <div class="tile part"><b>${counts.part}</b><span>partial</span></div>
+   <div class="tile miss"><b>${counts.miss}</b><span>missing</span></div>`;
 
 const seg = c => `<i class="${c}" style="width:${(counts[c] / total * 100).toFixed(1)}%"></i>`;
-document.getElementById("bar").innerHTML = seg("ok") + seg("part") + seg("miss");
-document.getElementById("bar").setAttribute("aria-label",
-  `${counts.ok} máme, ${counts.part} čiastočne, ${counts.miss} chýba z ${total}`);
+const bar = document.getElementById("bar");
+bar.innerHTML = seg("ok") + seg("part") + seg("miss");
+bar.setAttribute("aria-label", `${counts.ok} in place, ${counts.part} partial, ${counts.miss} missing out of ${total}`);
 
 const route = document.getElementById("route");
+let idx = 0;
 stations.forEach(s => {
   const c = { ok: 0, part: 0, miss: 0 };
-  s.items.forEach(i => c[i[0]]++);
+  s.items.forEach(i => c[i.st]++);
   const n = s.items.length;
   const mini = ["ok", "part", "miss"].map(k => `<i class="${k}" style="width:${c[k] / n * 100}%"></i>`).join("");
-  const cards = s.items.map(([st, name, more, done]) =>
-    `<button class="card ${st}" data-st="${st}" aria-expanded="false">
-       <span class="top"><i class="dot ${st}"></i><span class="name">${name}<span class="sr"> (${S[st]})</span></span></span>
-       ${done ? `<span class="done">hotové ${done}</span>` : ""}
-       <span class="more">${more}</span>
-     </button>`).join("");
+  const cards = s.items.map(it => {
+    const i = idx++;
+    const issue = !it.done && it.st === "miss" && (it.gap || "").match(/issue #\d+/);
+    const meta = [
+      it.real ? `<span class="real">real case</span>` : "",
+      it.done ? `<span class="done">done ${fmt(it.done)}</span>` : "",
+      issue ? `<span class="open">${issue[0]}</span>` : ""
+    ].join("");
+    return `<button class="card ${it.st}" data-i="${i}" data-st="${it.st}" aria-haspopup="dialog">
+       <span class="top"><i class="dot ${it.st}"></i><span class="name">${it.t}<span class="sr"> (${S[it.st]})</span></span></span>
+       <span class="line">${it.s}</span>
+       ${meta ? `<span class="meta">${meta}</span>` : ""}
+     </button>`;
+  }).join("");
   route.insertAdjacentHTML("beforeend",
-    `<div class="station"><div class="stop"><h2>${s.title}</h2><p>${s.sub} · ${c.ok}/${n} máme</p><div class="mini">${mini}</div></div>${cards}</div>`);
+    `<div class="station">
+       <div class="stop"><h2>${s.title}</h2><p>${s.sub}</p><div class="count">${c.ok}/${n} in place</div><div class="mini">${mini}</div></div>
+       <div class="cards">${cards}</div>
+     </div>`);
 });
+
+/* detail dialog */
+const dlg = document.getElementById("detail");
+const $ = id => document.getElementById(id);
+let current = 0, opener = null, filter = "all";
+// Previous and next follow the filter, unless the open card is outside it (opened from the finished list).
+const visible = () => {
+  const v = all.map((_, i) => i).filter(i => filter === "all" || all[i].st === filter);
+  return v.includes(current) ? v : all.map((_, i) => i);
+};
+
+function show(i) {
+  current = i;
+  const it = all[i];
+  const [lp, lh, lg] = LABELS[it.st];
+  dlg.dataset.st = it.st;
+  $("d-station").textContent = it.station;
+  $("d-state").className = `pill ${it.st}`;
+  $("d-state").innerHTML = `<i class="dot ${it.st}"></i>${S[it.st]}`;
+  $("d-title").innerHTML = it.t;
+  $("d-line").innerHTML = it.s;
+  $("d-problem-h").textContent = lp;
+  $("d-problem").innerHTML = it.problem;
+  $("d-example-h").innerHTML = it.real
+    ? `It happened <span class="badge">real case${typeof it.real === "string" ? ", " + it.real : ""}</span>`
+    : "Example";
+  $("d-example").innerHTML = it.example;
+  $("d-how-h").textContent = lh;
+  $("d-how").innerHTML = it.how;
+  $("d-gap-box").hidden = !it.gap;
+  $("d-gap-h").textContent = lg;
+  $("d-gap").innerHTML = it.gap || "";
+  const foot = [it.done ? `Done ${fmt(it.done)}` : "", it.ref ? `Source: ${it.ref}` : ""].filter(Boolean).join(" · ");
+  $("d-foot").hidden = !foot;
+  $("d-foot").textContent = foot;
+  const v = visible(), p = v.indexOf(i);
+  $("d-pos").textContent = `${p + 1} / ${v.length}`;
+  $("d-prev").disabled = p <= 0;
+  $("d-next").disabled = p >= v.length - 1;
+  dlg.scrollTop = 0;
+}
+
+function open(i, from) {
+  opener = from;
+  show(i);
+  if (!dlg.open) dlg.showModal();
+}
+
+function step(d) {
+  const v = visible(), p = v.indexOf(current) + d;
+  if (p >= 0 && p < v.length) show(v[p]);
+}
 
 route.addEventListener("click", e => {
   const card = e.target.closest(".card");
-  if (!card) return;
-  card.setAttribute("aria-expanded", card.getAttribute("aria-expanded") === "true" ? "false" : "true");
+  if (card) open(+card.dataset.i, card);
+});
+$("d-close").addEventListener("click", () => dlg.close());
+$("d-prev").addEventListener("click", () => step(-1));
+$("d-next").addEventListener("click", () => step(1));
+dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
+dlg.addEventListener("keydown", e => {
+  if (e.key === "ArrowLeft") { e.preventDefault(); step(-1); }
+  if (e.key === "ArrowRight") { e.preventDefault(); step(1); }
+});
+dlg.addEventListener("close", () => {
+  const back = opener && +opener.dataset.i === current ? opener : document.querySelector(`.card[data-i="${current}"]`);
+  if (back) back.focus();
 });
 
+/* filter */
 document.getElementById("controls").addEventListener("click", e => {
   const b = e.target.closest(".chip");
   if (!b) return;
   document.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
-  const f = b.dataset.f;
-  document.querySelectorAll(".card").forEach(c => c.classList.toggle("dim", f !== "all" && c.dataset.st !== f));
+  filter = b.dataset.f;
+  document.querySelectorAll(".card").forEach(c => c.classList.toggle("dim", filter !== "all" && c.dataset.st !== filter));
 });
 
-document.getElementById("todo").innerHTML = todo.map(([h, p, tags, done], i) =>
-  `<div class="t${done ? " finished" : ""}"><div class="head"><h4>${h}</h4><span class="rank">${i + 1}</span></div><p>${p}</p>
-   <div class="tags">${done ? `<span class="tag fin">hotové ${done}</span>` : ""}${tags.map(t => `<span class="tag">${t}</span>`).join("")}</div></div>`).join("");
+/* what is left */
+document.getElementById("todo").innerHTML = todo.map(([h, p, tags], i) =>
+  `<div class="t"><div class="head"><h3>${h}</h3><span class="rank">${i + 1}</span></div><p>${p}</p>
+   <div class="tags">${tags.map(t => `<span class="tag">${t}</span>`).join("")}</div></div>`).join("");
+
+/* what is done, newest first */
+const done = all.map((it, i) => ({ ...it, i })).filter(it => it.done)
+  .sort((a, b) => b.done.localeCompare(a.done) || a.i - b.i);
+const hist = document.getElementById("history");
+hist.innerHTML = done.map(it =>
+  `<li><time datetime="${it.done}">${fmt(it.done)}</time><button data-i="${it.i}">${it.t}</button><span class="ref">${it.ref || ""}</span></li>`).join("");
+hist.addEventListener("click", e => {
+  const b = e.target.closest("button[data-i]");
+  if (b) open(+b.dataset.i, b);
+});
 </script>
 </html>
