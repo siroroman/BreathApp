@@ -44,6 +44,9 @@
       "Bash(curl:*)",
       "Bash(wget:*)",
       "Bash(sudo:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(gh api:*)",
+      "Bash(gh repo delete:*)",
       "Bash(* | sh)",
       "Bash(* | bash)",
       "Bash(* | zsh)"
