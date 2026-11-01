@@ -1,6 +1,8 @@
 # One command per check. Output of xcodebuild goes through xcbeautify. Details: docs/agents/commands.md
-SHELL := /bin/bash
-.SHELLFLAGS := -o pipefail -ec
+# `-o pipefail` sits in SHELL because macOS ships GNU Make 3.81, which ignores .SHELLFLAGS. Without it
+# `xcodebuild ... | xcbeautify` returns the exit code of xcbeautify and a failed build or test passes.
+SHELL := /bin/bash -o pipefail
+.SHELLFLAGS := -ec
 
 SCHEME := Breathnest
 BUNDLE_ID := com.siroroman.breathnest
