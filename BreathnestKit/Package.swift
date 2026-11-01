@@ -8,7 +8,7 @@ let package = Package(
         .library(name: "BreathnestKit", targets: ["BreathnestKit"]),
     ],
     targets: [
-        .target(name: "BreathnestKit"),
-        .testTarget(name: "BreathnestKitTests", dependencies: ["BreathnestKit"]),
+        .target(name: "BreathnestKit", swiftSettings: [.treatAllWarnings(as: .error)]),
+        .testTarget(name: "BreathnestKitTests", dependencies: ["BreathnestKit"], swiftSettings: [.treatAllWarnings(as: .error)]),
     ]
 )
