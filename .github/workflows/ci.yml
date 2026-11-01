@@ -37,6 +37,8 @@ jobs:
         run: |
           xcodebuild -version
           swift --version
+      # macOS ships Make 3.81, so the pipefail setting of the Makefile is tested here, not on ubuntu.
+      - run: scripts/test-make-pipefail.sh
       - run: make test-kit
 
   ios:
