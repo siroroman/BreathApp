@@ -15,6 +15,8 @@ One `make` target per check, run from the repository root (also from a worktree)
 | `make screenshot` | Saves the simulator screen to `build/screenshot.png`. Open it with the Read tool to look at it. | yes |
 | `make sim` | Prints the UDID of this checkout's simulator, creating it when missing. | no |
 
+Compiler warnings are errors: `SWIFT_TREAT_WARNINGS_AS_ERRORS` in `project.yml` for the app and `.treatAllWarnings(as: .error)` in `BreathnestKit/Package.swift` for the Kit. Fix the warning, do not silence it.
+
 Typical order: `make test-kit` while working, `make format lint` before a commit, `make build test lint` before the pull request, `make run screenshot` for any UI change.
 
 ## Hooks
