@@ -194,7 +194,7 @@ const stations = [
     ["part", "Stop hook: lint a testy na konci", "<code>stop-check.sh</code> pustí <code>make lint test</code>, len keď sa zmenilo Swift alebo projektové súbory. Po prvom zlyhaní už druhý pokus nechá prejsť."],
     ["part", "Pravidlá v CLAUDE.md a docs/agents", "Definition of done, kritické cesty, workflow. Agent ich číta, ale nič nezlyhá, keď ich poruší."],
     ["ok", "Zoznam zakázaných vecí (deny)", "<code>settings.json</code> má aj <code>deny</code>: čítanie <code>.env</code>, kľúčov a certifikátov, <code>~/.ssh</code>, <code>~/.aws</code>, príkazy <code>curl</code>, <code>wget</code>, <code>sudo</code> a čokoľvek zreťazené do <code>sh</code>/<code>bash</code>. Pravidlá <code>Read</code> sa týkajú nástroja Read, nie <code>cat</code> v shelli.", "2026-10-30"],
-    ["part", "Deny pre gh: merge, API, zmazanie repa", "Chýba <code>Bash(gh pr merge:*)</code>, <code>Bash(gh api:*)</code> a <code>Bash(gh repo delete:*)</code>. Zápis cez <code>gh api</code> obíde hook proti nebezpečnému gitu. Issue #90.", "2026-11-01"]
+    ["ok", "Deny pre gh: merge, API, zmazanie repa", "<code>deny</code> v <code>settings.json</code> zakazuje <code>gh pr merge</code>, <code>gh api</code> a <code>gh repo delete</code>. Merge ostáva tvoj a zápis cez <code>gh api</code> už neobíde hook proti nebezpečnému gitu. Pravidlo zhodí len príkaz na začiatku, nie ten skrytý v skripte alebo <code>bash -c</code> (PR 100).", "2026-11-01"]
   ]},
   { title: "Lokálny commit", sub: "Na tvojom disku", items: [
     ["part", "commit-msg: Conventional Commits", "<code>.githooks/commit-msg</code> kontroluje formát. Zapína sa ručne <code>git config core.hooksPath .githooks</code> v každom klone a dá sa obísť <code>--no-verify</code>."],
@@ -206,6 +206,8 @@ const stations = [
     ["ok", "CI: testy skriptov a hookov", "Job <code>scripts</code> pustí <code>test-pr-facts.sh</code> a <code>test-block-dangerous-git.sh</code>."],
     ["ok", "CI: Kit testy", "Job <code>kit</code> pustí <code>make test-kit</code> na macOS."],
     ["ok", "CI: build, app testy, lint", "Job <code>ios</code> pustí <code>make gen build test lint</code>. Swiftformat je pripnutý na verziu <code>0.51.13</code>."],
+    ["ok", "Zlyhaný xcodebuild zhodí make", "macOS má make 3.81, ktorý ignoruje <code>.SHELLFLAGS</code>, takže <code>make build</code> a <code>make test-app</code> vracali 0 aj pri zlyhaní. <code>SHELL := /bin/bash -o pipefail</code> to opravuje a <code>test-make-pipefail.sh</code> beží v jobe <code>Kit tests</code> na macOS (PR 98).", "2026-11-01"],
+    ["ok", "Warnings ako chyby", "<code>SWIFT_TREAT_WARNINGS_AS_ERRORS</code> v <code>project.yml</code> pre appku a <code>.treatAllWarnings(as: .error)</code> v <code>Package.swift</code> pre Kit. Nový warning, aj od nového Xcode, zhodí build (PR 96).", "2026-11-01"],
     ["ok", "Kontrola názvu PR", "<code>pr-title.yml</code> overí Conventional Commits, takže squash commit na main má správny formát."],
     ["part", "pr-facts.sh", "Vypíše testy, dotknuté kritické cesty a UI súbory. Je to len podklad pre telo PR, nič nezlyhá."],
     ["ok", "Kontrakt tela PR", "<code>pr-body.yml</code> volá <code>scripts/check-pr-body.sh</code>: 6 sekcií v poradí, žiadna prázdna, <code>Closes #N</code> ako posledný riadok. Dependabot PR sa preskakujú (preskočený job sa v povinnom checku počíta ako prešiel). Check je povinný v rulesete.", "2026-10-31"],
@@ -217,7 +219,7 @@ const stations = [
     ["ok", "Zmena guardrails je v tele PR", "<code>scripts/check-guardrail-paths.sh</code> v jobe <code>check-body</code> zlyhá, keď PR mení hook, workflow, kontrolný skript, lint alebo register a telo nemá riadok <code>**Guardrails touched:**</code>. Cesty sú v <code>docs/agents/guardrail-paths.md</code>, číta ich z main aj z vetvy. Dependabot sa preskakuje.", "2026-11-01"],
     ["miss", "Hranica pokrytia testami", "Kit má zatiaľ len test hodín a placeholder. Pokrytie sa nemeria."],
     ["miss", "Automatické UI testy a AX5", "Pozerá sa na screenshot ručne cez agenta <code>ui-verifier</code>."],
-    ["miss", "SwiftLint a warnings ako chyby", "Kontroluje sa len formát (swiftformat). Varovania kompilátora nezastavia build."]
+    ["miss", "SwiftLint", "Kontroluje sa len formát (swiftformat). Pravidlá štýlu a bežných chýb nikto nehlási."]
   ]},
   { title: "Merge do main", sub: "Brána pred hlavnou vetvou", items: [
     ["ok", "Len squash merge", "Merge commity a rebase merge sú vypnuté v nastavení repa."],
@@ -233,18 +235,19 @@ const stations = [
     ["ok", "Push protection", "Zapnuté. GitHub zablokuje push s kľúčom alebo tokenom.", "2026-10-30"],
     ["ok", "Dependabot", "Upozornenia na zraniteľné závislosti a automatické bezpečnostné opravy sú zapnuté. <code>.github/dependabot.yml</code> (PR 77) otvára raz týždenne PR pre staré verzie Actions s predponou <code>ci</code>. Prvé PR ešte neprišli.", "2026-10-30"],
     ["ok", "Actions pripnuté na SHA", "Všetky <code>uses:</code> v <code>ci.yml</code>, <code>pr-title.yml</code> a <code>pr-body.yml</code> sú pripnuté na SHA s komentárom verzie. Dependabot ich aktualizuje sám.", "2026-10-31"],
-    ["part", "Timeouty a práva vo workflowoch", "Predvolené práva repa sú <code>read</code>, ale súbory workflowov nemajú <code>permissions:</code> ani <code>timeout-minutes</code>. Zaseknutý macOS job by bežal až 6 hodín. Issue #90.", "2026-11-01"],
-    ["part", "Dependabot aj pre Swift balík", "<code>dependabot.yml</code> hlási len <code>github-actions</code>. Závislosti <code>BreathnestKit/Package.swift</code> (ekosystém <code>swift</code>) nikto nesleduje. Issue #90.", "2026-11-01"],
+    ["ok", "Timeouty a práva vo workflowoch", "Každý workflow má <code>permissions: contents: read</code> a každý job <code>timeout-minutes</code> (5, 10 a 30). Zaseknutý macOS job už nebeží 6 hodín. Nový workflow to musí skopírovať, nič to nekontroluje (PR 99).", "2026-11-01"],
+    ["ok", "Dependabot aj pre Swift balík", "<code>dependabot.yml</code> sleduje aj <code>BreathnestKit/Package.swift</code> (ekosystém <code>swift</code>, predpona <code>build</code>). Balík zatiaľ nemá závislosť, takže prvý PR ešte neprišiel a nie je overené, že Dependabot prečíta <code>swift-tools-version: 6.2</code> (PR 101).", "2026-11-01"],
     ["miss", "CodeQL alebo iná statická analýza", "Žiadna bezpečnostná analýza Swift kódu."]
   ]}
 ];
 
 const todo = [
-  ["Warnings ako chyby v CI", "<code>SWIFT_TREAT_WARNINGS_AS_ERRORS=YES</code> v CI builde a <code>-warnings-as-errors</code> pre Kit. Swift 6 už vynucuje súbežnosť, varovania však nepadnú.", ["malý PR", "~15 min"]],
-  ["Timeouty a práva vo workflowoch", "<code>permissions: contents: read</code> a <code>timeout-minutes</code> na každom jobe.", ["malý PR", "~15 min"]],
-  ["Deny pre gh príkazy", "Pridať <code>gh pr merge</code>, <code>gh api</code>, <code>gh repo delete</code>. Merge ostáva tvoj.", ["malý PR", "~10 min"]],
   ["Improver dopíše Guardrails touched", "Upraviť <code>~/.claude/improver/run.sh</code> (mimo repa), aby telo PR malo riadok, inak jeho PR padnú v <code>check-body</code>.", ["mimo repa", "~15 min"]],
-  ["Dependabot pre Swift balík", "Pridať ekosystém <code>swift</code> pre <code>BreathnestKit</code>.", ["malý PR", "~10 min"]],
+  ["Warnings ako chyby v CI", "Hotovo v PR 96: <code>SWIFT_TREAT_WARNINGS_AS_ERRORS</code> pre appku a <code>.treatAllWarnings(as: .error)</code> pre Kit.", ["malý PR", "~15 min"], "2026-11-01"],
+  ["Timeouty a práva vo workflowoch", "Hotovo v PR 99: <code>permissions: contents: read</code> a <code>timeout-minutes</code> na každom jobe.", ["malý PR", "~15 min"], "2026-11-01"],
+  ["Deny pre gh príkazy", "Hotovo v PR 100: <code>gh pr merge</code>, <code>gh api</code>, <code>gh repo delete</code>. Merge ostáva tvoj.", ["malý PR", "~10 min"], "2026-11-01"],
+  ["Dependabot pre Swift balík", "Hotovo v PR 101: ekosystém <code>swift</code> pre <code>BreathnestKit</code>.", ["malý PR", "~10 min"], "2026-11-01"],
+  ["Zlyhaný xcodebuild zhodí make", "Hotovo v PR 98: <code>pipefail</code> v <code>SHELL</code>, lebo macOS make 3.81 ignoruje <code>.SHELLFLAGS</code>. Bez toho CI nezčervenelo na rozbitom builde.", ["malý PR", "~30 min", "našlo sa pri bode 1"], "2026-11-01"],
   ["Guardrail cesty v tele PR", "Hotovo v PR 89: <code>check-guardrail-paths.sh</code> a register <code>guardrail-paths.md</code>.", ["malý PR", "~1 hod"], "2026-11-01"],
   ["Ruleset na main s povinnými checkmi", "Hotovo: zákaz priameho pushu, šesť povinných checkov, 0 povinných schválení, Admin obchádza len cez PR (od 1. 11.).", ["GitHub nastavenia", "~5 min", "najväčší efekt"], "2026-11-01"],
   ["Zapnúť secret scanning a push protection", "Hotovo: oba prepínače sú podľa GitHub API zapnuté. Dependabot alerts a security updates tiež.", ["GitHub nastavenia", "~2 min"], "2026-10-30"],
