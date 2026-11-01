@@ -214,7 +214,7 @@ const stations = [
     ["part", "Draft a /code-review vo fresh session", "Pravidlo procesu a agent <code>code-reviewer</code>. Spúšťa sa ručne, nič nezabráni označiť PR ako ready bez neho."],
     ["part", "Screenshot z CI", "<code>make run screenshot</code> sa uloží ako artifact. Nikto ani nič ho nekontroluje."],
     ["ok", "PR šablóna", "<code>.github/pull_request_template.md</code> otvorí PR so všetkými sekciami.", "2026-10-30"],
-    ["part", "Improver nepíše riadok Guardrails touched", "<code>~/.claude/improver/run.sh</code> je mimo repa a telo PR zatiaľ nedopĺňa. Jeho PR menia guardrail súbory často, takže budú v <code>check-body</code> padať, kým sa to nedoplní. Issue #90.", "2026-11-01"],
+    ["ok", "Improver píše telo PR podľa kontraktu", "<code>~/.claude/improver/run.sh</code> vloží riadok <code>**Guardrails touched:**</code> pod Merge Danger, keď diff mení guardrail súbor, a pred PR vytvorí issue pre <code>Closes #N</code>. Šablóna v <code>~/.claude/agents/improver.md</code> má všetkých šesť sekcií. Vzorové telo prešlo <code>check-pr-body.sh</code> aj <code>check-guardrail-paths.sh</code>, skutočný beh improvera to ešte neoveril. Riadok píše skript z diffu a nehodnotí, či je zmena prísnejšia alebo voľnejšia, to ostáva na reviewerovi. Oba súbory sú mimo repa a nikto ich nesleduje v gite.", "2026-11-01"],
     ["ok", "Kritické cesty ako automatická kontrola", "<code>scripts/check-critical-paths.sh</code> zlyhá, keď zmena zdrojov v kritickej ceste nemá zmenu v testoch a telo PR nezačína <code>&gt; **Warning:**</code>. Check je povinný v rulesete.", "2026-10-31"],
     ["ok", "Zmena guardrails je v tele PR", "<code>scripts/check-guardrail-paths.sh</code> v jobe <code>check-body</code> zlyhá, keď PR mení hook, workflow, kontrolný skript, lint alebo register a telo nemá riadok <code>**Guardrails touched:**</code>. Cesty sú v <code>docs/agents/guardrail-paths.md</code>, číta ich z main aj z vetvy. Dependabot sa preskakuje.", "2026-11-01"],
     ["miss", "Hranica pokrytia testami", "Kit má zatiaľ len test hodín a placeholder. Pokrytie sa nemeria."],
@@ -242,7 +242,7 @@ const stations = [
 ];
 
 const todo = [
-  ["Improver dopíše Guardrails touched", "Upraviť <code>~/.claude/improver/run.sh</code> (mimo repa), aby telo PR malo riadok, inak jeho PR padnú v <code>check-body</code>.", ["mimo repa", "~15 min"]],
+  ["Improver dopíše Guardrails touched", "Hotovo v <code>~/.claude/improver/run.sh</code> (mimo repa): riadok Guardrails touched, issue pre <code>Closes #N</code> a úplná šablóna tela PR. Neoverené skutočným behom.", ["mimo repa", "~15 min"], "2026-11-01"],
   ["Warnings ako chyby v CI", "Hotovo v PR 96: <code>SWIFT_TREAT_WARNINGS_AS_ERRORS</code> pre appku a <code>.treatAllWarnings(as: .error)</code> pre Kit.", ["malý PR", "~15 min"], "2026-11-01"],
   ["Timeouty a práva vo workflowoch", "Hotovo v PR 99: <code>permissions: contents: read</code> a <code>timeout-minutes</code> na každom jobe.", ["malý PR", "~15 min"], "2026-11-01"],
   ["Deny pre gh príkazy", "Hotovo v PR 100: <code>gh pr merge</code>, <code>gh api</code>, <code>gh repo delete</code>. Merge ostáva tvoj.", ["malý PR", "~10 min"], "2026-11-01"],
