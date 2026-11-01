@@ -1,4 +1,4 @@
-# Weekly update PRs for the actions used in .github/workflows. Their titles must pass pr-title.yml, hence the prefix.
+# Weekly update PRs for the actions used in .github/workflows and the Swift packages of BreathnestKit. Their titles must pass pr-title.yml, hence the prefixes.
 version: 2
 updates:
   - package-ecosystem: github-actions
@@ -7,3 +7,10 @@ updates:
       interval: weekly
     commit-message:
       prefix: ci
+  # BreathnestKit has no dependencies yet. Dependabot starts to report as soon as Package.swift lists one.
+  - package-ecosystem: swift
+    directory: /BreathnestKit
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: build
