@@ -16,7 +16,7 @@ cd "$tmp/repo" || exit 1
 git config user.email t@example.com
 git config user.name t
 mkdir -p "$kit" "$kit_tests" App/Breathnest docs/agents
-cp "$root/docs/agents/critical-paths.md" docs/agents/
+cp "$root/docs/agents/critical-paths.md" "$root/docs/agents/guardrail-paths.md" docs/agents/
 printf 'struct Session {}\n' >"$kit/Session.swift"
 printf '@Suite struct SessionTests {\n    @Test func oldBehaviour() {}\n    @Test func kept() {}\n}\n' >"$kit_tests/SessionTests.swift"
 git add -A && git commit -qm base
@@ -56,6 +56,16 @@ expect "critical path: exercise data" "**Exercise data and identity**: \`$kit/Ex
 reject "an untouched area is not listed" "Log, Reminders"
 reject "module name is not a keyword hit" "Breath level and Haptic plan"
 expect "UI files" "- \`App/Breathnest/ContentView.swift\`"
+reject "no guardrail section without a guardrail change" "### Guardrails touched"
+
+# A guardrail change is listed.
+git checkout -q -b guardrail origin/main
+mkdir -p .githooks
+printf 'hook\n' >.githooks/pre-push
+git add -A && git commit -qm hook
+out=$("$root/scripts/pr-facts.sh" origin/main 2>&1)
+expect "guardrail section" "### Guardrails touched"
+expect "guardrail file" "- \`.githooks/pre-push\`"
 
 # A diff without tests or critical paths says so.
 git checkout -q -b docs-only origin/main

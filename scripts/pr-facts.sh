@@ -3,7 +3,7 @@
 #   scripts/pr-facts.sh [base]    base defaults to origin/main; compares the merge base with HEAD
 #
 # Sections: tests that cover the changed code, new and removed tests, critical paths touched,
-# and the UI files that call for snapshots. It reads the committed diff only, so commit first.
+# guardrail files touched (only when there are some), and the UI files that call for snapshots. It reads the committed diff only, so commit first.
 set -euo pipefail
 
 base=${1:-origin/main}
@@ -111,6 +111,24 @@ if [[ -f "$registry" ]]; then
 fi
 [[ $hits -eq 0 ]] && echo "- None of the paths in \`$registry\` changed."
 echo
+
+guardrails=docs/agents/guardrail-paths.md
+if [[ -f "$guardrails" ]]; then
+  guard_hits=""
+  while IFS= read -r glob; do
+    while IFS= read -r f; do
+      # shellcheck disable=SC2254
+      case "$f" in $glob) guard_hits="$guard_hits"$'\n'"$f" ;; esac
+    done < <(git diff --name-only "$range")
+  done < <(awk '/^Paths:/ { s = $0; while (match(s, /`[^`]+`/)) { print substr(s, RSTART + 1, RLENGTH - 2); s = substr(s, RSTART + RLENGTH) } }' "$guardrails")
+  if [[ -n "$guard_hits" ]]; then
+    echo "### Guardrails touched"
+    echo
+    printf '%s\n' "$guard_hits" | sed '/^$/d' | sort -u | while IFS= read -r f; do printf -- '- `%s`\n' "$f"; done
+    echo "Required: a \`**Guardrails touched:**\` line under Merge Danger, saying what each one now checks, stricter or looser."
+    echo
+  fi
+fi
 
 echo "### Snapshots"
 echo

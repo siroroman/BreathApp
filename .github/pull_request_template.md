@@ -1,5 +1,6 @@
 <!-- Contract: docs/agents/pull-requests.md. Keep every section; write one line ("No UI change.") when there is nothing to say. -->
 <!-- A behaviour change in a critical path with no test and no screenshot starts with: > **Warning:** ... -->
+<!-- A change to a hook, workflow, check script or registry adds under Merge Danger: **Guardrails touched:** ... -->
 
 ## Summary
 

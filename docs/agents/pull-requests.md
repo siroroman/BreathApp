@@ -52,11 +52,13 @@ As in the `pr` skill: before and after, as a screenshot or a failing then passin
 
 ## Merge Danger
 
-As in the `pr` skill (**Door**, **Blast Radius**), plus one required line:
+As in the `pr` skill (**Door**, **Blast Radius**), plus one required line and one that is required only for guardrail changes:
 
 **Critical paths touched:** the areas from [critical paths](critical-paths.md) that the diff reaches, each with the one thing that could break and the evidence that it does not (a test name, a screenshot, a command output), or "not covered" when there is none. Take the first draft from `scripts/pr-facts.sh`, then add by hand an area it could not match. Write "none" when no area is touched.
 
 A change of behaviour in a critical path with no test and no screenshot is called out in the first line of the body, above the Summary, as `> **Warning:** ...`, so it is not missed.
+
+**Guardrails touched:** required when the diff changes a file from [guardrail paths](guardrail-paths.md) (hooks, workflows, check scripts, lint config, the registries). For each guardrail: what it now checks, whether that is stricter or looser, and why. `scripts/pr-facts.sh` lists the files. CI fails the PR when the line is missing or says "none"; leave it out when no guardrail file changed.
 
 ## Reviewer notes
 
