@@ -569,7 +569,6 @@ const stations = [
 ];
 
 const todo = [
-  ["Stop commits on main and bypassing the hooks", "Done in PR 108: a <code>pre-commit</code> hook refuses a commit on <code>main</code>, <code>pre-push</code> refuses a push to it, the Claude hook blocks <code>--no-verify</code>, <code>core.hooksPath</code> overrides and the merge and delete commands of <code>gh</code>, and <code>make setup</code> switches the hooks on.", ["issue #66", "on disk"], "2026-11-02"],
   ["Run the Stop hook after a commit too", "The agent commits after every step, so at the end of a session the working tree is clean and the hook runs nothing. The hook should compare the whole branch with <code>main</code>.", ["issue #63", "Claude session"]],
   ["Swift conventions in make lint", "SwiftLint with the project rules (no <code>Date()</code> in Kit logic, no <code>DispatchQueue</code>) and a script that guards that the Kit does not import UI frameworks.", ["issue #64", "pull request"]],
   ["The same tool versions everywhere", "A <code>Brewfile</code> and a check of the swiftformat and SwiftLint versions, so local lint gives the same result as CI.", ["issue #71", "on disk and in CI"]],
