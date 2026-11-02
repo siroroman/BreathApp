@@ -1,6 +1,9 @@
 name: CI
 
-# Runs the checks from docs/agents/commands.md. Public repository: standard runners, macOS included, are free.
+# Runs the checks from docs/agents/commands.md (CI). Public repository: standard runners, macOS included, are free.
+# The macOS job runs only when scripts/ci-scope.sh says Swift, the build or make lint are affected. It is skipped with a
+# job-level `if`, not a workflow-level `paths:` filter: a skipped job counts as passed for a required check, a filtered
+# workflow leaves the check pending.
 on:
   pull_request:
   push:
@@ -29,6 +32,7 @@ jobs:
       - run: scripts/test-check-docs.sh
       - run: scripts/test-check-architecture.sh
       - run: scripts/test-check-tools.sh
+      - run: scripts/test-ci-scope.sh
       - run: scripts/check-workflows.sh
       - run: scripts/check-docs.sh
       - run: scripts/check-architecture.sh
@@ -47,30 +51,66 @@ jobs:
           echo "$RUNNER_TEMP/gitleaks" >> "$GITHUB_PATH"
       - run: scripts/test-githooks.sh
 
-  kit:
-    name: Kit tests
-    runs-on: macos-latest
-    timeout-minutes: 10
+  # Says whether the macOS job below is needed. Runs on every event so that `ios` always has an answer.
+  changes:
+    name: Changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      swift: ${{ steps.scope.outputs.swift }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      # base_ref is empty on a push and a manual run, then everything runs.
+      - id: scope
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: scripts/ci-scope.sh "${BASE_REF:+origin/$BASE_REF}" >> "$GITHUB_OUTPUT"
+
+  # The Kit is Foundation only, so its tests run on Linux in the official Swift image and never wait for a macOS runner.
+  # The tag is the Swift of Package.swift (swift-tools-version 6.2), the digest makes it immutable. Bump both together.
+  kit:
+    name: Kit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    container: swift:6.2-noble@sha256:e508ef1e4be68087f720de622b91cbf1e32799a7aa96134b35e6f1a1d656db7a
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: swift --version
+      - run: swift test --quiet
+        working-directory: BreathnestKit
+
+  # `needs.changes.outputs.swift != 'false'` also runs the job when `changes` failed: a job skipped because of a failed
+  # `needs` would count as passed for the required check.
+  ios:
+    name: Build, app tests, lint
+    needs: changes
+    if: ${{ !cancelled() && needs.changes.outputs.swift != 'false' }}
+    # macos-26, not macos-latest: the image decides which Xcode and Simulator runtimes exist, so it does not move under us.
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # CI_XCODE_VERSION of tools.env. The step fails when the image no longer has that Xcode, so a new image is a visible
+      # change of this file, not a silent one.
+      - name: Select Xcode
+        run: |
+          source tools.env
+          xcode="/Applications/Xcode_${CI_XCODE_VERSION}.app"
+          if [ ! -d "$xcode" ]; then
+            echo "$xcode is not on this runner image. Installed:" >&2
+            ls -d /Applications/Xcode_*.app >&2
+            exit 1
+          fi
+          sudo xcode-select -s "$xcode"
       - name: Toolchain
         run: |
           xcodebuild -version
           swift --version
+          xcrun simctl list runtimes
       # macOS ships Make 3.81, so the pipefail setting of the Makefile is tested here, not on ubuntu.
       - run: scripts/test-make-pipefail.sh
-      - run: make test-kit
-
-  ios:
-    name: Build, app tests, lint
-    runs-on: macos-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Toolchain
-        run: |
-          xcodebuild -version
-          xcrun simctl list runtimes
       # The Brewfile installs the unpinned tools. swiftformat and swiftlint come from scripts/install-tools.sh at the versions
       # of tools.env, the same ones `make lint` checks for locally: the runner's Homebrew copies are newer, and their extra
       # rules fail `make lint` on files nobody touched. Bump the pins in tools.env together with the local install.
