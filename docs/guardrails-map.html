@@ -323,7 +323,7 @@ const stations = [
       example: "A cloud agent picks up a ticket labelled <code>ready-for-agent</code> and <code>docs/agents/*</code> says to follow <code>/tdd</code>. A fresh clone has <code>.claude/skills/tdd</code>, so the skill is found.",
       how: "Six skills are vendored: <code>tdd</code>, <code>pr</code>, <code>code-review</code>, <code>domain-modeling</code>, <code>swiftui-expert-skill</code> and <code>swift-concurrency-pro</code>. Each is identical to upstream at the commit listed in <code>docs/agents/skills.md</code>, with its MIT licence. The skills only the user runs (<code>grilling</code>, <code>wayfinder</code> and others) stay personal and are listed with their source. A personal copy in <code>~/.claude/skills</code> wins over the vendored one with the same name.",
       gap: "Nothing checks that a skill named in the docs is in the table, and nothing warns when upstream moves on. An update is a manual pull request.",
-      done: "2026-11-02", ref: "issue 70" }
+      done: "2026-11-02", ref: "PR 115" }
   ]},
   { title: "Commit and push on disk", sub: "Git hooks in .githooks/. Switched on once per clone, and they can be skipped.", items: [
     { st: "ok", t: "Quick Kit tests run before every push",
