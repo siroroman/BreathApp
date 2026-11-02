@@ -31,8 +31,10 @@ test-kit: ## Kit tests with `swift test`, no simulator
 test-app: gen ## App tests on the simulator
 	$(XCODEBUILD) test | xcbeautify --quiet
 
-lint: ## Check formatting, changes nothing
+lint: ## Check formatting and the repo rules, changes nothing
 	swiftformat $(SWIFT_DIRS) --lint
+	scripts/check-workflows.sh
+	scripts/check-docs.sh
 
 format: ## Format the Swift sources in place
 	swiftformat $(SWIFT_DIRS)

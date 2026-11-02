@@ -28,6 +28,11 @@ jobs:
       - run: scripts/test-pr-facts.sh
       - run: scripts/test-block-dangerous-git.sh
       - run: scripts/test-stop-check.sh
+      # The repo rules of `make lint`, here too so they fail in seconds on a cheap runner.
+      - run: scripts/test-check-workflows.sh
+      - run: scripts/test-check-docs.sh
+      - run: scripts/check-workflows.sh
+      - run: scripts/check-docs.sh
       # test-githooks.sh runs the real scanner of the pre-commit hook. The download is checked against the published checksums.
       - name: Install gitleaks ${{ env.GITLEAKS_VERSION }}
         run: |
