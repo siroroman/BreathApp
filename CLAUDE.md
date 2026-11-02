@@ -10,7 +10,7 @@ GitHub flow with Conventional Commits, checked by the `commit-msg` hook. Run `ma
 
 ## Build and run
 
-`make gen build test lint` must pass, `make run` launches the app on the simulator. Read `docs/agents/commands.md` for the commands and `docs/agents/ios.md` before touching Swift code.
+`make gen build test lint` must pass, `make run` launches the app on the simulator. Read `docs/agents/commands.md` for the commands and `docs/agents/ios.md` before touching Swift code. `docs/agents/rules-enforcement.md` says which rule is checked by what and which stay a process rule; read it before adding a rule.
 
 ## Skills
 
