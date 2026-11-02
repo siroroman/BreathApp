@@ -12,6 +12,7 @@ permissions:
 
 env:
   SWIFTFORMAT_VERSION: "0.51.13"
+  GITLEAKS_VERSION: "8.30.1"
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -26,6 +27,17 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: scripts/test-pr-facts.sh
       - run: scripts/test-block-dangerous-git.sh
+      # test-githooks.sh runs the real scanner of the pre-commit hook. The download is checked against the published checksums.
+      - name: Install gitleaks ${{ env.GITLEAKS_VERSION }}
+        run: |
+          base="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}"
+          archive="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -fsSL "$base/$archive" -o "$RUNNER_TEMP/$archive"
+          curl -fsSL "$base/gitleaks_${GITLEAKS_VERSION}_checksums.txt" -o "$RUNNER_TEMP/gitleaks-checksums.txt"
+          (cd "$RUNNER_TEMP" && grep " $archive\$" gitleaks-checksums.txt | sha256sum -c -)
+          mkdir -p "$RUNNER_TEMP/gitleaks"
+          tar -xzf "$RUNNER_TEMP/$archive" -C "$RUNNER_TEMP/gitleaks" gitleaks
+          echo "$RUNNER_TEMP/gitleaks" >> "$GITHUB_PATH"
       - run: scripts/test-githooks.sh
 
   kit:

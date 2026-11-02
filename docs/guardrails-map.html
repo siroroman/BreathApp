@@ -345,15 +345,16 @@ const stations = [
       s: "make setup sets core.hooksPath and checks the tools.",
       problem: "A hook that has to be switched on by hand in every clone is missing in the clone you forgot. You find out when a bad commit lands.",
       example: "You clone the repo on another Mac and run <code>make setup</code>. It turns the hooks on and prints <code>brew install ...</code> for the tools you do not have yet. Running it again changes nothing.",
-      how: "<code>make setup</code> calls <code>scripts/setup.sh</code>: <code>git config core.hooksPath .githooks</code> (a relative path, so each worktree uses its own hooks) and a check for <code>xcodegen</code>, <code>xcbeautify</code>, <code>swiftformat</code>, <code>jq</code> and Xcode 26.",
+      how: "<code>make setup</code> calls <code>scripts/setup.sh</code>: <code>git config core.hooksPath .githooks</code> (a relative path, so each worktree uses its own hooks) and a check for <code>xcodegen</code>, <code>xcbeautify</code>, <code>swiftformat</code>, <code>jq</code>, <code>gitleaks</code> and Xcode 26.",
       gap: "It is still a command somebody has to run once per clone, and nothing reminds you. <code>scripts/setup.sh</code> has no automated test.",
       done: "2026-11-02", ref: "PR 108" },
-    { st: "miss", t: "Nobody looks for a key in a commit on disk",
-      s: "GitHub catches it at push, and only a known format.",
-      problem: "A key or token is a problem the moment it leaves the disk. Nothing catches it locally, so protection depends on GitHub knowing its format.",
-      example: "You paste a test API key into <code>Config.swift</code> and commit. Nothing complains on disk. Push protection on GitHub stops a known key type and lets a custom format through.",
-      how: "Nothing. Protection comes only from push protection on GitHub (see the Repo and third-party code stop).",
-      gap: "An option: gitleaks in a <code>pre-commit</code> hook. There is no ticket for it yet." }
+    { st: "ok", t: "A key in a commit on disk is found",
+      s: "The pre-commit hook scans the staged changes with gitleaks.",
+      problem: "A key or token is a problem the moment it leaves the disk. Once it is pushed it has to be revoked, and GitHub push protection knows only the formats of known providers.",
+      example: "You paste a test API key into <code>Config.swift</code> and commit. The hook stops the commit and prints the file and the line with the value hidden, so you remove the key before it is in history.",
+      how: "<code>.githooks/pre-commit</code> runs <code>gitleaks git --staged</code> after the branch check. A missing <code>gitleaks</code> refuses the commit too, because a scan that skips silently is not a guardrail. <code>scripts/test-githooks.sh</code> tests it with the real scanner in the <code>Script tests</code> job.",
+      gap: "A person can still skip it with <code>--no-verify</code>, and it sees only what is staged, not the history. It uses the default rules, a custom key format needs a <code>.gitleaks.toml</code>.",
+      done: "2026-11-02", ref: "issue #110" }
   ]},
   { title: "Pull request", sub: "CI and checks while the PR waits for a merge.", items: [
     { st: "ok", t: "The guards have their own tests",
@@ -573,7 +574,7 @@ const todo = [
   ["Swift conventions in make lint", "SwiftLint with the project rules (no <code>Date()</code> in Kit logic, no <code>DispatchQueue</code>) and a script that guards that the Kit does not import UI frameworks.", ["issue #64", "pull request"]],
   ["The same tool versions everywhere", "A <code>Brewfile</code> and a check of the swiftformat and SwiftLint versions, so local lint gives the same result as CI.", ["issue #71", "on disk and in CI"]],
   ["UI tests and an accessibility audit from the first screen", "A UI test target with <code>performAccessibilityAudit()</code> and a translations check, while there are few screens and adding them is cheap.", ["issue #72", "pull request"]],
-  ["Later: coverage, CodeQL, CODEOWNERS, a local secret scan", "They make sense once the repo has more code or more people. Today they would report almost nothing.", ["no ticket"]]
+  ["Later: coverage, CodeQL, CODEOWNERS", "They make sense once the repo has more code or more people. Today they would report almost nothing.", ["no ticket"]]
 ];
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
