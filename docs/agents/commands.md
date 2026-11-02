@@ -4,13 +4,13 @@ One `make` target per check, run from the repository root (also from a worktree)
 
 | Command | What it does | Needs simulator |
 |---|---|---|
-| `make setup` | Once per clone: sets `core.hooksPath` to `.githooks` (idempotent, also from a linked worktree) and checks the tools below are installed, printing the `brew install` line for the missing ones. | no |
+| `make setup` | Once per clone: sets `core.hooksPath` to `.githooks` (idempotent, also from a linked worktree) installs the pinned `swiftformat` and `swiftlint` with `scripts/install-tools.sh`, and checks the tools below are installed, printing `brew bundle` when one is missing. | no |
 | `make gen` | Generates `Breathnest.xcodeproj` from `project.yml` (the project is not committed). Every target below runs it first where needed. | no |
 | `make build` | Builds the app into `build/` (DerivedData of this checkout). | yes, as a destination |
 | `make test` | `make test-kit` then `make test-app`. | yes |
 | `make test-kit` | `swift test` in `BreathnestKit/`. Seconds, no simulator. Use this in the red-green loop. | no |
 | `make test-app` | `xcodebuild test` of the `Breathnest` scheme (app unit tests). | yes |
-| `make lint` | `swiftformat --lint`, then `swiftlint lint --strict` (the Swift conventions of [iOS](ios.md), config in `.swiftlint.yml`), `scripts/check-workflows.sh` (every workflow sets `permissions: contents: read` and a `timeout-minutes` on each job) `scripts/check-docs.sh` (the docs only name files, `make` targets and skills that exist) and `scripts/check-architecture.sh` (the Kit imports only Foundation, Synchronization and Swift, no package is declared). Changes nothing, fails when a file needs formatting or a rule is broken. | no |
+| `make lint` | `scripts/check-tools.sh` (the installed `swiftformat` and `swiftlint` are the versions pinned in `tools.env`, else it prints the fix), `swiftformat --lint`, then `swiftlint lint --strict` (the Swift conventions of [iOS](ios.md), config in `.swiftlint.yml`), `scripts/check-workflows.sh` (every workflow sets `permissions: contents: read` and a `timeout-minutes` on each job) `scripts/check-docs.sh` (the docs only name files, `make` targets and skills that exist) and `scripts/check-architecture.sh` (the Kit imports only Foundation, Synchronization and Swift, no package is declared). Changes nothing, fails when a file needs formatting or a rule is broken. | no |
 | `make format` | `swiftformat` in place. Fix a failing `make lint` with this. | no |
 | `make run` | Builds, boots this checkout's simulator, installs and launches the app. | yes |
 | `make screenshot` | Saves the simulator screen to `build/screenshot.png`. Open it with the Read tool to look at it. | yes |
@@ -31,4 +31,10 @@ The safe commands above are allowlisted in `.claude/settings.json`, so they run 
 
 ## Tools
 
-`xcodegen`, `xcbeautify`, `swiftformat`, `swiftlint`, `jq`, `gitleaks` (the `pre-commit` hook scans the staged changes for secrets) and Xcode 26 or later. Install with `brew install xcodegen xcbeautify swiftformat swiftlint jq gitleaks`. `swiftformat` settings live in `.swiftformat`, `swiftlint` rules in `.swiftlint.yml` (CI pins SwiftLint 0.57.0).
+- **`Brewfile`**: `brew bundle` installs `xcodegen`, `xcbeautify`, `jq`, `gh` and `gitleaks` (the `pre-commit` hook scans the staged changes for secrets).
+- **`swiftformat` and `swiftlint` are pinned** in `tools.env`, the one place their versions are written (CI reads the same file). Homebrew installs only the newest version, and another version formats and lints differently, so these two are not in the `Brewfile`. `scripts/install-tools.sh` (run by `make setup`, safe to run again) downloads the pinned release, checks its SHA256 from `tools.env` and links it into `.tools/bin` (git-ignored; the Makefile puts it first on `PATH`). The binaries are cached in `~/.cache/breathnest/tools`, shared by all worktrees. `make lint` starts with `scripts/check-tools.sh` and fails with this fix when the installed version differs.
+- **Bump a pin** in its own pull request: change the version and the SHA256 of the release zip in `tools.env`, run `scripts/install-tools.sh` and `make format lint`. A new version may change the formatting of files nobody touched.
+- `xcodegen` and `gitleaks` are only recorded in `tools.env`: the `Brewfile` installs the current versions and a difference is a warning, not an error.
+- **Xcode** 26 or later, last run with Xcode 27.0. The Simulator runtime is pinned to iOS 26.2 whatever Xcode is installed, see [iOS](ios.md) (Supported Xcode and runtime).
+
+`swiftformat` settings live in `.swiftformat`, `swiftlint` rules in `.swiftlint.yml`.

@@ -21,6 +21,10 @@ Product name Breathnest, bundle ID `com.siroroman.breathnest`, iPhone only (`TAR
 - Delete a worktree's simulator together with its worktree: `xcrun simctl delete "Breathnest-<folder>"`.
 - To test on another OS version, change `RUNTIME` in `scripts/simulator.sh`, not the Makefile.
 
+## Supported Xcode and runtime
+
+Xcode 26 or later (last run with Xcode 27.0). The Simulator runtime stays pinned to **iOS 26.2** (`RUNTIME` in `scripts/simulator.sh`), also when a newer runtime is installed: the deployment target is iOS 26.0, and one runtime means the same OS on every machine and in CI. The CI job `Build, app tests, lint` runs on the runner image's Xcode (its `Toolchain` step prints the version and the runtimes). Change the pin only in its own pull request: edit `RUNTIME`, the iOS version named in this file and in the header of the script, and make sure the runtime is installed (Xcode, Settings, Components).
+
 ## Conventions
 
 The ones marked **checked** fail `make lint` ([commands](commands.md)): SwiftLint with `.swiftlint.yml` (tests are not linted) and `scripts/check-architecture.sh`. The rest are reviewed.
