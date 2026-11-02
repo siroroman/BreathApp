@@ -6,6 +6,6 @@ CI (`pr-body.yml`, `scripts/check-guardrail-paths.sh`) fails a pull request that
 
 A glob is a shell `case` pattern on the repo-relative path, `*` also matches `/`. Whoever adds a hook, a workflow, a check script or a registry adds its glob here in the same pull request.
 
-Paths: `.claude/settings.json` `.claude/hooks/*` `.claude/agents/*` `.claude/skills/*` `.githooks/*` `.github/*` `scripts/check-*` `scripts/test-*` `Makefile` `.swiftformat` `docs/agents/critical-paths.md` `docs/agents/guardrail-paths.md`
+Paths: `.claude/settings.json` `.claude/hooks/*` `.claude/agents/*` `.claude/skills/*` `.githooks/*` `.github/*` `scripts/check-*` `scripts/test-*` `Makefile` `.swiftformat` `.swiftlint.yml` `docs/agents/critical-paths.md` `docs/agents/guardrail-paths.md`
 
 The repository settings and the ruleset are guardrails too, but they live on GitHub, not in the diff. A change there is recorded in the Enforcement table of [git](git.md) by its own pull request.
