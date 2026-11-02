@@ -23,7 +23,7 @@ Product name Breathnest, bundle ID `com.siroroman.breathnest`, iPhone only (`TAR
 
 ## Supported Xcode and runtime
 
-Xcode 26 or later (last run with Xcode 27.0). The Simulator runtime stays pinned to **iOS 26.2** (`RUNTIME` in `scripts/simulator.sh`), also when a newer runtime is installed: the deployment target is iOS 26.0, and one runtime means the same OS on every machine and in CI. The CI job `Build, app tests, lint` runs on the runner image's Xcode (its `Toolchain` step prints the version and the runtimes). Change the pin only in its own pull request: edit `RUNTIME`, the iOS version named in this file and in the header of the script, and make sure the runtime is installed (Xcode, Settings, Components).
+Xcode 26 or later (last run with Xcode 27.0). The Simulator runtime stays pinned to **iOS 26.2** (`RUNTIME` in `scripts/simulator.sh`), also when a newer runtime is installed: the deployment target is iOS 26.0, and one runtime means the same OS on every machine and in CI. The CI job `Build, app tests, lint` runs on the `macos-26` image with Xcode 26.6 (`CI_XCODE_VERSION` in `tools.env`, selected by its `Select Xcode` step) and the runtime above, which the image has installed; its `Toolchain` step prints the version and the runtimes. Details: [commands](commands.md) (CI). Change the pin only in its own pull request: edit `RUNTIME`, the iOS version named in this file and in the header of the script, and make sure the runtime is installed (Xcode, Settings, Components).
 
 ## Conventions
 
