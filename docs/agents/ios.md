@@ -23,10 +23,12 @@ Product name Breathnest, bundle ID `com.siroroman.breathnest`, iPhone only (`TAR
 
 ## Conventions
 
-- Logic goes into `BreathnestKit` first, with a test. The app only draws it and talks to the system. If a type needs `UIKit`, `SwiftUI` or `CoreHaptics`, it belongs in the app target.
-- SwiftUI with `@Observable` models, no Combine, no `ObservableObject`. Follow the `swiftui-expert-skill` for state, lists and Liquid Glass.
-- Swift Concurrency: `async`/`await` and actors, no completion handlers or `DispatchQueue`. UI types are `@MainActor`. Follow the `swift-concurrency-pro` skill. Code in the Kit is `Sendable` value types where it can be.
-- Time comes from an injected `Clock`, never `Date()` or `Task.sleep` called directly in logic (see [testing](testing.md)).
-- User-visible text lives in the String Catalog, not in the Kit and not as string literals in logic.
+The ones marked **checked** fail `make lint` ([commands](commands.md)): SwiftLint with `.swiftlint.yml` (tests are not linted) and `scripts/check-architecture.sh`. The rest are reviewed.
+
+- Logic goes into `BreathnestKit` first, with a test. The app only draws it and talks to the system. If a type needs `UIKit`, `SwiftUI` or `CoreHaptics`, it belongs in the app target. **Checked:** the Kit imports only Foundation, Synchronization and Swift.
+- SwiftUI with `@Observable` models, no Combine, no `ObservableObject`. Follow the `swiftui-expert-skill` for state, lists and Liquid Glass. **Checked:** no `import Combine`, no `ObservableObject`.
+- Swift Concurrency: `async`/`await` and actors, no completion handlers or `DispatchQueue`. UI types are `@MainActor`. Follow the `swift-concurrency-pro` skill. Code in the Kit is `Sendable` value types where it can be. **Checked:** no `DispatchQueue`, no `completion`, `completionHandler`, `handler` or `callback` closure parameter, no force unwrap or `try!` outside tests.
+- Time comes from an injected `Clock`, never `Date()` or `Task.sleep` called directly in logic (see [testing](testing.md)). **Checked** in the Kit; the app may create the `ContinuousClock` it injects.
+- User-visible text lives in the String Catalog, not in the Kit and not as string literals in logic. Reviewed only: a linter cannot tell such a literal from an identifier.
 - Use the glossary terms in type and test names (`Exercise`, `Pattern`, `Phase`, `Cycle`, `Session`, `Breath level`).
-- No third-party dependencies without a decision recorded in an ADR.
+- No third-party dependencies without a decision recorded in an ADR. **Checked:** `scripts/check-architecture.sh` fails on a package in `Package.swift` or `project.yml`; add the ADR first, then the exception to the script.

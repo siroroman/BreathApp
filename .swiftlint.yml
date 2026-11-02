@@ -1,0 +1,45 @@
+# The Swift conventions of docs/agents/ios.md and docs/agents/testing.md that a linter can see. Formatting is swiftformat's
+# job (.swiftformat), so only these rules run. Run with `--strict` (make lint): a warning fails too. Tested by
+# scripts/test-swiftlint-rules.sh. Keep the set small: a rule that cries wolf gets ignored.
+only_rules:
+  - force_unwrapping
+  - force_try
+  - custom_rules
+
+# Tests are not linted: force unwrap, try! and a real clock are fine there.
+included:
+  - App/Breathnest
+  - BreathnestKit/Sources
+
+custom_rules:
+  time_from_injected_clock:
+    name: Time from an injected Clock
+    regex: '\b(Date\(\)|Date\.now|ContinuousClock\(\)|Task\.sleep)'
+    included: 'BreathnestKit/Sources/.*\.swift'
+    excluded_match_kinds: [comment, doccomment, string]
+    message: 'Logic takes a Clock from the caller, never Date(), ContinuousClock() or Task.sleep. See docs/agents/testing.md (Time).'
+    severity: error
+  no_dispatch_queue:
+    name: No DispatchQueue
+    regex: '\bDispatchQueue\b'
+    excluded_match_kinds: [comment, doccomment, string]
+    message: 'Use async/await and actors, not DispatchQueue. See docs/agents/ios.md (Conventions).'
+    severity: error
+  no_combine:
+    name: No Combine
+    regex: '^\s*import\s+Combine\b'
+    excluded_match_kinds: [comment, doccomment, string]
+    message: 'Use @Observable and async/await, not Combine. See docs/agents/ios.md (Conventions).'
+    severity: error
+  no_observable_object:
+    name: No ObservableObject
+    regex: '\bObservableObject\b'
+    excluded_match_kinds: [comment, doccomment, string]
+    message: 'Use an @Observable model, not ObservableObject. See docs/agents/ios.md (Conventions).'
+    severity: error
+  no_completion_handler:
+    name: No completion handler
+    regex: '\b(completion|completionHandler|handler|callback)\w*\s*:\s*(@escaping|@Sendable|\()'
+    excluded_match_kinds: [comment, doccomment, string]
+    message: 'Use async/await, not a completion handler. See docs/agents/ios.md (Conventions).'
+    severity: error

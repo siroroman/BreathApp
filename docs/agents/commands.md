@@ -10,7 +10,7 @@ One `make` target per check, run from the repository root (also from a worktree)
 | `make test` | `make test-kit` then `make test-app`. | yes |
 | `make test-kit` | `swift test` in `BreathnestKit/`. Seconds, no simulator. Use this in the red-green loop. | no |
 | `make test-app` | `xcodebuild test` of the `Breathnest` scheme (app unit tests). | yes |
-| `make lint` | `swiftformat --lint`, then `scripts/check-workflows.sh` (every workflow sets `permissions: contents: read` and a `timeout-minutes` on each job) and `scripts/check-docs.sh` (the docs only name files, `make` targets and skills that exist). Changes nothing, fails when a file needs formatting or a rule is broken. | no |
+| `make lint` | `swiftformat --lint`, then `swiftlint lint --strict` (the Swift conventions of [iOS](ios.md), config in `.swiftlint.yml`), `scripts/check-workflows.sh` (every workflow sets `permissions: contents: read` and a `timeout-minutes` on each job) `scripts/check-docs.sh` (the docs only name files, `make` targets and skills that exist) and `scripts/check-architecture.sh` (the Kit imports only Foundation, Synchronization and Swift, no package is declared). Changes nothing, fails when a file needs formatting or a rule is broken. | no |
 | `make format` | `swiftformat` in place. Fix a failing `make lint` with this. | no |
 | `make run` | Builds, boots this checkout's simulator, installs and launches the app. | yes |
 | `make screenshot` | Saves the simulator screen to `build/screenshot.png`. Open it with the Read tool to look at it. | yes |
@@ -31,4 +31,4 @@ The safe commands above are allowlisted in `.claude/settings.json`, so they run 
 
 ## Tools
 
-`xcodegen`, `xcbeautify`, `swiftformat`, `jq`, `gitleaks` (the `pre-commit` hook scans the staged changes for secrets) and Xcode 26 or later. Install with `brew install xcodegen xcbeautify swiftformat jq gitleaks`. `swiftformat` settings live in `.swiftformat`.
+`xcodegen`, `xcbeautify`, `swiftformat`, `swiftlint`, `jq`, `gitleaks` (the `pre-commit` hook scans the staged changes for secrets) and Xcode 26 or later. Install with `brew install xcodegen xcbeautify swiftformat swiftlint jq gitleaks`. `swiftformat` settings live in `.swiftformat`, `swiftlint` rules in `.swiftlint.yml` (CI pins SwiftLint 0.57.0).

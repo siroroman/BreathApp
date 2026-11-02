@@ -33,8 +33,10 @@ test-app: gen ## App tests on the simulator
 
 lint: ## Check formatting and the repo rules, changes nothing
 	swiftformat $(SWIFT_DIRS) --lint
+	swiftlint lint --strict --quiet || { echo "A Swift convention is broken, see docs/agents/ios.md (Conventions) and docs/agents/testing.md (Time)" >&2; exit 1; }
 	scripts/check-workflows.sh
 	scripts/check-docs.sh
+	scripts/check-architecture.sh
 
 format: ## Format the Swift sources in place
 	swiftformat $(SWIFT_DIRS)

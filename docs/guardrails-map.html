@@ -317,7 +317,7 @@ const stations = [
       problem: "Many process rules exist only as text: when work is done, how a review goes, what must not change. An agent usually follows them. When it does not, nothing turns red.",
       example: "<code>critical-paths.md</code> says that changing a check so it passes is never the fix. If an agent loosens a test to make it green, no tool reports it by itself. Only the Guardrails touched line in the PR body and the review will point it out.",
       how: "<code>CLAUDE.md</code> and <code>docs/agents/*.md</code>. <code>docs/agents/rules-enforcement.md</code> lists every rule and what stops a break of it, or says it is a process rule. Rules that already have their own check (PR body, critical paths, guardrail changes) are listed separately on this map. Three more are checked now: <code>scripts/check-workflows.sh</code> (every workflow sets <code>permissions: contents: read</code> and a <code>timeout-minutes</code> on each job), <code>scripts/check-docs.sh</code> (the docs only name files, make targets and skills that exist) and <code>scripts/check-branch-name.sh</code> (branch is <code>&lt;type&gt;/&lt;issue&gt;-&lt;slug&gt;</code>). The first two run in <code>make lint</code> and the <code>Script tests</code> job, the third in the required <code>check-title</code> job.",
-      gap: "Rules that need judgment stay text: a review in a fresh session, nothing unrelated in the diff, acceptance criteria met, glossary terms, a new critical path glob. The Swift conventions (no <code>Date()</code>, no <code>DispatchQueue</code>, the Kit imports no UI framework) are not checked yet, that is issue #64." },
+      gap: "Rules that need judgment stay text: a review in a fresh session, nothing unrelated in the diff, acceptance criteria met, glossary terms, a new critical path glob. The Swift conventions are checked by SwiftLint and <code>scripts/check-architecture.sh</code>, see the card on the Swift linter. Only the user-visible string literal rule stays text." },
     { st: "ok", t: "The workflow skills are in the repo",
       s: "tdd, pr, code-review and three more are committed in .claude/skills/, pinned to an upstream commit.",
       problem: "The docs tell an agent to use a skill, and the skill is not there on a machine that does not have it. The agent then follows the rule from memory or skips it, and nothing turns red.",
@@ -475,12 +475,13 @@ const stations = [
       example: "At AX5 an exercise name wraps to three lines and covers the Start button. No test reports it.",
       how: "Nothing automatic. The <code>ui-verifier</code> agent takes screenshots at normal text size and at AX5 when someone starts it.",
       gap: "Issue #72: a UI test target with <code>performAccessibilityAudit()</code> and a String Catalog check before the first screen." },
-    { st: "miss", t: "No linter checks the Swift conventions",
-      s: "swiftformat handles format only. SwiftLint does not run.",
-      problem: "Format is only a part. The project rules written in <code>docs/agents/ios.md</code> and <code>testing.md</code> are not reported automatically.",
-      example: "The agent uses <code>Date()</code> in the Kit instead of the injected <code>Clock</code>. According to <code>critical-paths.md</code> that is a mistake, but it passes lint and build.",
-      how: "Nothing. <code>make lint</code> runs only swiftformat.",
-      gap: "Issue #64: SwiftLint with the project rules, and a script that guards that the Kit does not import UI frameworks." }
+    { st: "ok", t: "A linter checks the Swift conventions",
+      s: "SwiftLint and an architecture script run in make lint, next to swiftformat.",
+      problem: "Format is only a part. The project rules written in <code>docs/agents/ios.md</code> and <code>testing.md</code> were not reported automatically, so a break passed lint and build.",
+      example: "The agent uses <code>Date()</code> in the Kit instead of the injected <code>Clock</code>. <code>make lint</code> now fails with a message that names <code>docs/agents/testing.md</code>.",
+      how: "<code>.swiftlint.yml</code> runs with <code>--strict</code> in <code>make lint</code> and lints <code>App/Breathnest</code> and <code>BreathnestKit/Sources</code>, not the tests. It bans <code>Date()</code>, <code>ContinuousClock()</code> and <code>Task.sleep</code> in the Kit, <code>DispatchQueue</code>, Combine, <code>ObservableObject</code>, completion handlers, force unwrap and <code>try!</code>. <code>scripts/check-architecture.sh</code> checks that the Kit imports only Foundation, Synchronization and Swift and that no package is declared in <code>Package.swift</code> or <code>project.yml</code>. <code>scripts/test-swiftlint-rules.sh</code> (in the iOS job) and <code>scripts/test-check-architecture.sh</code> (in <code>Script tests</code>) test them. Compiler warnings were already errors.",
+      gap: "A user-visible string literal in logic is not checked: a regex cannot tell it from an identifier. Glossary terms in names are not checked either. SwiftLint is pinned in CI but not yet locally, that is issue #71.",
+      done: "2026-11-02", ref: "issue 64" }
   ]},
   { title: "Merge into main", sub: "The gate every change passes through.", items: [
     { st: "ok", t: "Main can be reached only through a pull request",
@@ -579,7 +580,6 @@ const stations = [
 ];
 
 const todo = [
-  ["Swift conventions in make lint", "SwiftLint with the project rules (no <code>Date()</code> in Kit logic, no <code>DispatchQueue</code>) and a script that guards that the Kit does not import UI frameworks.", ["issue #64", "pull request"]],
   ["The same tool versions everywhere", "A <code>Brewfile</code> and a check of the swiftformat and SwiftLint versions, so local lint gives the same result as CI.", ["issue #71", "on disk and in CI"]],
   ["UI tests and an accessibility audit from the first screen", "A UI test target with <code>performAccessibilityAudit()</code> and a translations check, while there are few screens and adding them is cheap.", ["issue #72", "pull request"]],
   ["Later: coverage, CodeQL, CODEOWNERS", "They make sense once the repo has more code or more people. Today they would report almost nothing.", ["no ticket"]]
