@@ -80,3 +80,5 @@ make setup
 ```
 
 It sets `git config core.hooksPath .githooks`, a relative path, so a worktree never runs hooks from another checkout.
+
+<!-- throwaway -->
