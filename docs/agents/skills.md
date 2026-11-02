@@ -38,7 +38,7 @@ Claude Code resolves a skill name enterprise, then personal (`~/.claude/skills`)
 ## Update a vendored skill
 
 1. Clone the source repo and pick the commit. Read the diff of the skill folder first, a skill is instructions the agent obeys (and `swiftui-expert-skill` also ships Python scripts).
-2. Replace the folder and the `LICENSE`, and change the commit in the table above in the same pull request:
+2. Replace the folder and the `LICENSE`, and change the commit in the table above in the same pull request. `.claude/skills/*` is a [guardrail path](guardrail-paths.md), so the body needs a **Guardrails touched:** line:
 
 ```bash
 git -C <clone> archive <commit> <path-in-repo> | tar -x -C .claude/skills/<name> --strip-components=<depth of path-in-repo>
