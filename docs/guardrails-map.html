@@ -181,7 +181,7 @@ footer { color: var(--ink-2); font-size: 13px; }
   <header>
     <div>
       <h1>Guardrails map</h1>
-      <p class="sub">Guardrails are automatic barriers that catch a mistake by an agent or a person before it reaches <code>main</code>. The map follows one change on its way: from a Claude session on your Mac to the repo settings on GitHub. Status as of 1 November 2026, from the repo and the GitHub settings.</p>
+      <p class="sub">Guardrails are automatic barriers that catch a mistake by an agent or a person before it reaches <code>main</code>. The map follows one change on its way: from a Claude session on your Mac to the repo settings on GitHub. Status as of 2 November 2026, from the repo and the GitHub settings.</p>
     </div>
     <div class="score" id="score"></div>
   </header>
@@ -316,14 +316,14 @@ const stations = [
       s: "The agent reads CLAUDE.md and docs/agents, but breaking a rule stops nothing.",
       problem: "Many process rules exist only as text: when work is done, how a review goes, what must not change. An agent usually follows them. When it does not, nothing turns red.",
       example: "<code>critical-paths.md</code> says that changing a check so it passes is never the fix. If an agent loosens a test to make it green, no tool reports it by itself. Only the Guardrails touched line in the PR body and the review will point it out.",
-      how: "<code>CLAUDE.md</code> and <code>docs/agents/*.md</code>. Rules that already have their own check (PR body, critical paths, guardrail changes) are listed separately on this map.",
-      gap: "Rules that a machine can verify are gradually turned into checks. The Swift conventions, for example, are issue #64." },
+      how: "<code>CLAUDE.md</code> and <code>docs/agents/*.md</code>. <code>docs/agents/rules-enforcement.md</code> lists every rule and what stops a break of it, or says it is a process rule. Rules that already have their own check (PR body, critical paths, guardrail changes) are listed separately on this map. Three more are checked now: <code>scripts/check-workflows.sh</code> (every workflow sets <code>permissions: contents: read</code> and a <code>timeout-minutes</code> on each job), <code>scripts/check-docs.sh</code> (the docs only name files, make targets and skills that exist) and <code>scripts/check-branch-name.sh</code> (branch is <code>&lt;type&gt;/&lt;issue&gt;-&lt;slug&gt;</code>). The first two run in <code>make lint</code> and the <code>Script tests</code> job, the third in the required <code>check-title</code> job.",
+      gap: "Rules that need judgment stay text: a review in a fresh session, nothing unrelated in the diff, acceptance criteria met, glossary terms, a new critical path glob. The Swift conventions (no <code>Date()</code>, no <code>DispatchQueue</code>, the Kit imports no UI framework) are not checked yet, that is issue #64." },
     { st: "ok", t: "The workflow skills are in the repo",
       s: "tdd, pr, code-review and three more are committed in .claude/skills/, pinned to an upstream commit.",
       problem: "The docs tell an agent to use a skill, and the skill is not there on a machine that does not have it. The agent then follows the rule from memory or skips it, and nothing turns red.",
       example: "A cloud agent picks up a ticket labelled <code>ready-for-agent</code> and <code>docs/agents/*</code> says to follow <code>/tdd</code>. A fresh clone has <code>.claude/skills/tdd</code>, so the skill is found.",
       how: "Six skills are vendored: <code>tdd</code>, <code>pr</code>, <code>code-review</code>, <code>domain-modeling</code>, <code>swiftui-expert-skill</code> and <code>swift-concurrency-pro</code>. Each is identical to upstream at the commit listed in <code>docs/agents/skills.md</code>, with its MIT licence. The skills only the user runs (<code>grilling</code>, <code>wayfinder</code> and others) stay personal and are listed with their source. A personal copy in <code>~/.claude/skills</code> wins over the vendored one with the same name.",
-      gap: "Nothing checks that a skill named in the docs is in the table, and nothing warns when upstream moves on. An update is a manual pull request.",
+      gap: "<code>scripts/check-docs.sh</code> checks that every skill directory is named in the docs and every vendored skill has its directory. Nothing warns when upstream moves on. An update is a manual pull request.",
       done: "2026-11-02", ref: "PR 115" }
   ]},
   { title: "Commit and push on disk", sub: "Git hooks in .githooks/. Switched on once per clone, and they can be skipped.", items: [
