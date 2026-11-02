@@ -137,6 +137,20 @@ check "no main, clean tree does not run" "$r" no 0
 echo 'let a = 2' >"$r/App/A.swift"
 check "no main, uncommitted edit runs" "$r" yes 0
 
+# An origin/main with unrelated history has no merge-base: the hook falls back to local main, then to the working tree.
+other=$(new_repo other-history)
+r=$(new_repo no-merge-base)
+git_in "$r" fetch -q "$other" main:refs/remotes/origin/main
+commit_on_branch "$r" App/B.swift 'let b = 2'
+check "no merge-base with origin/main, local main: committed change runs" "$r" yes 0
+
+r=$(new_repo no-merge-base-no-main)
+git_in "$r" fetch -q "$other" main:refs/remotes/origin/main
+git_in "$r" branch -q -m trunk
+check "no merge-base, no main: clean tree does not run" "$r" no 0
+echo 'let a = 2' >"$r/App/A.swift"
+check "no merge-base, no main: uncommitted edit runs" "$r" yes 0
+
 # A repo without any commit does not crash the hook.
 r="$tmp/empty"; git init -q -b main "$r"
 printf 'lint test:\n\t@touch ran\n' >"$r/Makefile"
