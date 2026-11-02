@@ -71,6 +71,7 @@ Has its own Enforcement table, which is the source for these.
 | The Kit imports only the standard library and Foundation, no third-party dependency without an ADR | `scripts/check-architecture.sh` (in `make lint` and the `Script tests` job), tested by `scripts/test-check-architecture.sh` |
 | Swift Testing, not XCTest; tests mirror the source files | Process rule, `scripts/pr-facts.sh` prints the source files without a mirrored test.  |
 | Compiler warnings are errors | `project.yml` and `BreathnestKit/Package.swift`, so `make build` and `make test-kit` fail |
+| `swiftformat` and `swiftlint` are the versions pinned in `tools.env` | `scripts/check-tools.sh` (first step of `make lint`), tested by `scripts/test-check-tools.sh`. CI installs the same versions with `scripts/install-tools.sh`. |
 | Code formatting | `make lint` (`swiftformat --lint`), the `format-swift.sh` hook formats after each edit |
 | `Breathnest.xcodeproj` is generated, never committed | `.gitignore` |
 | Use the glossary terms in type and test names | Process rule. |

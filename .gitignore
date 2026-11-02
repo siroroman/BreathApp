@@ -14,3 +14,6 @@ build/
 .claude/observer.json
 .claude/settings.local.json
 .claude/worktrees/
+
+# Pinned swiftformat and swiftlint (scripts/install-tools.sh)
+.tools/

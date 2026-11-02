@@ -10,11 +10,6 @@ on:
 permissions:
   contents: read
 
-env:
-  SWIFTFORMAT_VERSION: "0.51.13"
-  SWIFTLINT_VERSION: "0.57.0"
-  GITLEAKS_VERSION: "8.30.1"
-
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
@@ -33,12 +28,15 @@ jobs:
       - run: scripts/test-check-workflows.sh
       - run: scripts/test-check-docs.sh
       - run: scripts/test-check-architecture.sh
+      - run: scripts/test-check-tools.sh
       - run: scripts/check-workflows.sh
       - run: scripts/check-docs.sh
       - run: scripts/check-architecture.sh
-      # test-githooks.sh runs the real scanner of the pre-commit hook. The download is checked against the published checksums.
-      - name: Install gitleaks ${{ env.GITLEAKS_VERSION }}
+      # test-githooks.sh runs the real scanner of the pre-commit hook. The version is the one of tools.env, the download
+      # is checked against the published checksums.
+      - name: Install gitleaks (version of tools.env)
         run: |
+          source tools.env
           base="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}"
           archive="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
           curl -fsSL "$base/$archive" -o "$RUNNER_TEMP/$archive"
@@ -73,26 +71,15 @@ jobs:
         run: |
           xcodebuild -version
           xcrun simctl list runtimes
+      # The Brewfile installs the unpinned tools. swiftformat and swiftlint come from scripts/install-tools.sh at the versions
+      # of tools.env, the same ones `make lint` checks for locally: the runner's Homebrew copies are newer, and their extra
+      # rules fail `make lint` on files nobody touched. Bump the pins in tools.env together with the local install.
       - name: Install tools
-        run: brew install xcodegen xcbeautify
-      # Pinned: the runner's Homebrew swiftformat is newer than the one the code is formatted with, and
-      # its extra rules fail `make lint` on files nobody touched. Bump it together with the local install.
-      - name: Install swiftformat ${{ env.SWIFTFORMAT_VERSION }}
         run: |
-          curl -fsSL "https://github.com/nicklockwood/SwiftFormat/releases/download/${SWIFTFORMAT_VERSION}/swiftformat.zip" -o "$RUNNER_TEMP/swiftformat.zip"
-          mkdir -p "$RUNNER_TEMP/swiftformat"
-          unzip -q "$RUNNER_TEMP/swiftformat.zip" -d "$RUNNER_TEMP/swiftformat"
-          chmod +x "$RUNNER_TEMP/swiftformat/swiftformat"
-          echo "$RUNNER_TEMP/swiftformat" >> "$GITHUB_PATH"
+          brew bundle
+          scripts/install-tools.sh
+          echo "$PWD/.tools/bin" >> "$GITHUB_PATH"
       - run: swiftformat --version
-      # Pinned like swiftformat: a newer SwiftLint must not change what `make lint` reports.
-      - name: Install swiftlint ${{ env.SWIFTLINT_VERSION }}
-        run: |
-          curl -fsSL "https://github.com/realm/SwiftLint/releases/download/${SWIFTLINT_VERSION}/portable_swiftlint.zip" -o "$RUNNER_TEMP/swiftlint.zip"
-          mkdir -p "$RUNNER_TEMP/swiftlint"
-          unzip -q "$RUNNER_TEMP/swiftlint.zip" -d "$RUNNER_TEMP/swiftlint"
-          chmod +x "$RUNNER_TEMP/swiftlint/swiftlint"
-          echo "$RUNNER_TEMP/swiftlint" >> "$GITHUB_PATH"
       - run: swiftlint --version
       - run: scripts/test-swiftlint-rules.sh
       - run: make gen build test lint

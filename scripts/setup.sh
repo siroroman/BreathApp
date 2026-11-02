@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# make setup: once per clone. Turns on the git hooks and checks the tools of docs/agents/commands.md.
+# make setup: once per clone. Turns on the git hooks, installs the pinned swiftformat and swiftlint of tools.env and
+# checks the tools of docs/agents/commands.md (the others come from the Brewfile: `brew bundle`).
 # Safe to run again, also from a linked worktree (core.hooksPath is relative, so each worktree uses its own .githooks).
 set -uo pipefail
 
@@ -9,7 +10,7 @@ git config core.hooksPath .githooks
 echo "git hooks: core.hooksPath = $(git config core.hooksPath)"
 
 missing=()
-for tool in xcodegen xcbeautify swiftformat swiftlint jq gitleaks; do
+for tool in xcodegen xcbeautify jq gh gitleaks; do
   command -v "$tool" >/dev/null || missing+=("$tool")
 done
 
@@ -26,9 +27,12 @@ fi
 
 if [[ ${#missing[@]} -gt 0 ]]; then
   echo "missing tools: ${missing[*]}" >&2
-  echo "  brew install ${missing[*]}" >&2
+  echo "  brew bundle" >&2
 fi
 if [[ ${#missing[@]} -gt 0 || "$xcode_ok" -eq 0 ]]; then
   exit 1
 fi
+
+# swiftformat and swiftlint at the versions of tools.env, into .tools/bin. Also fails when they differ.
+scripts/install-tools.sh || exit 1
 echo "tools: ok"
