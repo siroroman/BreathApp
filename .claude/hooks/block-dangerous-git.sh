@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# PreToolUse hook for Bash: blocks destructive git commands (rules: docs/agents/git.md).
+# PreToolUse hook for Bash: blocks destructive git commands, hook bypasses and merges (rules: docs/agents/git.md).
 # Pushing a feature branch stays allowed so agents can open pull requests.
 # It matches the command text, so a commit message or PR body that quotes a blocked command is blocked too.
 # Tests: scripts/test-block-dangerous-git.sh
@@ -34,8 +34,11 @@ while :; do
   GIT=$NEXT
 done
 
-check() { # reason, regex
+check() { # reason, regex (on the command without options before the subcommand)
   if printf '%s' "$GIT" | grep -qE "$2"; then block "$1"; fi
+}
+check_raw() { # reason, regex (on the command as written, case-insensitive)
+  if printf '%s' "$COMMAND" | grep -qiE "$2"; then block "$1"; fi
 }
 
 FORCE='(-[a-zA-Z]*f[a-zA-Z]*|--force[a-z-]*)' # -f, -fu, -uf, --force, --force-with-lease
@@ -61,6 +64,18 @@ if printf '%s' "$GIT" | grep -qE "git push$END"; then
     fi
   fi
 fi
+
+# Hooks are the guardrail: no skipping them. -n is --no-verify on commit; on push it is --dry-run, blocked as well.
+check "skips the git hooks" "git (commit|push)$SEG (-[a-zA-Z]*n[a-zA-Z]*|--no-v[a-z-]*)$END"
+# `git -c core.hooksPath=...` is removed from $GIT above, so look at the command as written.
+check_raw "overrides core.hooksPath" "git +($SEG )?(-c|--config-env)[= ]*[\"']?core\\.hookspath"
+
+# Merging and deleting on GitHub is the user's. Opening and viewing pull requests stays allowed.
+GH='(^|[^A-Za-z0-9_-])gh +([^;&|]* )?'
+check_raw "merges a pull request, the user does that" "${GH}pr +merge$END"
+check_raw "deletes a repository" "${GH}repo +delete$END"
+check_raw "deletes an issue" "${GH}issue +delete$END"
+check_raw "deletes a release" "${GH}release +delete$END"
 
 # Everything else that destroys work.
 check "hard-resets" "git reset$SEG --hard"
