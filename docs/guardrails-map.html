@@ -354,7 +354,7 @@ const stations = [
       example: "You paste a test API key into <code>Config.swift</code> and commit. The hook stops the commit and prints the file and the line with the value hidden, so you remove the key before it is in history.",
       how: "<code>.githooks/pre-commit</code> runs <code>gitleaks git --staged</code> after the branch check. A missing <code>gitleaks</code> refuses the commit too, because a scan that skips silently is not a guardrail. <code>scripts/test-githooks.sh</code> tests it with the real scanner in the <code>Script tests</code> job.",
       gap: "A person can still skip it with <code>--no-verify</code>, and it sees only what is staged, not the history. It uses the default rules, a custom key format needs a <code>.gitleaks.toml</code>.",
-      done: "2026-11-02", ref: "issue #110" }
+      done: "2026-11-02", ref: "PR 111" }
   ]},
   { title: "Pull request", sub: "CI and checks while the PR waits for a merge.", items: [
     { st: "ok", t: "The guards have their own tests",
