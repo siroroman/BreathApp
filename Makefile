@@ -12,7 +12,10 @@ XCODEBUILD := xcodebuild -project Breathnest.xcodeproj -scheme $(SCHEME) -derive
 APP := $(BUILD_DIR)/Build/Products/Debug-iphonesimulator/Breathnest.app
 SWIFT_DIRS := App BreathnestKit/Sources BreathnestKit/Tests
 
-.PHONY: gen build test test-kit test-app lint format run screenshot sim
+.PHONY: setup gen build test test-kit test-app lint format run screenshot sim
+
+setup: ## Once per clone: turn on the git hooks, check the tools
+	@scripts/setup.sh
 
 gen: ## Generate Breathnest.xcodeproj from project.yml
 	xcodegen generate --quiet

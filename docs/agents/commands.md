@@ -4,6 +4,7 @@ One `make` target per check, run from the repository root (also from a worktree)
 
 | Command | What it does | Needs simulator |
 |---|---|---|
+| `make setup` | Once per clone: sets `core.hooksPath` to `.githooks` (idempotent, also from a linked worktree) and checks the tools below are installed, printing the `brew install` line for the missing ones. | no |
 | `make gen` | Generates `Breathnest.xcodeproj` from `project.yml` (the project is not committed). Every target below runs it first where needed. | no |
 | `make build` | Builds the app into `build/` (DerivedData of this checkout). | yes, as a destination |
 | `make test` | `make test-kit` then `make test-app`. | yes |
@@ -26,7 +27,7 @@ Typical order: `make test-kit` while working, `make format lint` before a commit
 
 The safe commands above are allowlisted in `.claude/settings.json`, so they run without a prompt.
 
-`.claude/settings.json` also has a `deny` list that no prompt can approve: reading `.env` files, private keys and certificates (`*.pem`, `*.p12`, `*.key`, `*.mobileprovision`), `~/.ssh`, `~/.aws` and `~/.config/gh`, and the shell commands `curl`, `wget`, `sudo`, anything piped into `sh`, `bash` or `zsh`, and the `gh` commands `gh pr merge`, `gh api` and `gh repo delete`. Merging a pull request is the user's. Use `gh` for GitHub (not `gh api`, which can write around the git hook) and `make` for everything else. The `Read` rules cover the Read tool, not `cat` in a shell command, so the allowlist stays narrow and a Bash command outside it still needs approval.
+`.claude/settings.json` also has a `deny` list that no prompt can approve: reading `.env` files, private keys and certificates (`*.pem`, `*.p12`, `*.key`, `*.mobileprovision`), `~/.ssh`, `~/.aws` and `~/.config/gh`, and the shell commands `curl`, `wget`, `sudo`, anything piped into `sh`, `bash` or `zsh`, and the `gh` commands `gh pr merge`, `gh api`, `gh repo delete`, `gh issue delete` and `gh release delete`. Merging a pull request is the user's. `.claude/hooks/block-dangerous-git.sh` blocks the same `gh` commands too, also with options before the subcommand (`gh -R owner/repo pr merge`), which a `deny` rule does not match. `gh pr create`, `gh pr view` and the other read commands stay allowed. Use `gh` for GitHub (not `gh api`, which can write around the git hook) and `make` for everything else. The `Read` rules cover the Read tool, not `cat` in a shell command, so the allowlist stays narrow and a Bash command outside it still needs approval.
 
 ## Tools
 

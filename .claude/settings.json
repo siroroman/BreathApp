@@ -47,6 +47,8 @@
       "Bash(gh pr merge:*)",
       "Bash(gh api:*)",
       "Bash(gh repo delete:*)",
+      "Bash(gh issue delete:*)",
+      "Bash(gh release delete:*)",
       "Bash(* | sh)",
       "Bash(* | bash)",
       "Bash(* | zsh)"

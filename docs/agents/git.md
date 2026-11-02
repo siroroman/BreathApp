@@ -46,9 +46,9 @@ GitHub flow with Conventional Commits. Read this before creating a branch, a com
 ## Rules for agents
 
 - Push only your own feature branch: `git push -u origin <branch>`. Never force-push and never push `main`.
-- Never bypass the hook with `--no-verify`. If a message is rejected, fix the message.
+- Never bypass the hooks with `--no-verify` or `-n`, and never override `core.hooksPath` (`git -c core.hooksPath=...`). If a message is rejected, fix the message. If a commit on `main` is refused, `git switch -c <branch>` and commit there.
 - Never rewrite history that is already pushed.
-- Do not merge a PR unless the user asked for it.
+- Do not merge a PR unless the user asked for it. `gh pr merge`, `gh repo delete`, `gh issue delete` and `gh release delete` are blocked; `gh pr create` and `gh pr view` are not.
 
 ## Enforcement
 
@@ -59,15 +59,18 @@ GitHub flow with Conventional Commits. Read this before creating a branch, a com
 | PR body: the six sections in order, none empty, `Closes #<issue>` last | CI, `.github/workflows/pr-body.yml` calling `scripts/check-pr-body.sh`, tested by `scripts/test-check-pr-body.sh`. `.github/pull_request_template.md` starts a PR with the sections. Dependabot PRs are skipped. Whether the content is true is checked by the `code-reviewer` agent ([pull requests](pull-requests.md)) |
 | Critical path source changed with no test change | CI, `.github/workflows/pr-body.yml` calling `scripts/check-critical-paths.sh`, tested by `scripts/test-check-critical-paths.sh`. A PR body that starts with `> **Warning:**` passes ([critical paths](critical-paths.md)) |
 | Guardrail file changed (hooks, CI, check scripts, lint config, registries) with no `**Guardrails touched:**` line in the PR body | CI, the `check-body` job of `.github/workflows/pr-body.yml` calling `scripts/check-guardrail-paths.sh`, tested by `scripts/test-check-guardrail-paths.sh`. The globs come from the registry on the base and on the branch, so dropping a glob does not hide its own change. Dependabot PRs are skipped ([guardrail paths](guardrail-paths.md)) |
-| Kit tests before a push | `pre-push` hook, `.githooks/pre-push` running `make test-kit`. Skipped when the push only deletes a branch |
+| No commit on `main` or `master`, no push to them from this machine | `pre-commit` and `pre-push` hooks, `.githooks/pre-commit` and `.githooks/pre-push`, tested by `scripts/test-githooks.sh` in the `Script tests` job. The message says to `git switch -c` a branch. A detached HEAD (rebase) passes. Linked worktrees use the hooks of their own checkout |
+| Kit tests before a push | `pre-push` hook, `.githooks/pre-push` running `make test-kit`. Skipped when the push only deletes a branch. A push of `main` is refused before the tests run |
 | A stuck or over-privileged workflow job | every workflow in `.github/workflows/` sets `permissions: contents: read` and a `timeout-minutes` on each job (5 for the ubuntu jobs, 10 for `Kit tests`, 30 for `Build, app tests, lint`; the slowest run was about 9 minutes). Nothing checks a new workflow, copy both |
 | A failed `xcodebuild` or app test fails `make` | `SHELL := /bin/bash -o pipefail` in the `Makefile` (macOS ships Make 3.81, which ignores `.SHELLFLAGS`), tested by `scripts/test-make-pipefail.sh` in the `Kit tests` job on macOS |
 | Squash merge, PR title as commit title | repository setting: only squash merge is allowed, the PR title is the commit title, branches are deleted after the merge |
 | No direct commits to `main`, no force push, no deleting it, required checks green | repository ruleset `Main branch ruleset`. The Admin role can bypass it only when merging a pull request (`bypass_mode: pull_request`), a direct push to `main` is refused for everyone. Required checks: `Script tests`, `Kit tests`, `Build, app tests, lint`, `check-title`, `check-body`, `critical-paths`. A new job in a workflow is not required until it is added to the ruleset |
-| Destructive commands: force push (also `-fu`, `--force-with-lease`), deleting or mirroring remote refs, push to `main`, hard reset, forced clean, forced branch delete, `checkout .` / `restore .` | Claude Code `PreToolUse` hook, `.claude/hooks/block-dangerous-git.sh`, registered in `.claude/settings.json`, tested by `scripts/test-block-dangerous-git.sh`. Needs `jq` and refuses everything without it. Pushing a feature branch is allowed. Options before the subcommand (`git -C dir ...`) are ignored when matching. The hook matches the command text, so a commit message or PR body that quotes a blocked command is blocked too, reword it |
+| Destructive commands: force push (also `-fu`, `--force-with-lease`), deleting or mirroring remote refs, push to `main`, hard reset, forced clean, forced branch delete, `checkout .` / `restore .`. Skipping the hooks: `--no-verify` and `-n` on `git commit` and `git push` (`git push -n` is `--dry-run`, blocked with it), `git -c core.hooksPath=...` and `--config-env`. GitHub: `gh pr merge`, `gh repo delete`, `gh issue delete`, `gh release delete`, also with options before the subcommand (`gh -R owner/repo pr merge`) | Claude Code `PreToolUse` hook, `.claude/hooks/block-dangerous-git.sh`, registered in `.claude/settings.json`, tested by `scripts/test-block-dangerous-git.sh`. Needs `jq` and refuses everything without it. Pushing a feature branch and `gh pr create` / `gh pr view` are allowed. `.claude/settings.json` also lists the four `gh` commands in `permissions.deny`. Options before the subcommand (`git -C dir ...`) are ignored when matching. The hook matches the command text, so a commit message or PR body that quotes a blocked command is blocked too, reword it |
 
-Enable the `commit-msg` and `pre-push` hooks once per clone (linked worktrees share it). The Claude Code hook needs no setup, it is registered in the checked-in `.claude/settings.json`:
+Enable the `commit-msg`, `pre-commit` and `pre-push` hooks once per clone with `make setup` (linked worktrees share the setting and each uses the hooks of its own checkout). It also checks the tools from [commands](commands.md), and running it again changes nothing. The Claude Code hook needs no setup, it is registered in the checked-in `.claude/settings.json`. `make setup` runs:
 
 ```bash
-git config core.hooksPath .githooks
+make setup
 ```
+
+It sets `git config core.hooksPath .githooks`, a relative path, so a worktree never runs hooks from another checkout.

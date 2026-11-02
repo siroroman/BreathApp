@@ -20,7 +20,7 @@ An AFK session that hits a decision it cannot make stops and writes the question
 ## Steps
 
 1. Read the ticket, glossary and ADRs. Restate the acceptance criteria.
-2. `git fetch`, then create `<type>/<issue>-<slug>` from the latest `main` in a worktree ([git](git.md)). `git config core.hooksPath .githooks` once per clone.
+2. `git fetch`, then create `<type>/<issue>-<slug>` from the latest `main` in a worktree ([git](git.md)). `make setup` once per clone.
 3. Red-green slices with `make test-kit` ([testing](testing.md)). Commit each slice.
 4. `make build test lint`, and `make run screenshot` for UI ([commands](commands.md)).
 5. Push the feature branch, run `scripts/pr-facts.sh`, and open a **draft** PR with the `pr` skill, extended as in [pull requests](pull-requests.md). Check CI.
