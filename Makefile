@@ -3,6 +3,8 @@
 # `xcodebuild ... | xcbeautify` returns the exit code of xcbeautify and a failed build or test passes.
 SHELL := /bin/bash -o pipefail
 .SHELLFLAGS := -ec
+# The swiftformat and swiftlint pinned in tools.env (scripts/install-tools.sh) win over any other install.
+export PATH := $(CURDIR)/.tools/bin:$(PATH)
 
 SCHEME := Breathnest
 BUNDLE_ID := com.siroroman.breathnest
@@ -31,7 +33,8 @@ test-kit: ## Kit tests with `swift test`, no simulator
 test-app: gen ## App tests on the simulator
 	$(XCODEBUILD) test | xcbeautify --quiet
 
-lint: ## Check formatting and the repo rules, changes nothing
+lint: ## Check the tool versions, formatting and the repo rules, changes nothing
+	scripts/check-tools.sh
 	swiftformat $(SWIFT_DIRS) --lint
 	swiftlint lint --strict --quiet || { echo "A Swift convention is broken, see docs/agents/ios.md (Conventions) and docs/agents/testing.md (Time)" >&2; exit 1; }
 	scripts/check-workflows.sh
