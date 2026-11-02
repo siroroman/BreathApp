@@ -35,6 +35,7 @@ lint: ## Check formatting and the repo rules, changes nothing
 	swiftformat $(SWIFT_DIRS) --lint
 	scripts/check-workflows.sh
 	scripts/check-docs.sh
+	scripts/check-architecture.sh
 
 format: ## Format the Swift sources in place
 	swiftformat $(SWIFT_DIRS)
