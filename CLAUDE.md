@@ -10,7 +10,7 @@ GitHub flow with Conventional Commits, checked by the `commit-msg` hook. Run `ma
 
 ## Skills
 
-Before installing a Claude Code skill, read `docs/agents/skills.md` (Node version check, verifying leaderboard counts).
+The workflow skills (`tdd`, `pr`, `code-review`, `domain-modeling`, `swiftui-expert-skill`, `swift-concurrency-pro`) are vendored in `.claude/skills/`. Read `docs/agents/skills.md` before adding, updating or installing a skill (sources and commits, which copy wins, Node version check, verifying leaderboard counts).
 
 ## Agent skills
 
