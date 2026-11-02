@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
-# Tests .githooks/pre-commit and .githooks/pre-push (rules: docs/agents/git.md).
+# Tests .githooks/pre-commit and .githooks/pre-push (rules: docs/agents/git.md). Needs gitleaks on PATH.
 # Usage: test-githooks.sh   (exit 1 when a case fails)
 set -uo pipefail
+
+command -v gitleaks >/dev/null || { echo "test-githooks: gitleaks is required, run: brew install gitleaks" >&2; exit 1; }
 
 root=$(cd "$(dirname "$0")/.." && pwd)
 tmp=$(mktemp -d)
@@ -53,6 +55,27 @@ check fail "commit on master" git commit -q --allow-empty -m "chore: c"
 git switch -q --detach
 check pass "commit on a detached HEAD (rebase)" git commit -q --allow-empty -m "chore: d"
 git switch -q feat/x
+
+# pre-commit secret scan. The fake token is assembled here so that this file holds no secret itself.
+printf 'let name = "breathnest"\n' >ok.swift
+git add ok.swift
+check pass "commit of a clean file" git commit -q -m "chore: h"
+printf 'let token = "%s"\n' "ghp""_a1B2c3D4e5F6g7H8i9J0k1L2m3N4o5P6q7R8" >leak.swift
+git add leak.swift
+check fail "commit of a file with a GitHub token" git commit -q -m "chore: i"
+says "commit of a file with a GitHub token" "found a secret"
+says "commit of a file with a GitHub token" "leak.swift"
+if grep -q "a1B2c3D4e5F6g7H8" "$tmp/out"; then
+  echo "FAIL (message shows the secret): commit of a file with a GitHub token"
+  failed=1
+fi
+git rm -q -f --cached leak.swift
+rm leak.swift
+check pass "commit after the file with the token was unstaged" git commit -q --allow-empty -m "chore: j"
+mkdir "$tmp/nogitleaks"
+for tool in git bash cat; do ln -s "$(command -v "$tool")" "$tmp/nogitleaks/$tool"; done
+check fail "commit without gitleaks installed" env PATH="$tmp/nogitleaks" git commit -q --allow-empty -m "chore: k"
+says "commit without gitleaks installed" "brew install gitleaks"
 
 # Linked worktrees read the same hooks, from their own checkout.
 git worktree add -q -b feat/wt "$tmp/wt" main

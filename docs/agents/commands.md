@@ -31,4 +31,4 @@ The safe commands above are allowlisted in `.claude/settings.json`, so they run 
 
 ## Tools
 
-`xcodegen`, `xcbeautify`, `swiftformat`, `jq` and Xcode 26 or later. Install with `brew install xcodegen xcbeautify swiftformat jq`. `swiftformat` settings live in `.swiftformat`.
+`xcodegen`, `xcbeautify`, `swiftformat`, `jq`, `gitleaks` (the `pre-commit` hook scans the staged changes for secrets) and Xcode 26 or later. Install with `brew install xcodegen xcbeautify swiftformat jq gitleaks`. `swiftformat` settings live in `.swiftformat`.

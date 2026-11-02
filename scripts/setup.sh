@@ -9,7 +9,7 @@ git config core.hooksPath .githooks
 echo "git hooks: core.hooksPath = $(git config core.hooksPath)"
 
 missing=()
-for tool in xcodegen xcbeautify swiftformat jq; do
+for tool in xcodegen xcbeautify swiftformat jq gitleaks; do
   command -v "$tool" >/dev/null || missing+=("$tool")
 done
 
