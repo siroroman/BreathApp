@@ -17,6 +17,14 @@ A fresh clone, a worktree on another machine and a cloud agent have only what is
 
 The commit is the last upstream commit that touched the skill's folder. For `swift-concurrency-pro` only the skill folder is vendored, not the upstream plugin files (`.claude-plugin/`, `agents/`, `assets/`, a nested `skills/`), because a second `SKILL.md` would register the skill twice.
 
+## Skills written for this repo
+
+Not vendored, there is no upstream: they are edited here, in `.claude/skills/<name>/`.
+
+| Skill | What it does |
+|---|---|
+| `start-task` | First step of a session that asks for a change: finds or creates the GitHub issue, shows type, branch, title and description, offers plan mode, implements after approval and offers the pull request. `CLAUDE.md` tells the agent to invoke it, a skill cannot start itself. |
+
 ## Skills that stay personal
 
 Named in the docs, but used by the user in their own interactive sessions (HITL, planning, triage), not to implement a ticket, so they are not copied. A session that wants one installs it from the source.

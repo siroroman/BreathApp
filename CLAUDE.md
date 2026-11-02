@@ -1,5 +1,9 @@
 # BreathApp
 
+## Start of a session
+
+When the first message asks for a change in the repo (add, fix, change, document), invoke the `start-task` skill before anything else: it finds or creates the issue, names the branch, offers a plan and ends at the pull request. Questions and reading do not need it.
+
 ## Git
 
 GitHub flow with Conventional Commits, checked by the `commit-msg` hook. Run `make setup` once per clone to turn the hooks on and check the tools. Read `docs/agents/git.md` before creating a branch, commit or pull request, and `docs/agents/pull-requests.md` before writing a pull request body (tests, snapshots, critical paths, reviewer notes).
