@@ -17,3 +17,9 @@ jobs:
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: printf '%s' "$PR_TITLE" | scripts/check-commit-msg.sh -
+      # In check-title, so it is required without a ruleset change. The branch is the head of the pull request.
+      - run: scripts/test-check-branch-name.sh
+      - name: Validate branch name against docs/agents/git.md
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: scripts/check-branch-name.sh "$HEAD_REF"
