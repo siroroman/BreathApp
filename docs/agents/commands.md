@@ -23,7 +23,7 @@ Typical order: `make test-kit` while working, `make format lint` before a commit
 ## Hooks
 
 - **PostToolUse** `.claude/hooks/format-swift.sh` formats every `.swift` file after an Edit or Write.
-- **Stop** `.claude/hooks/stop-check.sh` runs `make lint test` when `App/`, `BreathnestKit/`, `project.yml`, `Makefile` or `.swiftformat` have uncommitted changes. When it fails, the output comes back to you: fix it, do not stop. It reports once and does not loop.
+- **Stop** `.claude/hooks/stop-check.sh` runs `make lint test` when `App/`, `BreathnestKit/`, `project.yml`, `Makefile` or `.swiftformat` differ from `main`: commits since the merge-base with `origin/main` (`main` when there is no `origin/main`), plus uncommitted and untracked files. Committing after every slice does not skip it. Without both `origin/main` and `main` (a fresh clone, a detached worktree) only uncommitted and untracked files count. When it fails, the output comes back to you: fix it, do not stop. It reports once and does not loop. Tested by `scripts/test-stop-check.sh`.
 
 The safe commands above are allowlisted in `.claude/settings.json`, so they run without a prompt.
 

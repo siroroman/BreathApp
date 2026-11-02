@@ -27,6 +27,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: scripts/test-pr-facts.sh
       - run: scripts/test-block-dangerous-git.sh
+      - run: scripts/test-stop-check.sh
       # test-githooks.sh runs the real scanner of the pre-commit hook. The download is checked against the published checksums.
       - name: Install gitleaks ${{ env.GITLEAKS_VERSION }}
         run: |
