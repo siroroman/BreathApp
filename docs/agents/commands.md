@@ -29,6 +29,24 @@ The safe commands above are allowlisted in `.claude/settings.json`, so they run 
 
 `.claude/settings.json` also has a `deny` list that no prompt can approve: reading `.env` files, private keys and certificates (`*.pem`, `*.p12`, `*.key`, `*.mobileprovision`), `~/.ssh`, `~/.aws` and `~/.config/gh`, and the shell commands `curl`, `wget`, `sudo`, anything piped into `sh`, `bash` or `zsh`, and the `gh` commands `gh pr merge`, `gh api`, `gh repo delete`, `gh issue delete` and `gh release delete`. Merging a pull request is the user's. `.claude/hooks/block-dangerous-git.sh` blocks the same `gh` commands too, also with options before the subcommand (`gh -R owner/repo pr merge`), which a `deny` rule does not match. `gh pr create`, `gh pr view` and the other read commands stay allowed. Use `gh` for GitHub (not `gh api`, which can write around the git hook) and `make` for everything else. The `Read` rules cover the Read tool, not `cat` in a shell command, so the allowlist stays narrow and a Bash command outside it still needs approval.
 
+## CI
+
+`.github/workflows/ci.yml` runs on every pull request, on a push to `main` and by hand. The checks are the same commands as above, so a green local `make gen build test lint` is what CI repeats. The ruleset requires the three jobs named in [git](git.md) (Enforcement).
+
+| Job | Runner | Runs | When |
+|---|---|---|---|
+| `Changes` | ubuntu | `scripts/ci-scope.sh`: does the diff against the base touch `App/`, `BreathnestKit/`, `project.yml`, `Makefile`, `.swiftformat`, `.swiftlint.yml`, `tools.env`, `Brewfile`, `scripts/` or `ci.yml`? | always |
+| `Script tests` | ubuntu | the tests of every script, `check-workflows.sh`, `check-docs.sh`, `check-architecture.sh` | always |
+| `Kit tests` | ubuntu, in the `swift:6.2-noble` image pinned by digest | `swift test` in `BreathnestKit/` | always |
+| `Build, app tests, lint` | `macos-26` | `scripts/test-make-pipefail.sh`, then `make gen build test lint` and `make run screenshot` (the screenshot is uploaded as an artifact) | unless `Changes` says no Swift file changed |
+
+- **A docs-only pull request** runs only the ubuntu jobs. The macOS job is skipped with a job-level `if`, not a workflow-level `paths:` filter: GitHub counts a skipped job as passed for a required check, but leaves the check of a filtered workflow pending. When `Changes` itself fails, the macOS job runs anyway.
+- **Xcode** is `CI_XCODE_VERSION` in `tools.env` (26.6), selected from `/Applications/Xcode_26.6.app` on the `macos-26` image. The step fails and lists the installed Xcodes when the image no longer has it. The `Toolchain` step prints `xcodebuild -version`, `swift --version` and the Simulator runtimes.
+- **Simulator runtime** is iOS 26.2, `RUNTIME` in `scripts/simulator.sh`. The image has 26.2, 26.4 and 26.5 installed, so the pin works there without a download.
+- **Linux or macOS for the Kit:** the Kit imports only Foundation, Synchronization and Swift, so `swift test` passes on Linux. The `Build, app tests, lint` job runs the Kit tests again through `make test`, on macOS. The Swift version of the image is the `swift-tools-version` of `BreathnestKit/Package.swift`: bump the tag and the digest together.
+- **Cost:** the repository is public, so hosted runners, macOS included, are free. On a private repository a macOS minute counts 10 times: one run of the macOS job took about 8 minutes (`make gen build test lint` 4, `make run screenshot` 3), see issue #65 for the monthly estimate.
+- **Permissions and time:** every workflow sets `permissions: contents: read` and a `timeout-minutes` on each job, checked by `scripts/check-workflows.sh` (`make lint`).
+
 ## Tools
 
 - **`Brewfile`**: `brew bundle` installs `xcodegen`, `xcbeautify`, `jq`, `gh` and `gitleaks` (the `pre-commit` hook scans the staged changes for secrets).
