@@ -8,3 +8,5 @@ struct ContentView: View {
             .padding()
     }
 }
+
+let   badlyFormatted  =  1
