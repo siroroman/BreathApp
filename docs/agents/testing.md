@@ -25,7 +25,7 @@ That is the inner loop: `swift test` in `BreathnestKit/`, a few seconds, no simu
 
 ## Time
 
-Anything that depends on time takes a `Clock` from the caller (`some Clock<Duration>`). Never call `Date()`, `ContinuousClock()` or `Task.sleep` inside logic. Tests pass a manual test clock they advance by hand, so a 10 minute Session runs in microseconds and there is no flakiness and no `sleep` in a test. The app injects `ContinuousClock` at the edge.
+Anything that depends on time takes a `Clock` from the caller (`some Clock<Duration>`). Never call `Date()`, `ContinuousClock()` or `Task.sleep` inside logic: `make lint` fails on them in `BreathnestKit/Sources` (rule `time_from_injected_clock` in `.swiftlint.yml`). Tests pass a manual test clock they advance by hand, so a 10 minute Session runs in microseconds and there is no flakiness and no `sleep` in a test. The app injects `ContinuousClock` at the edge.
 
 ## Reading failures
 

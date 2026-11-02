@@ -4,7 +4,7 @@ Every working rule in `CLAUDE.md` and `docs/agents/*.md`, and what stops a break
 
 Checks run in one of five places: a git hook (`.githooks/`, switched on by `make setup`), the Claude Code hooks and `deny` list (`.claude/`), `make lint` (also the `Build, app tests, lint` CI job), the `Script tests` CI job, or the pull request workflows (`pr-title.yml`, `pr-body.yml`). The ruleset requires `Script tests`, `Kit tests`, `Build, app tests, lint`, `check-title`, `check-body` and `critical-paths` before a merge ([git](git.md)).
 
-The Swift conventions that a linter can see are not checked yet: they are ticket #64. They are marked **#64** below.
+The Swift conventions are checked by SwiftLint (`.swiftlint.yml`, run by `make lint` with `--strict`) and `scripts/check-architecture.sh`. The one rule a linter cannot see, a user-visible string literal in logic, stays a process rule.
 
 ## CLAUDE.md
 
@@ -28,7 +28,7 @@ The Swift conventions that a linter can see are not checked yet: they are ticket
 | `make build`, `make test`, `make lint` pass | CI job `Build, app tests, lint` and the Stop hook. |
 | A UI change was run and looked at (screenshot) | Process rule. `scripts/pr-facts.sh` lists the files, `check-pr-body.sh` requires the Snapshots section to be non-empty. |
 | Acceptance criteria are met one by one, named in the PR | Process rule. The PR body sections are checked by `scripts/check-pr-body.sh`, their content by the `code-reviewer`. |
-| Domain terms follow `GLOSSARY.md`, no ADR contradicted | Process rule. **#64** covers the type and test names it can match. |
+| Domain terms follow `GLOSSARY.md`, no ADR contradicted | Process rule. |
 | Review in a fresh session, the PR stays a draft until then | Process rule. GitHub cannot tell a fresh session from the one that wrote the code. |
 | The user merges, the agent does not | `deny` list and `.claude/hooks/block-dangerous-git.sh` for `gh pr merge`. |
 | Remove the worktree and its simulator after the merge | Process rule. |
@@ -64,12 +64,12 @@ Has its own Enforcement table, which is the source for these.
 
 | Rule | Enforced by |
 |---|---|
-| Time from an injected `Clock`: no `Date()`, `ContinuousClock()`, `Task.sleep` in logic | **#64** (SwiftLint custom rule) |
-| No `DispatchQueue`, Combine, `ObservableObject`, completion handlers | **#64** |
-| No force unwrap or `try!` outside tests | **#64** |
-| No user-visible string literals in logic | **#64** |
-| The Kit imports only the standard library and Foundation, no third-party dependency without an ADR | **#64** (an architecture check script) |
-| Swift Testing, not XCTest; tests mirror the source files | Process rule, `scripts/pr-facts.sh` prints the source files without a mirrored test. May become a **#64** rule. |
+| Time from an injected `Clock`: no `Date()`, `ContinuousClock()`, `Task.sleep` in logic | SwiftLint custom rule `time_from_injected_clock` in the Kit, in `make lint`, tested by `scripts/test-swiftlint-rules.sh` |
+| No `DispatchQueue`, Combine, `ObservableObject`, completion handlers | SwiftLint custom rules `no_dispatch_queue`, `no_combine`, `no_observable_object`, `no_completion_handler` |
+| No force unwrap or `try!` outside tests | SwiftLint `force_unwrapping` and `force_try`, tests are not linted |
+| No user-visible string literals in logic | Process rule. A regex cannot tell a user string from an identifier or a catalog key, so a rule would cry wolf. |
+| The Kit imports only the standard library and Foundation, no third-party dependency without an ADR | `scripts/check-architecture.sh` (in `make lint` and the `Script tests` job), tested by `scripts/test-check-architecture.sh` |
+| Swift Testing, not XCTest; tests mirror the source files | Process rule, `scripts/pr-facts.sh` prints the source files without a mirrored test.  |
 | Compiler warnings are errors | `project.yml` and `BreathnestKit/Package.swift`, so `make build` and `make test-kit` fail |
 | Code formatting | `make lint` (`swiftformat --lint`), the `format-swift.sh` hook formats after each edit |
 | `Breathnest.xcodeproj` is generated, never committed | `.gitignore` |
