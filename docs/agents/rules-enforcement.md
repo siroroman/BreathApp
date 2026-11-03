@@ -2,7 +2,7 @@
 
 Every working rule in `CLAUDE.md` and `docs/agents/*.md`, and what stops a break of it. Read this before you add a rule: if a machine can verify it, add the check in the same pull request and a row here. A rule with no check is a **process rule**, it holds because the `code-reviewer` agent and the user look for it.
 
-Checks run in one of five places: a git hook (`.githooks/`, switched on by `make setup`), the Claude Code hooks and `deny` list (`.claude/`), `make lint` (also the `Build, app tests, lint` CI job), the `Script tests` CI job, or the pull request workflows (`pr-title.yml`, `pr-body.yml`). The ruleset requires `Script tests`, `Kit tests`, `Build, app tests, lint`, `check-title`, `check-body` and `critical-paths` before a merge ([git](git.md)).
+Checks run in one of five places: a git hook (`.githooks/`, switched on by `make setup`), the Claude Code hooks and `deny` list (`.claude/`), `make lint` (also the `Build, app tests, lint` CI job), the `Script tests` CI job, or the pull request workflows (`pr-title.yml`, `pr-body.yml`, `pr-review.yml`). The ruleset requires `Script tests`, `Kit tests`, `Build, app tests, lint`, `check-title`, `check-body` and `critical-paths` before a merge ([git](git.md)).
 
 The Swift conventions are checked by SwiftLint (`.swiftlint.yml`, run by `make lint` with `--strict`) and `scripts/check-architecture.sh`. The one rule a linter cannot see, a user-visible string literal in logic, stays a process rule.
 
@@ -29,7 +29,7 @@ The Swift conventions are checked by SwiftLint (`.swiftlint.yml`, run by `make l
 | A UI change was run and looked at (screenshot) | Process rule. `scripts/pr-facts.sh` lists the files, `check-pr-body.sh` requires the Snapshots section to be non-empty. |
 | Acceptance criteria are met one by one, named in the PR | Process rule. The PR body sections are checked by `scripts/check-pr-body.sh`, their content by the `code-reviewer`. |
 | Domain terms follow `GLOSSARY.md`, no ADR contradicted | Process rule. |
-| Review in a fresh session, the PR stays a draft until then | Process rule. GitHub cannot tell a fresh session from the one that wrote the code. |
+| Review in a fresh session, the PR stays a draft until then | Partly checked: `scripts/check-review.sh` (job `review-posted` of `pr-review.yml`, tested by `scripts/test-check-review.sh`) fails a PR that is not a draft without a `code-reviewer` review for its head commit. That the session was fresh stays a process rule, GitHub cannot tell a fresh session from the one that wrote the code. |
 | The user merges, the agent does not | `deny` list and `.claude/hooks/block-dangerous-git.sh` for `gh pr merge`. |
 | Remove the worktree and its simulator after the merge | Process rule. |
 
