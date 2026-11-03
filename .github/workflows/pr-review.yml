@@ -2,11 +2,12 @@ name: PR review
 
 # Enforces the review rule of docs/agents/git.md: a PR that is not a draft has a code-reviewer review for its head commit.
 # The review is posted by the `code-reviewer` agent, a `pull_request_review` run picks it up without a push.
+# An edited or dismissed review runs the check again too.
 on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review, converted_to_draft]
   pull_request_review:
-    types: [submitted]
+    types: [submitted, edited, dismissed]
 
 permissions:
   contents: read

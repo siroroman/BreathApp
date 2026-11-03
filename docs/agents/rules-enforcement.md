@@ -46,7 +46,7 @@ Has its own Enforcement table, which is the source for these.
 | Squash merge, PR title as commit title | Repository setting |
 | Merge `main` into the branch before the PR | Process rule. |
 | `Closes #<issue>` ends the PR body, the six sections | `scripts/check-pr-body.sh` |
-| Open as a draft until reviewed and green | Process rule. Green checks are required by the ruleset. |
+| Open as a draft until reviewed and green | Green checks are required by the ruleset. The review part is checked by `review-posted`, see the review row above: it fails a PR that is not a draft without a `code-reviewer` review for its head commit. Opening as a draft stays a process rule. |
 
 ## Pull requests, critical paths, guardrail paths ([pull requests](pull-requests.md), [critical paths](critical-paths.md), [guardrail paths](guardrail-paths.md))
 
