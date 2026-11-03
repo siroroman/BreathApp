@@ -1,0 +1,36 @@
+name: PR review
+
+# Enforces the review rule of docs/agents/git.md: a PR that is not a draft has a code-reviewer review for its head commit.
+# The review is posted by the `code-reviewer` agent, a `pull_request_review` run picks it up without a push.
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, ready_for_review, converted_to_draft]
+  pull_request_review:
+    types: [submitted]
+
+permissions:
+  contents: read
+
+jobs:
+  review-posted:
+    name: review-posted
+    # Dependabot's version bumps have no review. A skipped job counts as passed for a required check.
+    if: github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: scripts/test-check-review.sh
+      - name: A code-reviewer review exists for the head commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          DRAFT: ${{ github.event.pull_request.draft }}
+        # `shell: bash` adds pipefail, so a failing `gh api` fails the step. --slurp wraps the pages in one list.
+        shell: bash
+        run: gh api "repos/$REPO/pulls/$PR_NUMBER/reviews" --paginate --slurp | ruby -rjson -e 'puts JSON.generate(JSON.parse(STDIN.read).flatten)' | scripts/check-review.sh "$HEAD_SHA" "$DRAFT"
