@@ -21,9 +21,9 @@ run() {
   fi
 }
 
-# review <body>: one review object as the GitHub API returns it.
+# review <body> [state]: one review object as the GitHub API returns it.
 review() {
-  ruby -rjson -e 'puts JSON.generate({ "id" => 1, "state" => "COMMENTED", "body" => ARGV[0] })' "$1"
+  ruby -rjson -e 'puts JSON.generate({ "id" => 1, "state" => ARGV[1], "body" => ARGV[0] })' "$1" "${2:-COMMENTED}"
 }
 
 reviewed="Findings: none.
@@ -38,6 +38,10 @@ run 0 "review for the head commit among other reviews" false "[$(review "Looks f
 run 0 "marker with extra spaces" false "[$(review "<!--   code-reviewer:   $head   -->")]"
 run 0 "draft with no review" true "[]"
 run 0 "draft with a stale review" true "[$(review "$stale")]"
+run 0 "review for the head commit is a request for changes" false "[$(review "$reviewed" CHANGES_REQUESTED)]"
+run 0 "a dismissed review for an older commit next to a live one for the head" false "[$(review "$stale" DISMISSED),$(review "$reviewed")]"
+run 1 "dismissed review for the head commit" false "[$(review "$reviewed" DISMISSED)]"
+run 1 "pending review for the head commit" false "[$(review "$reviewed" PENDING)]"
 run 1 "no reviews" false "[]"
 run 1 "review without a marker" false "[$(review "Looks fine.")]"
 run 1 "review for an older commit" false "[$(review "$stale")]"
