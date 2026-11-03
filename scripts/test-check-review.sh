@@ -21,9 +21,9 @@ run() {
   fi
 }
 
-# review <body> [state]: one review object as the GitHub API returns it.
+# review <body> [state] [author_association]: one review object as the GitHub API returns it.
 review() {
-  ruby -rjson -e 'puts JSON.generate({ "id" => 1, "state" => ARGV[1], "body" => ARGV[0] })' "$1" "${2:-COMMENTED}"
+  ruby -rjson -e 'puts JSON.generate({ "id" => 1, "state" => ARGV[1], "author_association" => ARGV[2], "body" => ARGV[0] })' "$1" "${2:-COMMENTED}" "${3:-OWNER}"
 }
 
 reviewed="Findings: none.
@@ -40,6 +40,13 @@ run 0 "draft with no review" true "[]"
 run 0 "draft with a stale review" true "[$(review "$stale")]"
 run 0 "review for the head commit is a request for changes" false "[$(review "$reviewed" CHANGES_REQUESTED)]"
 run 0 "a dismissed review for an older commit next to a live one for the head" false "[$(review "$stale" DISMISSED),$(review "$reviewed")]"
+run 0 "review by a member" false "[$(review "$reviewed" COMMENTED MEMBER)]"
+run 0 "review by a collaborator" false "[$(review "$reviewed" COMMENTED COLLABORATOR)]"
+run 1 "review by an outside user" false "[$(review "$reviewed" COMMENTED NONE)]"
+run 1 "review by a first-time contributor" false "[$(review "$reviewed" COMMENTED FIRST_TIME_CONTRIBUTOR)]"
+run 1 "review by a contributor" false "[$(review "$reviewed" COMMENTED CONTRIBUTOR)]"
+run 1 "review with no author_association" false '[{"id":1,"state":"COMMENTED","body":"<!-- code-reviewer: '"$head"' -->"}]'
+run 0 "outside review next to a collaborator review of the head" false "[$(review "$reviewed" COMMENTED NONE),$(review "$reviewed" COMMENTED COLLABORATOR)]"
 run 1 "dismissed review for the head commit" false "[$(review "$reviewed" DISMISSED)]"
 run 1 "pending review for the head commit" false "[$(review "$reviewed" PENDING)]"
 run 1 "no reviews" false "[]"
