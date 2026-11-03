@@ -1,6 +1,6 @@
 ---
 name: start-task
-description: "Opens every session that asks for a change in the repository: finds or creates the GitHub issue, names the commit type and branch, shows a short title and description, offers a plan in plan mode, then implements and offers the pull request. Use at the start of a session when the user asks to add, fix, change, refactor, document or configure anything in the repo (\"pridaj\", \"oprav\", \"zmen\", \"implement\", \"add\", \"fix\", \"let's build\"). Do NOT use for questions, explanations, code reading, reviews, or when the session already works on a ticket and branch."
+description: "Opens every session that asks for a change in the repository: finds or creates the GitHub issue, names the commit type and branch, shows a short title and description, offers a plan in plan mode, then implements, offers the pull request and starts the code-reviewer agent on the draft. Use at the start of a session when the user asks to add, fix, change, refactor, document or configure anything in the repo (\"pridaj\", \"oprav\", \"zmen\", \"implement\", \"add\", \"fix\", \"let's build\"). Do NOT use for questions, explanations, code reading, reviews, or when the session already works on a ticket and branch."
 metadata:
   version: 1.0.0
 ---
