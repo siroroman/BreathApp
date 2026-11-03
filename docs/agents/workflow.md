@@ -24,7 +24,7 @@ An AFK session that hits a decision it cannot make stops and writes the question
 3. Red-green slices with `make test-kit` ([testing](testing.md)). Commit each slice.
 4. `make build test lint`, and `make run screenshot` for UI ([commands](commands.md)).
 5. Push the feature branch, run `scripts/pr-facts.sh`, and open a **draft** PR with the `pr` skill, extended as in [pull requests](pull-requests.md). Check CI.
-6. Review in a **fresh** session with the `code-reviewer` agent, never in the session that wrote the code. It posts the review with a marker for the head commit, which `pr-review.yml` looks for (the `/code-review` skill alone posts none). Fix findings, push, run the review again on the new head, then mark the PR ready.
+6. Review in a **fresh** session with the `code-reviewer` agent, never in the session that wrote the code. The `start-task` skill starts it as a subagent right after the draft PR is open, and its empty context is what makes it fresh. It posts the review with a marker for the head commit, which `pr-review.yml` looks for (the `/code-review` skill alone posts none). Fix findings, push, run the review again on the new head, then mark the PR ready.
 7. The user merges (squash). Do not merge yourself unless asked. Afterwards remove the worktree and its simulator (`xcrun simctl delete "Breathnest-<folder>"`).
 
 ## Agents

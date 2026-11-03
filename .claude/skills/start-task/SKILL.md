@@ -7,7 +7,7 @@ metadata:
 
 # Start task
 
-Takes a request that changes the repo from a sentence to a ticket, a branch, a plan and a pull request. Follow [git](../../../docs/agents/git.md) and [workflow](../../../docs/agents/workflow.md); this skill only sequences them.
+Takes a request that changes the repo from a sentence to a ticket, a branch, a plan, a draft pull request and its review. Follow [git](../../../docs/agents/git.md) and [workflow](../../../docs/agents/workflow.md); this skill only sequences them.
 
 Talk to the user in their language. Issue titles, bodies, branches and commits are English, like the rest of the repo.
 
@@ -16,7 +16,7 @@ Talk to the user in their language. Issue titles, bodies, branches and commits a
 - Read the first user message before acting. When the skill is called as `/start-task <text>`, the text after the command is the request. If it asks for no change to the repo (question, explanation, review, reading), stop here and answer normally.
 - Never edit files, create a branch or commit before the user has approved the plan (Step 5).
 - Never create a second issue for work that already has one. Never guess in a doubtful match: ask.
-- Never commit on `main`. Never merge the PR.
+- Never commit on `main`. Never merge the PR or mark it ready.
 
 ## Step 1: Find or create the issue
 
@@ -73,12 +73,20 @@ Summarize in short bullets, plain words:
 
 If nothing blocks the PR, ask: "Create the pull request?" On yes push the branch (`git push -u origin <branch>`), run `scripts/pr-facts.sh`, and open a draft PR with the `pr` skill extended as in [pull requests](../../../docs/agents/pull-requests.md). The body ends with `Closes #N`. Check that the title is a valid Conventional Commit header.
 
+## Step 7: Review
+
+Right after the draft PR is open, start the `code-reviewer` agent with the Agent tool (`subagent_type: "code-reviewer"`). Give it the PR number and the issue number, nothing else: it starts with an empty context, so the review is fresh ([workflow](../../../docs/agents/workflow.md), step 6). It posts the review with a marker for the head commit, which `pr-review.yml` looks for.
+
+- Put its findings in the chat as short bullets, most severe first, and which acceptance criteria are not met or not shown.
+- Do not fix findings or mark the PR ready without the user. After fixes, push and run the agent again: a push changes the head commit, and the check wants a review of the latest one.
+- Marking the PR ready and merging are the user's.
+
 ## Examples
 
 **New request, no issue**
 User says: "Add a haptic tick on every breath phase change."
-Actions: search finds nothing → create issue #130 with acceptance criteria → card (`feat`, `feat/130-haptic-phase-tick`) → ask about planning → user says yes → plan mode → bullets + plan link → approval → branch, implement, checks → summary → ask about the PR.
-Result: draft PR that closes #130.
+Actions: search finds nothing → create issue #130 with acceptance criteria → card (`feat`, `feat/130-haptic-phase-tick`) → ask about planning → user says yes → plan mode → bullets + plan link → approval → branch, implement, checks → summary → ask about the PR → draft PR → `code-reviewer` subagent.
+Result: draft PR that closes #130, reviewed by the `code-reviewer` agent, with its findings in the chat.
 
 **Request already has an issue**
 User says: "Fix the timer drift."
