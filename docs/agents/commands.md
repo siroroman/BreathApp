@@ -10,6 +10,7 @@ One `make` target per check, run from the repository root (also from a worktree)
 | `make test` | `make test-kit` then `make test-app`. | yes |
 | `make test-kit` | `swift test` in `BreathnestKit/`. Seconds, no simulator. Use this in the red-green loop. | no |
 | `make test-app` | `xcodebuild test` of the `Breathnest` scheme (app unit tests). | yes |
+| `make coverage` | `scripts/coverage.sh`: the Kit tests with code coverage, then one line per file of `BreathnestKit/Sources` and the total (lines, missed lines, percent). A report: it fails on a failing test, never on a low number. How to read it: [testing](testing.md) (Coverage). | no |
 | `make lint` | `scripts/check-tools.sh` (the installed `swiftformat` and `swiftlint` are the versions pinned in `tools.env`, else it prints the fix), `swiftformat --lint`, then `swiftlint lint --strict` (the Swift conventions of [iOS](ios.md), config in `.swiftlint.yml`), `scripts/check-workflows.sh` (every workflow sets `permissions: contents: read` and a `timeout-minutes` on each job) `scripts/check-docs.sh` (the docs only name files, `make` targets and skills that exist) and `scripts/check-architecture.sh` (the Kit imports only Foundation, Synchronization and Swift, no package is declared). Changes nothing, fails when a file needs formatting or a rule is broken. | no |
 | `make format` | `swiftformat` in place. Fix a failing `make lint` with this. | no |
 | `make run` | Builds, boots this checkout's simulator, installs and launches the app. | yes |
@@ -37,7 +38,7 @@ The safe commands above are allowlisted in `.claude/settings.json`, so they run 
 |---|---|---|---|
 | `Changes` | ubuntu | `scripts/ci-scope.sh`: does the diff against the base touch `App/`, `BreathnestKit/`, `project.yml`, `Makefile`, `.swiftformat`, `.swiftlint.yml`, `tools.env`, `Brewfile`, `scripts/` or `ci.yml`? | always |
 | `Script tests` | ubuntu | the tests of every script, `check-workflows.sh`, `check-docs.sh`, `check-architecture.sh` | always |
-| `Kit tests` | ubuntu, in the `swift:6.2-noble` image pinned by digest | `swift test` in `BreathnestKit/` | always |
+| `Kit tests` | ubuntu, in the `swift:6.2-noble` image pinned by digest | `scripts/coverage.sh`: `swift test` in `BreathnestKit/` with coverage, the table goes to the job summary | always |
 | `Build, app tests, lint` | `macos-26` | `scripts/test-make-pipefail.sh`, then `make gen build test lint` and `make run screenshot` (the screenshot is uploaded as an artifact) | unless `Changes` says no Swift file changed |
 
 - **A docs-only pull request** runs only the ubuntu jobs. The macOS job is skipped with a job-level `if`, not a workflow-level `paths:` filter: GitHub counts a skipped job as passed for a required check, but leaves the check of a filtered workflow pending. When `Changes` itself fails, the macOS job runs anyway.

@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 # Runs the Kit tests with code coverage and prints the line coverage of BreathnestKit/Sources (rules: docs/agents/testing.md, Coverage):
-#   scripts/coverage.sh [repo root]    root defaults to the repository
+#   scripts/coverage.sh [repo root]    root defaults to the repository of this script
 #
 # A report, not a check: it fails when a test fails or when the coverage data is missing, never because the number is low.
 # Test and support files are not counted. When GITHUB_STEP_SUMMARY is set (a GitHub Actions step) the table goes there too.
 set -euo pipefail
 
-root=${1:-$(git rev-parse --show-toplevel)}
+# No git here: the Kit job of CI runs in a Swift image that may have no git, so the root comes from the script path.
+root=${1:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}
 [[ -d "$root/BreathnestKit" ]] || { echo "coverage: no BreathnestKit directory in '$root'" >&2; exit 1; }
 cd "$root/BreathnestKit"
 

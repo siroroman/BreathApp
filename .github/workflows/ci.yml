@@ -78,8 +78,8 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: swift --version
-      - run: swift test --quiet
-        working-directory: BreathnestKit
+      # Runs `swift test` with coverage and puts the line coverage of the Kit sources in the job summary. A report, no limit.
+      - run: scripts/coverage.sh
 
   # `needs.changes.outputs.swift != 'false'` also runs the job when `changes` failed: a job skipped because of a failed
   # `needs` would count as passed for the required check.
