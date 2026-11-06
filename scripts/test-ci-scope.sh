@@ -36,13 +36,13 @@ case_ swift=true "app source" App/Breathnest/ContentView.swift
 case_ swift=true "kit source" BreathnestKit/Sources/BreathnestKit/Pacer.swift
 case_ swift=true "kit tests" BreathnestKit/Tests/BreathnestKitTests/PacerTests.swift
 case_ swift=true "project.yml" project.yml
-case_ swift=true "Makefile" Makefile
-case_ swift=true "swiftformat config" .swiftformat
-case_ swift=true "swiftlint config" .swiftlint.yml
-case_ swift=true "tool pins" tools.env
-case_ swift=true "Brewfile" Brewfile
-case_ swift=true "a script that make lint runs" scripts/check-docs.sh
-case_ swift=true "the CI workflow itself" .github/workflows/ci.yml
+case_ swift=false "Makefile" Makefile
+case_ swift=false "swiftformat config" .swiftformat
+case_ swift=false "swiftlint config" .swiftlint.yml
+case_ swift=false "tool pins" tools.env
+case_ swift=false "Brewfile" Brewfile
+case_ swift=false "a script that make lint runs" scripts/check-docs.sh
+case_ swift=false "the CI workflow itself" .github/workflows/ci.yml
 case_ swift=true "docs next to an app change" docs/agents/ios.md App/Breathnest/ContentView.swift
 
 git checkout -q -B work origin/main
@@ -50,9 +50,23 @@ git commit -q --allow-empty -m empty
 got=$("$root/scripts/ci-scope.sh" origin/main 2>&1)
 [[ "$got" == "swift=false" ]] || { printf 'FAIL (want swift=false, got %s): empty diff\n' "$got"; failed=1; }
 
-# No base (push to main, workflow_dispatch): everything runs.
+# No base (workflow_dispatch) or an all-zero one (push that creates a branch): everything runs.
 got=$("$root/scripts/ci-scope.sh" 2>&1)
 [[ "$got" == "swift=true" ]] || { printf 'FAIL (want swift=true, got %s): no base\n' "$got"; failed=1; }
+got=$("$root/scripts/ci-scope.sh" 0000000000000000000000000000000000000000 2>&1)
+[[ "$got" == "swift=true" ]] || { printf 'FAIL (want swift=true, got %s): all-zero base\n' "$got"; failed=1; }
+
+# Push to main: the base is the previous tip as a commit SHA, not a branch name.
+git checkout -q -B work origin/main
+before=$(git rev-parse HEAD)
+mkdir -p App && printf 'x\n' >App/View.swift && git add -A && git commit -qm app
+got=$("$root/scripts/ci-scope.sh" "$before" 2>&1)
+[[ "$got" == "swift=true" ]] || { printf 'FAIL (want swift=true, got %s): push with an app change\n' "$got"; failed=1; }
+before=$(git rev-parse HEAD)
+mkdir -p scripts && printf 'y\n' >scripts/x.sh
+git add -A && git commit -qm script
+got=$("$root/scripts/ci-scope.sh" "$before" 2>&1)
+[[ "$got" == "swift=false" ]] || { printf 'FAIL (want swift=false, got %s): push with a script change\n' "$got"; failed=1; }
 
 if "$root/scripts/ci-scope.sh" no-such-ref >/dev/null 2>&1; then
   echo "FAIL: unknown base should exit 1"
