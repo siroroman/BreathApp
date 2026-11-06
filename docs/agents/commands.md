@@ -38,7 +38,8 @@ The safe commands above are allowlisted in `.claude/settings.json`, so they run 
 |---|---|---|---|
 | `Changes` | ubuntu | `scripts/ci-scope.sh`: does the diff against the base touch `App/`, `BreathnestKit/`, `project.yml`, `Makefile`, `.swiftformat`, `.swiftlint.yml`, `tools.env`, `Brewfile`, `scripts/` or `ci.yml`? | always |
 | `Script tests` | ubuntu | the tests of every script, `check-workflows.sh`, `check-docs.sh`, `check-architecture.sh` | always |
-| `Kit tests` | ubuntu, in the `swift:6.2-noble` image pinned by digest | `scripts/coverage.sh`: `swift test` in `BreathnestKit/` with coverage, the table goes to the job summary | always |
+| `Kit tests` | ubuntu, in the `swift:6.2-noble` image pinned by digest | `scripts/coverage.sh`: `swift test` in `BreathnestKit/` with coverage, the table goes to the job summary and to the job output | always |
+| `Coverage comment` | ubuntu | `scripts/post-coverage-comment.sh`: puts the table of `Kit tests` in one comment on the pull request and edits it on every push. Not a required check | on a pull request from this repository, not Dependabot |
 | `Build, app tests, lint` | `macos-26` | `scripts/test-make-pipefail.sh`, then `make gen build test lint` and `make run screenshot` (the screenshot is uploaded as an artifact) | unless `Changes` says no Swift file changed |
 
 - **A docs-only pull request** runs only the ubuntu jobs. The macOS job is skipped with a job-level `if`, not a workflow-level `paths:` filter: GitHub counts a skipped job as passed for a required check, but leaves the check of a filtered workflow pending. When `Changes` itself fails, the macOS job runs anyway.
@@ -46,7 +47,7 @@ The safe commands above are allowlisted in `.claude/settings.json`, so they run 
 - **Simulator runtime** is iOS 26.2, `RUNTIME` in `scripts/simulator.sh`. The image has 26.2, 26.4 and 26.5 installed, so the pin works there without a download.
 - **Linux or macOS for the Kit:** the Kit imports only Foundation, Synchronization and Swift, so `swift test` passes on Linux. The `Build, app tests, lint` job runs the Kit tests again through `make test`, on macOS. The Swift version of the image is the `swift-tools-version` of `BreathnestKit/Package.swift`: bump the tag and the digest together.
 - **Cost:** the repository is public, so hosted runners, macOS included, are free. On a private repository a macOS minute counts 10 times: one run of the macOS job took about 8 minutes (`make gen build test lint` 4, `make run screenshot` 3), see issue #65 for the monthly estimate.
-- **Permissions and time:** every workflow sets `permissions: contents: read` and a `timeout-minutes` on each job, checked by `scripts/check-workflows.sh` (`make lint`).
+- **Permissions and time:** every workflow sets `permissions: contents: read` and a `timeout-minutes` on each job, checked by `scripts/check-workflows.sh` (`make lint`). The one exception is the job `coverage-comment`, which also has `pull-requests: write` to write its comment; the check refuses a job-level `permissions` anywhere else that is not `contents: read`. `Kit tests`, which runs the code of the pull request, stays read-only.
 
 ## Tools
 

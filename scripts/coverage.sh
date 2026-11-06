@@ -3,7 +3,8 @@
 #   scripts/coverage.sh [repo root]    root defaults to the repository of this script
 #
 # A report, not a check: it fails when a test fails or when the coverage data is missing, never because the number is low.
-# Test and support files are not counted. When GITHUB_STEP_SUMMARY is set (a GitHub Actions step) the table goes there too.
+# Test and support files are not counted. When GITHUB_STEP_SUMMARY is set (a GitHub Actions step) the table goes there too,
+# and when COVERAGE_MARKDOWN names a file the same Markdown is written to it.
 set -euo pipefail
 
 # No git here: the Kit job of CI runs in a Swift image that may have no git, so the root comes from the script path.
@@ -55,12 +56,13 @@ echo
 echo "Line coverage of BreathnestKit/Sources:"
 echo "$report"
 
-if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
-  {
-    echo "### Kit line coverage (BreathnestKit/Sources)"
-    echo
-    echo '```'
-    echo "$report"
-    echo '```'
-  } >> "$GITHUB_STEP_SUMMARY"
-fi
+markdown=$(
+  echo "### Kit line coverage (BreathnestKit/Sources)"
+  echo
+  echo '```'
+  echo "$report"
+  echo '```'
+)
+if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then echo "$markdown" >> "$GITHUB_STEP_SUMMARY"; fi
+# The CI job passes this file on to the pull request comment (scripts/post-coverage-comment.sh).
+if [[ -n "${COVERAGE_MARKDOWN:-}" ]]; then echo "$markdown" > "$COVERAGE_MARKDOWN"; fi

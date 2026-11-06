@@ -31,6 +31,27 @@ case_ 1 "extra permission next to contents: read" "${good/  contents: read/  con
 case_ 1 "second job has no timeout" "${good/    timeout-minutes: 10
 /}"
 case_ 1 "timeout is not a number" "${good/timeout-minutes: 5/timeout-minutes: soon}"
+case_ 0 "a job repeats contents: read" "${good/    timeout-minutes: 10/    timeout-minutes: 10
+    permissions:
+      contents: read}"
+case_ 1 "a job widens its permissions" "${good/    timeout-minutes: 10/    timeout-minutes: 10
+    permissions:
+      contents: write}"
+case_ 1 "a job adds pull-requests: write" "${good/    timeout-minutes: 10/    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write}"
+case_ 1 "a job drops contents: read for an empty permissions" "${good/    timeout-minutes: 10/    timeout-minutes: 10
+    permissions: {}}"
+coverage_job=$'name: W\non: push\npermissions:\n  contents: read\njobs:\n  coverage-comment:\n    runs-on: ubuntu-latest\n    timeout-minutes: 5\n    permissions:\n      contents: read\n      pull-requests: write\n    steps:\n      - run: true'
+case_ 0 "coverage-comment gets pull-requests: write" "$coverage_job"
+case_ 1 "coverage-comment also gets contents: write" "${coverage_job/      contents: read
+      pull-requests/      contents: write
+      pull-requests}"
+case_ 1 "coverage-comment gets a further right" "${coverage_job/      pull-requests: write/      pull-requests: write
+      issues: write}"
+case_ 1 "coverage-comment with only pull-requests: write" "${coverage_job/      contents: read
+      pull-requests/      pull-requests}"
 case_ 1 "no jobs at all" $'name: W\non: push\npermissions:\n  contents: read'
 case_ 1 "not valid yaml" $'jobs: [unclosed'
 
