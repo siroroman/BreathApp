@@ -16,6 +16,14 @@ The Swift conventions are checked by SwiftLint (`.swiftlint.yml`, run by `make l
 | The workflow skills are vendored in `.claude/skills/` | `scripts/check-docs.sh` (in `make lint`): every skill directory is named in [skills](skills.md) and every vendored skill in its table has a directory. Whether the copy equals upstream is a manual pull request. |
 | Docs and ADRs the agent should read first | Process rule. |
 
+## Testing ([testing](testing.md))
+
+| Rule | Enforced by |
+|---|---|
+| Every string in the String Catalog has a translator comment, nothing is `needs_review`, every required language is translated, every plural category is present | `scripts/check-catalogs.sh` (in `make lint` and `make test`, job `Script tests`), tested by `scripts/test-check-catalogs.sh`. The required languages are `CATALOG_REQUIRED_LANGUAGES`, default `en` until #34. |
+| A user-facing string is in the catalog and not built in code | Process rule. The script reads the catalog, nothing sees a string that never got in. |
+| Every screen has a UI smoke test and a passing accessibility audit, identifiers are `<screen>.<element>` | Process rule, the `code-reviewer` checks it. `make test-ui` runs the tests by hand, CI and the Stop hook do not run it until #35. |
+
 ## Workflow and definition of done ([workflow](workflow.md), [definition of done](definition-of-done.md))
 
 | Rule | Enforced by |
