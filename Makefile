@@ -14,7 +14,7 @@ XCODEBUILD := xcodebuild -project Breathnest.xcodeproj -scheme $(SCHEME) -derive
 APP := $(BUILD_DIR)/Build/Products/Debug-iphonesimulator/Breathnest.app
 SWIFT_DIRS := App BreathnestKit/Sources BreathnestKit/Tests
 
-.PHONY: setup gen build test test-kit test-app coverage lint format run screenshot sim
+.PHONY: setup gen build test test-kit test-app test-catalogs coverage lint format run screenshot sim
 
 setup: ## Once per clone: turn on the git hooks, check the tools
 	@scripts/setup.sh
@@ -25,13 +25,16 @@ gen: ## Generate Breathnest.xcodeproj from project.yml
 build: gen ## Build the app for the simulator
 	$(XCODEBUILD) build | xcbeautify --quiet
 
-test: test-kit test-app ## Run all tests
+test: test-kit test-app test-catalogs ## Run all tests
 
 test-kit: ## Kit tests with `swift test`, no simulator
 	cd BreathnestKit && swift test --quiet
 
 test-app: gen ## App tests on the simulator
 	$(XCODEBUILD) test | xcbeautify --quiet
+
+test-catalogs: ## Check the String Catalog (comments, review state, translations, plural categories), no simulator
+	scripts/check-catalogs.sh
 
 coverage: ## Kit tests with line coverage per source file and in total, no simulator
 	scripts/coverage.sh
@@ -43,6 +46,7 @@ lint: ## Check the tool versions, formatting and the repo rules, changes nothing
 	scripts/check-workflows.sh
 	scripts/check-docs.sh
 	scripts/check-architecture.sh
+	scripts/check-catalogs.sh
 
 format: ## Format the Swift sources in place
 	swiftformat $(SWIFT_DIRS)

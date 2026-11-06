@@ -3,7 +3,7 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        Text(Placeholder().greeting)
+        Text("Breathe with \(Placeholder().name)")
             .font(.title)
             .padding()
     }
