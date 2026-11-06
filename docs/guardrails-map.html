@@ -181,7 +181,7 @@ footer { color: var(--ink-2); font-size: 13px; }
   <header>
     <div>
       <h1>Guardrails map</h1>
-      <p class="sub">Guardrails are automatic barriers that catch a mistake by an agent or a person before it reaches <code>main</code>. The map follows one change on its way: from a Claude session on your Mac to the repo settings on GitHub. Status as of 5 November 2026, from the repo and the GitHub settings.</p>
+      <p class="sub">Guardrails are automatic barriers that catch a mistake by an agent or a person before it reaches <code>main</code>. The map follows one change on its way: from a Claude session on your Mac to the repo settings on GitHub. Status as of 6 November 2026, from the repo and the GitHub settings.</p>
     </div>
     <div class="score" id="score"></div>
   </header>
@@ -463,12 +463,13 @@ const stations = [
       example: "A colour change makes text unreadable in dark mode. Tests pass. The screenshot in the <code>screenshot</code> artifact would show it, if anyone opened it.",
       how: "<code>make run screenshot</code> in the <code>Build, app tests, lint</code> job uploads <code>build/screenshot.png</code>.",
       gap: "Nobody compares the image with a reference. The <code>ui-verifier</code> agent does it only when someone starts it." },
-    { st: "part", t: "Test coverage is reported, but no limit holds it",
-      s: "The Kit's line coverage is measured per file. Nothing fails when it drops.",
+    { st: "ok", t: "Test coverage has a limit: no Kit file under 80%",
+      s: "The Kit's line coverage is measured per file, and the Kit tests fail when a file or the total drops under 80%.",
       problem: "Tests can be green even though a large part of the logic never runs in them.",
-      example: "The Session engine arrives with a test only for the normal flow. Pausing and returning from the background stay untested. The coverage table of the <code>Kit tests</code> job shows those lines as missed, if anyone reads it.",
-      how: "<code>make coverage</code> (<code>scripts/coverage.sh</code>) runs the Kit tests with code coverage and prints the lines, missed lines and percent of each file in <code>BreathnestKit/Sources</code> and the total. The <code>Kit tests</code> job runs the same script and writes the table to the job summary. The App target is not measured.",
-      gap: "There is no lower limit, so a drop passes. The Kit has only a placeholder, so a limit would say nothing today. Set one when the Session engine lands." },
+      example: "The Session engine arrives with a test only for the normal flow. Pausing and returning from the background stay untested. The file lands at 60% line coverage, under the floor, so the <code>Kit tests</code> job turns red and names it.",
+      how: "<code>make coverage</code> (<code>scripts/coverage.sh</code>) runs the Kit tests with code coverage and prints the lines, missed lines and percent of each file in <code>BreathnestKit/Sources</code> and the total. The <code>Kit tests</code> job runs the same script and writes the table to the job summary. The script hands the table to <code>scripts/check-coverage.sh</code>, which fails when a file or the total is under 80% and names it. The floor is one number at the top of that script, tested by <code>scripts/test-check-coverage.sh</code> in <code>Script tests</code>.",
+      gap: "Line coverage shows that a line ran, not that the behaviour is checked: the <code>code-reviewer</code> still reads the tests. The App target is not measured. A change of the floor is a guardrail change and needs the <strong>Guardrails touched:</strong> line.",
+      done: "2026-11-06", ref: "issue #137" },
     { st: "miss", t: "No automated UI tests check the screens",
       s: "Neither at the largest text size AX5, nor an accessibility audit.",
       problem: "Breathnest has to be readable at the largest system text size. A manual check is easy to skip, especially when there are many screens.",
@@ -582,7 +583,6 @@ const stations = [
 const todo = [
   ["The same tool versions everywhere", "A <code>Brewfile</code> and a check of the swiftformat and SwiftLint versions, so local lint gives the same result as CI.", ["issue #71", "on disk and in CI"]],
   ["UI tests and an accessibility audit from the first screen", "A UI test target with <code>performAccessibilityAudit()</code> and a translations check, while there are few screens and adding them is cheap.", ["issue #72", "pull request"]],
-  ["A lower limit for test coverage", "The Kit tests fail when the line coverage of <code>BreathnestKit/Sources</code> falls under a set number. It makes sense once the Session engine exists.", ["no ticket"]],
   ["Later: CodeQL, CODEOWNERS", "They make sense once the repo has more code or more people. Today they would report almost nothing.", ["no ticket"]]
 ];
 
