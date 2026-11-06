@@ -8,13 +8,13 @@
         "cs" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : ""
+            "value" : "Breathe with %@"
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : ""
+            "value" : "Breathe with %@"
           }
         },
         "en" : {
@@ -26,19 +26,19 @@
         "es" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : ""
+            "value" : "Breathe with %@"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : ""
+            "value" : "Breathe with %@"
           }
         },
         "sk" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : ""
+            "value" : "Breathe with %@"
           }
         }
       }

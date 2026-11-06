@@ -49,6 +49,13 @@ case_ 0 "clean catalog, only English required"
 fixture "{\"hello\":{\"comment\":\"Greeting\",\"localizations\":{\"en\":$en,\"cs\":$cs}}}"
 case_ 0 "clean catalog with Czech, English and Czech required" "en cs"
 
+fixture "{\"hello\":{\"comment\":\"Greeting\",\"localizations\":{\"en\":$en,\"cs\":$(unit new "")}}}"
+case_ 1 "declared language with an empty value, it compiles to a blank string" "en"
+expect_message "empty" "names the empty value"
+
+fixture "{\"hello\":{\"comment\":\"Greeting\",\"localizations\":{\"en\":$en,\"cs\":$(unit new "Hello")}}}"
+case_ 0 "declared language not translated yet but with the English text as value" "en"
+
 fixture "{\"hello\":{\"comment\":\"Greeting\",\"localizations\":{\"en\":$en}}}"
 case_ 1 "Czech required and missing" "en cs"
 expect_message "hello" "names the key"

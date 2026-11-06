@@ -38,10 +38,11 @@ User-facing strings live in `App/Breathnest/Localizable.xcstrings`. `scripts/che
 
 - a string with no translator comment, or a blank one (a string with `"shouldTranslate": false`, such as an exercise name that is never translated, needs the comment too)
 - an entry or variation in the state `needs_review`, in any language
+- a translation with an empty value, in any language
 - a string that is missing or not translated yet in a **required language**
 - a plural that lacks a category of a required language: en and de `one other`, cs and sk `one few many other`, fr and es `one many other`
 
-Required languages are the setting `CATALOG_REQUIRED_LANGUAGES` (space separated, from `en cs sk de fr es`), default `en`. Only English is filled in today, so the other five are declared as empty entries in the state `new` (XcodeGen reads the languages of the catalog into `knownRegions`). #34 changes the default in the script to all six when the translations land. Try a language early with `CATALOG_REQUIRED_LANGUAGES="en cs" make test-catalogs`. `scripts/test-check-catalogs.sh` tests the script and runs in the `Script tests` job of CI. `Safety.xcstrings` and its rule are #34's.
+Required languages are the setting `CATALOG_REQUIRED_LANGUAGES` (space separated, from `en cs sk de fr es`), default `en`. Only English is filled in today, so the other five are declared as entries in the state `new` whose value is the English text (XcodeGen reads the languages of the catalog into `knownRegions`). The value is never empty: an empty value compiles to a blank string and does not fall back to English, so the screen would show nothing in that language. The check fails on an empty value in any language. #34 changes the default in the script to all six when the translations land. Try a language early with `CATALOG_REQUIRED_LANGUAGES="en cs" make test-catalogs`. `scripts/test-check-catalogs.sh` tests the script and runs in the `Script tests` job of CI. `Safety.xcstrings` and its rule are #34's.
 
 ## Time
 

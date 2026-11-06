@@ -2,6 +2,7 @@
 # Fails when the main String Catalog breaks a rule (rules: docs/agents/testing.md, Localization catalog):
 #   - a string has no translator comment (or a blank one)
 #   - a string or one of its plural/device variations is in the state needs_review, in any language
+#   - a translation has an empty value, in any language: it compiles to a blank string and hides the English text
 #   - a string is missing, or not translated yet, in a required language
 #   - a plural of a required language lacks a CLDR category of that language
 #   scripts/check-catalogs.sh [repo root]    root defaults to the repository
@@ -90,6 +91,8 @@ ruby -E UTF-8 -rjson -e '
         units.call(loc, [], []).each do |path, unit|
           where = ([lang] + path).join("/")
           bad << "#{label} [#{where}] is in the state needs_review" if unit["state"] == "needs_review"
+          # An empty value compiles to a blank string and does not fall back to English: the screen shows nothing.
+          bad << "#{label} [#{where}] has an empty value, give it the English text with state new" if unit["value"].to_s.empty?
         end
       end
 
