@@ -1,9 +1,9 @@
 name: CI
 
 # Runs the checks from docs/agents/commands.md (CI). Public repository: standard runners, macOS included, are free.
-# The macOS job runs only when scripts/ci-scope.sh says Swift, the build or make lint are affected. It is skipped with a
-# job-level `if`, not a workflow-level `paths:` filter: a skipped job counts as passed for a required check, a filtered
-# workflow leaves the check pending.
+# The macOS job runs only when scripts/ci-scope.sh says App/, BreathnestKit/ or project.yml changed, on a pull request
+# and on a push to main alike. It is skipped with a job-level `if`, not a workflow-level `paths:` filter: a skipped job
+# counts as passed for a required check, a filtered workflow leaves the check pending.
 on:
   pull_request:
   push:
@@ -62,11 +62,16 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-      # base_ref is empty on a push and a manual run, then everything runs.
+      # Pull request: the base branch. Push to main: the previous tip (`before`), so a squash-merged PR is one diff.
+      # A manual run has neither, then everything runs. An all-zero `before` (new branch) does the same in the script.
       - id: scope
         env:
           BASE_REF: ${{ github.base_ref }}
-        run: scripts/ci-scope.sh "${BASE_REF:+origin/$BASE_REF}" >> "$GITHUB_OUTPUT"
+          BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          base="$BEFORE_SHA"
+          if [ -n "$BASE_REF" ]; then base="origin/$BASE_REF"; fi
+          scripts/ci-scope.sh "$base" >> "$GITHUB_OUTPUT"
 
   # The Kit is Foundation only, so its tests run on Linux in the official Swift image and never wait for a macOS runner.
   # The tag is the Swift of Package.swift (swift-tools-version 6.2), the digest makes it immutable. Bump both together.
@@ -78,8 +83,8 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: swift --version
-      - run: swift test --quiet
-        working-directory: BreathnestKit
+      # Runs `swift test` with coverage and puts the line coverage of the Kit sources in the job summary. A report, no limit.
+      - run: scripts/coverage.sh
 
   # `needs.changes.outputs.swift != 'false'` also runs the job when `changes` failed: a job skipped because of a failed
   # `needs` would count as passed for the required check.
