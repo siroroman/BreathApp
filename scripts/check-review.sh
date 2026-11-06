@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
-# Fails when a pull request that is not a draft has no code-reviewer review for its current head commit
+# Fails when a pull request that is not a draft has no code-reviewer review of a commit that is in the PR
 # (rules: docs/agents/git.md, Enforcement). The `code-reviewer` agent ends the review it posts with
-# `<!-- code-reviewer: <head sha> -->`. A push after the review changes the head, so it needs a new review.
-# GitHub cannot tell a fresh session from the one that wrote the code, so this proves a review was posted, not that it was fresh.
+# `<!-- code-reviewer: <sha> -->`, the commit it reviewed. The check passes when that commit is the head or one of its
+# ancestors, so the findings can be fixed and pushed after the review without a second round.
+# GitHub cannot tell a fresh session from the one that wrote the code, so this proves a review was posted for a commit of
+# the PR, not that the session was fresh and not that the commits after the review were reviewed.
 # A dismissed or pending review does not count, and neither does one by a user who is not the owner, a member or a
 # collaborator of the repo (the repo is public, anyone can post a comment review).
-#   scripts/check-review.sh <head sha> <draft: true|false>   reads the JSON list of reviews on stdin
+#   scripts/check-review.sh <head sha> <draft: true|false>   reads the JSON list of reviews on stdin, runs in a checkout
+#   with the full history (fetch-depth: 0), the marker commit must be found in it
 #   (gh api repos/<owner>/<repo>/pulls/<number>/reviews --paginate --slurp, the pages flattened into one list:
 #   --paginate alone prints one list per page, which is not one JSON document)
 # Needs ruby (ships with macOS and the ubuntu runners), only for its JSON parser.
@@ -23,8 +26,7 @@ if [[ "$draft" == "true" ]]; then
   exit 0
 fi
 
-ruby -rjson -e '
-  sha = ARGV[0]
+shas=$(ruby -rjson -e '
   begin
     reviews = JSON.parse(STDIN.read)
   rescue JSON::ParserError => e
@@ -35,19 +37,28 @@ ruby -rjson -e '
     warn "check-review: expected a list of reviews"
     exit 1
   end
-  marker = /<!--\s*code-reviewer:\s*#{sha}\s*-->/
   states = %w[COMMENTED APPROVED CHANGES_REQUESTED]
   trusted = %w[OWNER MEMBER COLLABORATOR]
-  counts = lambda do |r|
-    r.is_a?(Hash) && states.include?(r["state"]) && trusted.include?(r["author_association"]) && r["body"].to_s.match?(marker)
+  reviews.each do |r|
+    next unless r.is_a?(Hash) && states.include?(r["state"]) && trusted.include?(r["author_association"])
+    r["body"].to_s.scan(/<!--\s*code-reviewer:\s*([0-9a-f]{40})\s*-->/) { |m| puts m[0] }
   end
-  if reviews.any?(&counts)
-    puts "The code-reviewer reviewed #{sha[0, 7]}."
+' <<<"$raw")
+
+while IFS= read -r reviewed; do
+  [[ -z "$reviewed" ]] && continue
+  # An unknown commit makes git fail, which counts as not in the PR.
+  if git merge-base --is-ancestor "$reviewed" "$sha" 2>/dev/null; then
+    echo "The code-reviewer reviewed ${reviewed:0:7}, a commit of this pull request (head ${sha:0:7})."
     exit 0
-  end
-  warn "No code-reviewer review for the current head commit #{sha[0, 7]}."
-  warn
-  warn "  Run the `code-reviewer` agent on this pull request in a fresh session. It posts a review that ends with"
-  warn "  <!-- code-reviewer: #{sha} -->. A push after the review needs a new one. Rules: docs/agents/git.md."
-  exit 1
-' "$sha" <<<"$raw"
+  fi
+done <<<"$shas"
+
+{
+  echo "No code-reviewer review of a commit of this pull request (head ${sha:0:7})."
+  echo
+  echo "  Run the \`code-reviewer\` agent once on this pull request in a fresh session. It posts a review that ends with"
+  echo "  <!-- code-reviewer: <the commit it reviewed> -->. Fixes pushed after that review need no second one."
+  echo "  A check that ran before the review is run again from the Actions tab. Rules: docs/agents/git.md."
+} >&2
+exit 1
