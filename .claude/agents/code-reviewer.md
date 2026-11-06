@@ -24,7 +24,14 @@ A PR number or a branch, and the ticket number. If the ticket is missing, take i
 
 ## Report
 
-Findings ordered by severity, each with `file:line`, what is wrong, and the concrete failing case. Then the acceptance criteria one by one (met, not met, not shown). Say what you did not check. No praise, no restating the diff, no style nitpicks that `make lint` already covers.
+You get one round, so two lists, not one:
+
+- **Blocking**, at most five, most severe first: each with `file:line`, what is wrong, and the concrete failing case (the input or state and the wrong result, or the CI check that is red, or the acceptance criterion that is not met). A finding with no failing case you can name is not blocking. If there are more than five, keep the five that fail hardest and say how many you left out.
+- **Notes**: everything else (wording, a doc line that could be clearer, a style choice, an idea). One line each, no more than five. Notes are not fixed in this PR, the user turns the ones worth it into issues.
+
+Then the acceptance criteria one by one (met, not met, not shown). Say what you did not check. No praise, no restating the diff, no style nitpicks that `make lint` already covers.
+
+End the review with the marker line `<!-- code-reviewer: <sha> -->` as its very last line (nothing after it, and never quote a marker elsewhere in the text), where `<sha>` is the full head commit you reviewed (`gh pr view <pr> --json headRefOid`). CI (`pr-review.yml`, [git](../../docs/agents/git.md)) will not let a PR that is not a draft pass without a review of a commit of the PR. It is one round: the findings are fixed and pushed after your review without a second one. Take the SHA before you read the diff, so the marker names what you judged.
 
 Post the review with `gh pr review <pr> --comment --body-file -`, passing the text on stdin (no file in the repo; the git-blocking hook reads the whole command, so a review that quotes a blocked git command must be posted in a call of its own, reworded if needed). Use `--request-changes` only when the user asked for it. Give the same text as your final message.
 

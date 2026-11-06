@@ -33,6 +33,7 @@ jobs:
       - run: scripts/test-check-architecture.sh
       - run: scripts/test-check-tools.sh
       - run: scripts/test-ci-scope.sh
+      - run: scripts/test-check-review.sh
       - run: scripts/check-workflows.sh
       - run: scripts/check-docs.sh
       - run: scripts/check-architecture.sh

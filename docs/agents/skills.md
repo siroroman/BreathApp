@@ -23,7 +23,7 @@ Not vendored, there is no upstream: they are edited here, in `.claude/skills/<na
 
 | Skill | What it does |
 |---|---|
-| `start-task` | First step of a session that asks for a change: finds or creates the GitHub issue, shows type, branch, title and description, offers plan mode, implements after approval and offers the pull request. `CLAUDE.md` tells the agent to invoke it, a skill cannot start itself. |
+| `start-task` | First step of a session that asks for a change: finds or creates the GitHub issue, shows type, branch, title and description, offers plan mode, implements after approval, offers the pull request and starts the `code-reviewer` agent on the draft. `CLAUDE.md` tells the agent to invoke it, a skill cannot start itself. |
 
 ## Skills that stay personal
 

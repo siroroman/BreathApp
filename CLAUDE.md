@@ -2,7 +2,7 @@
 
 ## Start of a session
 
-When the first message asks for a change in the repo (add, fix, change, document), invoke the `start-task` skill before anything else: it finds or creates the issue, names the branch, offers a plan and ends at the pull request. Questions and reading do not need it.
+When the first message asks for a change in the repo (add, fix, change, document), invoke the `start-task` skill before anything else: it finds or creates the issue, names the branch, offers a plan, opens a draft pull request and has the `code-reviewer` agent review it. Questions and reading do not need it.
 
 ## Git
 
