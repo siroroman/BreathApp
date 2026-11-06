@@ -34,6 +34,7 @@ jobs:
       - run: scripts/test-check-tools.sh
       - run: scripts/test-ci-scope.sh
       - run: scripts/test-check-review.sh
+      - run: scripts/test-check-coverage.sh
       - run: scripts/check-workflows.sh
       - run: scripts/check-docs.sh
       - run: scripts/check-architecture.sh
@@ -84,7 +85,8 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: swift --version
-      # Runs `swift test` with coverage and puts the line coverage of the Kit sources in the job summary. A report, no limit.
+      # Runs `swift test` with coverage, puts the line coverage of the Kit sources in the job summary and fails when a file or the
+      # total is under the floor of scripts/check-coverage.sh.
       - run: scripts/coverage.sh
 
   # `needs.changes.outputs.swift != 'false'` also runs the job when `changes` failed: a job skipped because of a failed
