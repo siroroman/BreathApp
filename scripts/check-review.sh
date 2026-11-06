@@ -2,12 +2,13 @@
 # Fails when a pull request that is not a draft has no code-reviewer review of a commit that is in the PR
 # (rules: docs/agents/git.md, Enforcement). The `code-reviewer` agent ends the review it posts with
 # `<!-- code-reviewer: <sha> -->`, the commit it reviewed. The check passes when that commit is the head or one of its
-# ancestors, so the findings can be fixed and pushed after the review without a second round.
+# ancestors and not a commit of the base branch, so the findings can be fixed and pushed after the review without a
+# second round, and a marker naming a commit of `main` does not count.
 # GitHub cannot tell a fresh session from the one that wrote the code, so this proves a review was posted for a commit of
 # the PR, not that the session was fresh and not that the commits after the review were reviewed.
 # A dismissed or pending review does not count, and neither does one by a user who is not the owner, a member or a
 # collaborator of the repo (the repo is public, anyone can post a comment review).
-#   scripts/check-review.sh <head sha> <draft: true|false>   reads the JSON list of reviews on stdin, runs in a checkout
+#   scripts/check-review.sh <head sha> <draft: true|false> <base sha>   reads the JSON list of reviews on stdin, runs in a checkout
 #   with the full history (fetch-depth: 0), the marker commit must be found in it
 #   (gh api repos/<owner>/<repo>/pulls/<number>/reviews --paginate --slurp, the pages flattened into one list:
 #   --paginate alone prints one list per page, which is not one JSON document)
@@ -16,12 +17,15 @@ set -euo pipefail
 
 sha=${1:-}
 draft=${2:-}
+base=${3:-}
 
 [[ "$sha" =~ ^[0-9a-f]{40}$ ]] || { echo "check-review: '$sha' is not a full commit sha" >&2; exit 1; }
+[[ "$base" =~ ^[0-9a-f]{40}$ ]] || { echo "check-review: '$base' is not a full base commit sha" >&2; exit 1; }
 [[ "$draft" == "true" || "$draft" == "false" ]] || { echo "check-review: draft must be true or false, got '$draft'" >&2; exit 1; }
 
 raw=$(cat)
-if [[ "$draft" == "true" ]]; then
+if [[ "$base" =~ ^[0-9a-f]{40}$ ]] || { echo "check-review: '$base' is not a full base commit sha" >&2; exit 1; }
+[[ "$draft" == "true" ]]; then
   echo "Draft pull request, no review needed yet."
   exit 0
 fi
@@ -47,8 +51,8 @@ shas=$(ruby -rjson -e '
 
 while IFS= read -r reviewed; do
   [[ -z "$reviewed" ]] && continue
-  # An unknown commit makes git fail, which counts as not in the PR.
-  if git merge-base --is-ancestor "$reviewed" "$sha" 2>/dev/null; then
+  # An unknown commit makes git fail, which counts as not in the PR. A commit that the base branch has is not the PR's.
+  if git merge-base --is-ancestor "$reviewed" "$sha" 2>/dev/null && ! git merge-base --is-ancestor "$reviewed" "$base" 2>/dev/null; then
     echo "The code-reviewer reviewed ${reviewed:0:7}, a commit of this pull request (head ${sha:0:7})."
     exit 0
   fi

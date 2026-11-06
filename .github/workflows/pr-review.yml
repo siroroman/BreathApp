@@ -3,8 +3,9 @@ name: PR review
 # Enforces the review rule of docs/agents/git.md: a PR that is not a draft has a code-reviewer review of a commit in the PR.
 # One review round: findings are fixed and pushed after the review, a push needs no second review.
 # The agent reviews while the PR is a draft, then the user marks it ready and `ready_for_review` runs this with the review
-# in place. If the check ran red before the review, it is run again from the Actions tab. There is no `pull_request_review`
-# trigger on purpose: it would give one commit two runs of `review-posted`, and nobody knows which one a ruleset counts.
+# in place. One commit can still have a green draft run and a red `ready_for_review` run, when the PR is marked ready before
+# the review. Then the red run is run again from the Actions tab after the review. A `pull_request_review` trigger is left
+# out on purpose: it would add a third run of the same name for that commit, and which run a ruleset counts is not known.
 # The check's own test runs in the `Script tests` job of ci.yml, which is required.
 on:
   pull_request:
@@ -35,7 +36,8 @@ jobs:
           REPO: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
           DRAFT: ${{ github.event.pull_request.draft }}
         # `shell: bash` adds pipefail, so a failing `gh api` fails the step. --slurp wraps the pages in one list.
         shell: bash
-        run: gh api "repos/$REPO/pulls/$PR_NUMBER/reviews" --paginate --slurp | ruby -rjson -e 'puts JSON.generate(JSON.parse(STDIN.read).flatten)' | scripts/check-review.sh "$HEAD_SHA" "$DRAFT"
+        run: gh api "repos/$REPO/pulls/$PR_NUMBER/reviews" --paginate --slurp | ruby -rjson -e 'puts JSON.generate(JSON.parse(STDIN.read).flatten)' | scripts/check-review.sh "$HEAD_SHA" "$DRAFT" "$BASE_SHA"
