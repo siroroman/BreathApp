@@ -86,6 +86,12 @@ run 1 "review of a commit the repo does not have" false "[$(review "$(marker "$u
 run 1 "review of the tip of the base branch (a commit of main, not of the PR)" false "[$(review "$(marker "$base")")]"
 run 1 "review of a commit after the head" false "[$(review "$reviewed")]" "$b"
 run 1 "marker with a short sha" false "[$(review "<!-- code-reviewer: ${head:0:7} -->")]"
+run 0 "marker followed by blank lines and spaces" false "[$(review "$(marker "$head")"$'\n\n  \n')]"
+run 0 "marker with CRLF line endings" false "[$(review "Findings: none.$(printf '\r\n\r\n')<!-- code-reviewer: $head -->$(printf '\r\n')")]"
+run 1 "marker quoted in the middle of the review, text after it" false "[$(review "A marker looks like <!-- code-reviewer: $head --> and ends the review.")]"
+run 1 "marker on its own line, more text after it" false "[$(review "$(marker "$head")"$'\n\nOne more thing.')]"
+run 1 "marker in a code block, not the last line" false "[$(review "Example:"$'\n\n'"<!-- code-reviewer: $head -->"$'\n\nEnd.')]"
+run 1 "marker at the end of a line with text before it" false "[$(review "Done <!-- code-reviewer: $head -->")]"
 run 1 "marker text outside an HTML comment" false "[$(review "code-reviewer: $head")]"
 run 1 "review with a null body" false '[{"id":1,"state":"APPROVED","body":null}]'
 
