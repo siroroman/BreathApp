@@ -75,10 +75,10 @@ If nothing blocks the PR, ask: "Create the pull request?" On yes push the branch
 
 ## Step 7: Review
 
-Right after the draft PR is open, start the `code-reviewer` agent with the Agent tool (`subagent_type: "code-reviewer"`). Give it the PR number and the issue number, nothing else: it starts with an empty context, so the review is fresh ([workflow](../../../docs/agents/workflow.md), step 6). It posts the review with a marker for the head commit, which `pr-review.yml` looks for.
+Right after the draft PR is open, start the `code-reviewer` agent with the Agent tool (`subagent_type: "code-reviewer"`). Give it the PR number and the issue number, nothing else: it starts with an empty context, so the review is fresh ([workflow](../../../docs/agents/workflow.md), step 6). It posts the review with a marker for the commit it reviewed, which `pr-review.yml` looks for.
 
 - Put its findings in the chat as short bullets, most severe first, and which acceptance criteria are not met or not shown.
-- Do not fix findings or mark the PR ready without the user. After fixes, push and run the agent again: a push changes the head commit, and the check wants a review of the latest one.
+- One review round only. Do not fix findings or mark the PR ready without the user. After the user agrees, fix the findings and push: the check accepts a review of an earlier commit of the PR, so do not start the agent again unless the user asks for it.
 - Marking the PR ready and merging are the user's.
 
 ## Examples

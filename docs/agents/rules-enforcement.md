@@ -29,7 +29,7 @@ The Swift conventions are checked by SwiftLint (`.swiftlint.yml`, run by `make l
 | A UI change was run and looked at (screenshot) | Process rule. `scripts/pr-facts.sh` lists the files, `check-pr-body.sh` requires the Snapshots section to be non-empty. |
 | Acceptance criteria are met one by one, named in the PR | Process rule. The PR body sections are checked by `scripts/check-pr-body.sh`, their content by the `code-reviewer`. |
 | Domain terms follow `GLOSSARY.md`, no ADR contradicted | Process rule. |
-| Review in a fresh session, the PR stays a draft until then | Partly checked: `scripts/check-review.sh` (job `review-posted` of `pr-review.yml`, tested by `scripts/test-check-review.sh`) fails a PR that is not a draft without a `code-reviewer` review for its head commit. That the session was fresh stays a process rule, GitHub cannot tell a fresh session from the one that wrote the code. |
+| Review in a fresh session, the PR stays a draft until then | Partly checked: `scripts/check-review.sh` (job `review-posted` of `pr-review.yml`, tested by `scripts/test-check-review.sh`) fails a PR that is not a draft without a `code-reviewer` review of a commit of the PR (one round, a push after it needs no second review). That the session was fresh, and that the commits after the review were reviewed, stay process rules, GitHub cannot tell a fresh session from the one that wrote the code. |
 | The user merges, the agent does not | `deny` list and `.claude/hooks/block-dangerous-git.sh` for `gh pr merge`. |
 | Remove the worktree and its simulator after the merge | Process rule. |
 
@@ -46,7 +46,7 @@ Has its own Enforcement table, which is the source for these.
 | Squash merge, PR title as commit title | Repository setting |
 | Merge `main` into the branch before the PR | Process rule. |
 | `Closes #<issue>` ends the PR body, the six sections | `scripts/check-pr-body.sh` |
-| Open as a draft until reviewed and green | Green checks are required by the ruleset. The review part is checked by `review-posted`, see the review row above: it fails a PR that is not a draft without a `code-reviewer` review for its head commit. Opening as a draft stays a process rule. |
+| Open as a draft until reviewed and green | Green checks are required by the ruleset. The review part is checked by `review-posted`, see the review row above: it fails a PR that is not a draft without a `code-reviewer` review of a commit of the PR. Opening as a draft stays a process rule. |
 
 ## Pull requests, critical paths, guardrail paths ([pull requests](pull-requests.md), [critical paths](critical-paths.md), [guardrail paths](guardrail-paths.md))
 

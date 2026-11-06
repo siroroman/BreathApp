@@ -26,7 +26,7 @@ A PR number or a branch, and the ticket number. If the ticket is missing, take i
 
 Findings ordered by severity, each with `file:line`, what is wrong, and the concrete failing case. Then the acceptance criteria one by one (met, not met, not shown). Say what you did not check. No praise, no restating the diff, no style nitpicks that `make lint` already covers.
 
-End the review with the marker line `<!-- code-reviewer: <sha> -->`, where `<sha>` is the full head commit you reviewed (`gh pr view <pr> --json headRefOid`). CI (`pr-review.yml`, [git](../../docs/agents/git.md)) will not let a PR that is not a draft pass without it, and a push after the review needs a new review. Take the SHA before you read the diff, so the marker names what you judged.
+End the review with the marker line `<!-- code-reviewer: <sha> -->`, where `<sha>` is the full head commit you reviewed (`gh pr view <pr> --json headRefOid`). CI (`pr-review.yml`, [git](../../docs/agents/git.md)) will not let a PR that is not a draft pass without a review of a commit of the PR. It is one round: the findings are fixed and pushed after your review without a second one. Take the SHA before you read the diff, so the marker names what you judged.
 
 Post the review with `gh pr review <pr> --comment --body-file -`, passing the text on stdin (no file in the repo; the git-blocking hook reads the whole command, so a review that quotes a blocked git command must be posted in a call of its own, reworded if needed). Use `--request-changes` only when the user asked for it. Give the same text as your final message.
 
