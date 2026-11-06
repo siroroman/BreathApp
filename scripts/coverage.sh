@@ -2,8 +2,9 @@
 # Runs the Kit tests with code coverage and prints the line coverage of BreathnestKit/Sources (rules: docs/agents/testing.md, Coverage):
 #   scripts/coverage.sh [repo root]    root defaults to the repository of this script
 #
-# A report, not a check: it fails when a test fails or when the coverage data is missing, never because the number is low.
-# Test and support files are not counted. When GITHUB_STEP_SUMMARY is set (a GitHub Actions step) the table goes there too.
+# It fails when a test fails, when the coverage data is missing, and when a file or the total is under the floor of
+# scripts/check-coverage.sh. Test and support files are not counted.
+# When GITHUB_STEP_SUMMARY is set (a GitHub Actions step) the table goes there too, with the files under the floor.
 set -euo pipefail
 
 # No git here: the Kit job of CI runs in a Swift image that may have no git, so the root comes from the script path.
@@ -55,12 +56,20 @@ echo
 echo "Line coverage of BreathnestKit/Sources:"
 echo "$report"
 
+# The files under the floor, taken from the check so the number lives in one place. The summary is written before the exit.
+status=0
+failures=$("$root/scripts/check-coverage.sh" <<<"$report" 2>&1) || status=$?
+[[ -z "$failures" ]] || echo "$failures" >&2
+
 if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then
   {
     echo "### Kit line coverage (BreathnestKit/Sources)"
     echo
     echo '```'
     echo "$report"
+    [[ -z "$failures" ]] || { echo; echo "$failures"; }
     echo '```'
   } >> "$GITHUB_STEP_SUMMARY"
 fi
+
+exit "$status"

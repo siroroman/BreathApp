@@ -40,6 +40,8 @@ run 1 "the total below the floor fails even when each file is above" "$totalunde
 run 0 "a file with no lines has no percent and is skipped" "$nolines"
 run 1 "empty input is an error, not a pass" ""
 run 1 "a table with only blank lines is an error" $'\n\n'
+run 1 "text that is not the table is an error" "swift test failed"$'\n'
+run 1 "a table without a TOTAL line is an error" "$(row Sources/BreathnestKit/A.swift 10 0 100.00%)"
 run 0 "a lower floor lets the weaker file pass" "$under" 70
 run 1 "a higher floor fails files that passed" "$above" 95
 run 1 "a floor that is not a number is an error" "$above" abc
