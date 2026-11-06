@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Fails when a pull request that is not a draft has no code-reviewer review of a commit that is in the PR
 # (rules: docs/agents/git.md, Enforcement). The `code-reviewer` agent ends the review it posts with
-# `<!-- code-reviewer: <sha> -->`, the commit it reviewed. The check passes when that commit is the head or one of its
+# `<!-- code-reviewer: <sha> -->` as the last line, the commit it reviewed. The check passes when that commit is the head or one of its
 # ancestors and not a commit of the base branch, so the findings can be fixed and pushed after the review without a
 # second round, and a marker naming a commit of `main` does not count.
 # GitHub cannot tell a fresh session from the one that wrote the code, so this proves a review was posted for a commit of
@@ -45,7 +45,9 @@ shas=$(ruby -rjson -e '
   trusted = %w[OWNER MEMBER COLLABORATOR]
   reviews.each do |r|
     next unless r.is_a?(Hash) && states.include?(r["state"]) && trusted.include?(r["author_association"])
-    r["body"].to_s.scan(/<!--\s*code-reviewer:\s*([0-9a-f]{40})\s*-->/) { |m| puts m[0] }
+    # Only the last line counts, so a review that quotes a marker in its text does not name a commit by accident.
+    last = r["body"].to_s.tr("\r", "").rstrip.lines.last.to_s.strip
+    puts $1 if last =~ /\A<!--\s*code-reviewer:\s*([0-9a-f]{40})\s*-->\z/
   end
 ' <<<"$raw")
 
