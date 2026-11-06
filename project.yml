@@ -21,6 +21,15 @@ schemes:
     test:
       targets:
         - BreathnestTests
+  # UI tests have their own scheme, so `make test-app` and `make test` do not run them. `make test-ui` does.
+  BreathnestUI:
+    build:
+      targets:
+        Breathnest: all
+        BreathnestUITests: [test]
+    test:
+      targets:
+        - BreathnestUITests
 targets:
   Breathnest:
     type: application
@@ -49,4 +58,15 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.siroroman.breathnest.tests
+        GENERATE_INFOPLIST_FILE: YES
+  BreathnestUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - App/BreathnestUITests
+    dependencies:
+      - target: Breathnest
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.siroroman.breathnest.uitests
         GENERATE_INFOPLIST_FILE: YES

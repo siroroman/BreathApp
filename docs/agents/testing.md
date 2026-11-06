@@ -14,14 +14,35 @@ That is the inner loop: `swift test` in `BreathnestKit/`, a few seconds, no simu
 
 - **`BreathnestKit/Tests/BreathnestKitTests/`** is the default home. Everything that can be decided without UIKit, SwiftUI or the system is tested here: the Session engine, Exercise data, Breath level curve, Haptic plan.
 - **`App/BreathnestTests/`** is for the thin glue only (adapters, view models that need app types). Keep it small, it is slow.
-- UI checks are done by looking at a screenshot (`make run screenshot`), not by UI tests. See [definition of done](definition-of-done.md).
+- **`App/BreathnestUITests/`** is the UI test target: one smoke test per screen that launches the app and runs the accessibility audit ([UI tests](#ui-tests)). Whether a screen looks right is still checked by looking at a screenshot (`make run screenshot`), see [definition of done](definition-of-done.md).
 
 ## Conventions
 
-- Swift Testing (`import Testing`, `@Suite`, `@Test`, `#expect`), not XCTest. `@testable import BreathnestKit` is fine.
+- Swift Testing (`import Testing`, `@Suite`, `@Test`, `#expect`), not XCTest. `@testable import BreathnestKit` is fine. The one exception is the UI test target, see [UI tests](#ui-tests).
 - Test names say the behaviour in glossary terms: `lastCycleEndsAfterRequestedDuration`, not `testSession1`.
 - Test through the public interface of a module, not its private helpers.
 - Test files mirror source files: `Sources/BreathnestKit/Foo.swift` has `Tests/BreathnestKitTests/FooTests.swift`.
+
+## UI tests
+
+`make test-ui` runs the `BreathnestUITests` target on the simulator with its own scheme `BreathnestUI`, so `make test` and the Stop hook do not run it. Run it by hand when a screen changes. It is not in CI yet (#35).
+
+- **XCTest, not Swift Testing.** `XCUIApplication` and `performAccessibilityAudit()` are XCTest APIs. This is the only XCTest in the repo, `@MainActor final class <Screen>UITests: XCTestCase`.
+- **Naming.** One file and one class per screen: `App/BreathnestUITests/<Screen>UITests.swift`, `RootScreenUITests`. A test method starts with `test` and says the behaviour: `testRootScreenPassesAccessibilityAudit`, not `testScreen1`.
+- **Accessibility identifiers** are `<screen>.<element>` in lowerCamelCase, set on the view with `.accessibilityIdentifier("placeholder.greeting")`: `session.pauseButton`, `settings.hapticsToggle`. An identifier finds an element in a test and never replaces its accessibility label, which is localized and read aloud.
+- **The smoke test and the audit grow with each screen.** A pull request that adds a screen adds, in the same pull request, a test that launches the app, reaches the screen, checks one identifier and runs `performAccessibilityAudit()` on it. An audit issue is fixed in the view, not by excluding the issue type in the test.
+
+## Localization catalog
+
+User-facing strings live in `App/Breathnest/Localizable.xcstrings`. `scripts/check-catalogs.sh` (in `make lint` and `make test-catalogs`, so also in `make test`) fails on:
+
+- a string with no translator comment, or a blank one (a string with `"shouldTranslate": false`, such as an exercise name that is never translated, needs the comment too)
+- an entry or variation in the state `needs_review`, in any language
+- a translation with an empty value, in any language
+- a string that is missing or not translated yet in a **required language**
+- a plural that lacks a category of a required language: en and de `one other`, cs and sk `one few many other`, fr and es `one many other`
+
+Required languages are the setting `CATALOG_REQUIRED_LANGUAGES` (space separated, from `en cs sk de fr es`), default `en`. Only English is filled in today, so the other five are declared as entries in the state `new` whose value is the English text (XcodeGen reads the languages of the catalog into `knownRegions`). The value is never empty: an empty value compiles to a blank string and does not fall back to English, so the screen would show nothing in that language. The check fails on an empty value in any language. #34 changes the default in the script to all six when the translations land. Try a language early with `CATALOG_REQUIRED_LANGUAGES="en cs" make test-catalogs`. `scripts/test-check-catalogs.sh` tests the script and runs in the `Script tests` job of CI. `Safety.xcstrings` and its rule are #34's.
 
 ## Time
 
