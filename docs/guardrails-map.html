@@ -384,7 +384,6 @@ const stations = [
       example: "The Homebrew swiftformat on the runner was newer than the local one, and its new rules reported errors in untouched files. CI therefore installs exactly version <code>0.51.13</code>.",
       real: true,
       how: "The <code>Build, app tests, lint</code> job in <code>ci.yml</code> on macOS with a 30 minute limit.",
-      gap: "The local swiftformat version is not pinned, you have to match it by hand (issue #71).",
       ref: "PR 76" },
     { st: "ok", t: "A broken build really fails CI",
       s: "Before, make reported success even on BUILD FAILED.",
@@ -481,7 +480,7 @@ const stations = [
       problem: "Format is only a part. The project rules written in <code>docs/agents/ios.md</code> and <code>testing.md</code> were not reported automatically, so a break passed lint and build.",
       example: "The agent uses <code>Date()</code> in the Kit instead of the injected <code>Clock</code>. <code>make lint</code> now fails with a message that names <code>docs/agents/testing.md</code>.",
       how: "<code>.swiftlint.yml</code> runs with <code>--strict</code> in <code>make lint</code> and lints <code>App/Breathnest</code> and <code>BreathnestKit/Sources</code>, not the tests. It bans <code>Date()</code>, <code>ContinuousClock()</code> and <code>Task.sleep</code> in the Kit, <code>DispatchQueue</code>, Combine, <code>ObservableObject</code>, completion handlers, force unwrap and <code>try!</code>. <code>scripts/check-architecture.sh</code> checks that the Kit imports only Foundation, Synchronization and Swift and that no package is declared in <code>Package.swift</code> or <code>project.yml</code>. <code>scripts/test-swiftlint-rules.sh</code> (in the iOS job) and <code>scripts/test-check-architecture.sh</code> (in <code>Script tests</code>) test them. Compiler warnings were already errors.",
-      gap: "A user-visible string literal in logic is not checked: a regex cannot tell it from an identifier. Glossary terms in names are not checked either. SwiftLint is pinned in CI but not yet locally, that is issue #71.",
+      gap: "A user-visible string literal in logic is not checked: a regex cannot tell it from an identifier. Glossary terms in names are not checked either.",
       done: "2026-11-02", ref: "issue 64" }
   ]},
   { title: "Merge into main", sub: "The gate every change passes through.", items: [
@@ -581,7 +580,6 @@ const stations = [
 ];
 
 const todo = [
-  ["The same tool versions everywhere", "A <code>Brewfile</code> and a check of the swiftformat and SwiftLint versions, so local lint gives the same result as CI.", ["issue #71", "on disk and in CI"]],
   ["UI tests and an accessibility audit from the first screen", "A UI test target with <code>performAccessibilityAudit()</code> and a translations check, while there are few screens and adding them is cheap.", ["issue #72", "pull request"]],
   ["Later: CodeQL, CODEOWNERS", "They make sense once the repo has more code or more people. Today they would report almost nothing.", ["no ticket"]]
 ];
