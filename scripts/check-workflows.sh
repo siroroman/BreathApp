@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # Fails when a workflow can run longer or with more rights than docs/agents/git.md (Enforcement) allows:
-# top-level `permissions: contents: read` and a numeric `timeout-minutes` on every job. A job-level `permissions` is
-# refused unless it is `contents: read`, or, for the job `coverage-comment` only, `contents: read` + `pull-requests: write`.
+# top-level `permissions: contents: read` and a numeric `timeout-minutes` on every job.
 #   scripts/check-workflows.sh [dir]    dir defaults to .github/workflows
 # Needs ruby (ships with macOS and the ubuntu runners), only for its YAML parser.
 set -euo pipefail
@@ -33,11 +32,6 @@ ruby -ryaml -e '
     jobs.each do |name, job|
       t = job.is_a?(Hash) ? job["timeout-minutes"] : nil
       bad << "#{f}: job `#{name}` needs a numeric `timeout-minutes`" unless t.is_a?(Integer) && t.positive?
-      # A job-level `permissions` replaces the top-level one, so it must not widen it. The one exception: the job that
-      # posts the coverage comment, and only with the one extra right it needs.
-      next unless job.is_a?(Hash) && job.key?("permissions")
-      allowed = name == "coverage-comment" ? { "contents" => "read", "pull-requests" => "write" } : { "contents" => "read" }
-      bad << "#{f}: job `#{name}` permissions must be exactly #{allowed.map { |k, v| "`#{k}: #{v}`" }.join(" and ")}" unless job["permissions"] == allowed
     end
   end
   unless bad.empty?

@@ -29,7 +29,7 @@ Anything that depends on time takes a `Clock` from the caller (`some Clock<Durat
 
 ## Coverage
 
-`make coverage` runs the Kit tests with code coverage and prints the line coverage of every file in `BreathnestKit/Sources` and the total. The `Kit tests` job in CI does the same and shows the table in the job summary of the run, and the `Coverage comment` job posts it as one comment on the pull request (`scripts/post-coverage-comment.sh`, edited on every push, tested by `scripts/test-post-coverage-comment.sh`). Test files and `Support/` are not counted, the App target is not measured.
+`make coverage` runs the Kit tests with code coverage and prints the line coverage of every file in `BreathnestKit/Sources` and the total. The `Kit tests` job in CI does the same and shows the table in the job summary of the run. Test files and `Support/` are not counted, the App target is not measured.
 
 - Read it per file, not only the total: a new file with a low percentage means a path no test runs (pause, resume, an error case).
 - There is no lower limit yet and a drop does not fail anything. The Kit has only a placeholder, so a limit would say nothing. Set one once the Session engine exists.

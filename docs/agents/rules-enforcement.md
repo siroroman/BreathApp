@@ -58,7 +58,7 @@ Has its own Enforcement table, which is the source for these.
 | A new module adds its critical path glob, a new guardrail adds its glob | Process rule. A glob that is missing hides a change, nothing sees what is not listed. |
 | What the Tests, Snapshots and Reviewer notes say is true | The `code-reviewer` agent. |
 | Changing a check so it passes is never the fix | Guardrail paths: the change needs the **Guardrails touched:** line and a reviewer reads it. |
-| Every workflow sets `permissions: contents: read` and a `timeout-minutes` on each job; only the job `coverage-comment` may add `pull-requests: write` | `scripts/check-workflows.sh` (in `make lint` and the `Script tests` job), tested by `scripts/test-check-workflows.sh` |
+| Every workflow sets `permissions: contents: read` and a `timeout-minutes` on each job | `scripts/check-workflows.sh` (in `make lint` and the `Script tests` job), tested by `scripts/test-check-workflows.sh` |
 
 ## Testing and iOS ([testing](testing.md), [ios](ios.md))
 
