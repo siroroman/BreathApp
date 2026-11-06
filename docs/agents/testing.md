@@ -50,10 +50,11 @@ Anything that depends on time takes a `Clock` from the caller (`some Clock<Durat
 
 ## Coverage
 
-`make coverage` runs the Kit tests with code coverage and prints the line coverage of every file in `BreathnestKit/Sources` and the total. The `Kit tests` job in CI does the same and shows the table in the job summary of the run. Test files and `Support/` are not counted, the App target is not measured.
+`make coverage` runs the Kit tests with code coverage and prints the line coverage of every file in `BreathnestKit/Sources` and the total. The `Kit tests` job in CI does the same, shows the table in the job summary of the run and fails when a file or the total is under the floor. Test files and `Support/` are not counted, the App target is not measured.
 
 - Read it per file, not only the total: a new file with a low percentage means a path no test runs (pause, resume, an error case).
-- There is no lower limit yet and a drop does not fail anything. The Kit has only a placeholder, so a limit would say nothing. Set one once the Session engine exists.
+- The floor is 80% line coverage, per file and for the total. `scripts/coverage.sh` hands the table to `scripts/check-coverage.sh`, which names every line under the floor on stderr and fails (the job summary lists them under the table). A file with no lines is skipped.
+- A failure means a path no test runs. Write the test for it, do not lower the floor to pass. The number is `floor=` at the top of `scripts/check-coverage.sh`; changing it is a change of a guardrail ([guardrail paths](guardrail-paths.md)): say why in the pull request and write the reason here.
 - 100% does not mean the behaviour is checked, only that every line ran. Write the test for the behaviour first ([TDD loop](#tdd-loop)), then look at the number.
 
 ## Reading failures
