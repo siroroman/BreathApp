@@ -1,13 +1,14 @@
 name: PR review
 
-# Enforces the review rule of docs/agents/git.md: a PR that is not a draft has a code-reviewer review for its head commit.
-# The review is posted by the `code-reviewer` agent, a `pull_request_review` run picks it up without a push.
-# An edited or dismissed review runs the check again too.
+# Enforces the review rule of docs/agents/git.md: a PR that is not a draft has a code-reviewer review of a commit in the PR.
+# One review round: findings are fixed and pushed after the review, a push needs no second review.
+# The agent reviews while the PR is a draft, then the user marks it ready and `ready_for_review` runs this with the review
+# in place. If the check ran red before the review, it is run again from the Actions tab. There is no `pull_request_review`
+# trigger on purpose: it would give one commit two runs of `review-posted`, and nobody knows which one a ruleset counts.
+# The check's own test runs in the `Script tests` job of ci.yml, which is required.
 on:
   pull_request:
     types: [opened, reopened, synchronize, ready_for_review, converted_to_draft]
-  pull_request_review:
-    types: [submitted, edited, dismissed]
 
 permissions:
   contents: read
@@ -24,9 +25,11 @@ jobs:
       contents: read
       pull-requests: read
     steps:
+      # The whole history: the check asks git whether the reviewed commit is an ancestor of the head.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - run: scripts/test-check-review.sh
-      - name: A code-reviewer review exists for the head commit
+        with:
+          fetch-depth: 0
+      - name: A code-reviewer review exists for a commit of the PR
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
