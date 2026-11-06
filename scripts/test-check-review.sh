@@ -3,9 +3,9 @@
 # Usage: test-check-review.sh   (exit 1 when a case fails)
 #
 # The check asks git whether the reviewed commit is in the PR, so the cases run in a throwaway repo:
-#   A - B - C   main, C is the head of the PR
+#   A - B - C - D   A is the tip of the base branch, B to D are the commits of the PR, D is the head
 #    \
-#     X         a commit that is not in the PR
+#     X             a commit that is not in the PR
 set -uo pipefail
 
 root=$(cd "$(dirname "$0")/.." && pwd)
@@ -18,21 +18,23 @@ export GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null
 git_() { git -C "$repo" -c user.name=test -c user.email=test@example.com -c commit.gpgsign=false "$@"; }
 git_ init -q -b main
 git_ commit -q --allow-empty -m A
-a=$(git_ rev-parse HEAD)
+base=$(git_ rev-parse HEAD)
 git_ commit -q --allow-empty -m B
 b=$(git_ rev-parse HEAD)
 git_ commit -q --allow-empty -m C
+c=$(git_ rev-parse HEAD)
+git_ commit -q --allow-empty -m D
 head=$(git_ rev-parse HEAD)
-git_ switch -q -c side "$a"
+git_ switch -q -c side "$base"
 git_ commit -q --allow-empty -m X
 side=$(git_ rev-parse HEAD)
 git_ switch -q main
 unknown=3333333333333333333333333333333333333333
 
-# run <expected exit> <description> <draft> <reviews json> [head sha]
+# run <expected exit> <description> <draft> <reviews json> [head sha] [base sha]
 run() {
-  local want=$1 desc=$2 draft=$3 json=$4 sha=${5:-$head} got
-  printf '%s' "$json" | (cd "$repo" && "$check" "$sha" "$draft") >/dev/null 2>&1
+  local want=$1 desc=$2 draft=$3 json=$4 sha=${5:-$head} bsha=${6:-$base} got
+  printf '%s' "$json" | (cd "$repo" && "$check" "$sha" "$draft" "$bsha") >/dev/null 2>&1
   got=$?
   if [[ "$got" -ne "$want" ]]; then
     printf 'FAIL (want %s, got %s): %s\n' "$want" "$got" "$desc"
@@ -49,16 +51,16 @@ review() {
 marker() { printf 'Findings: none.\n\n<!-- code-reviewer: %s -->' "$1"; }
 
 reviewed=$(marker "$head")
-ancestor=$(marker "$b")
+ancestor=$(marker "$c")
 outside=$(marker "$side")
 
 # The reviewed commit is the head, or one the PR contains.
 run 0 "review of the head commit" false "[$(review "$reviewed")]"
 run 0 "review of a commit before the head (one round, fixes pushed after it)" false "[$(review "$ancestor")]"
-run 0 "review of the first commit of the PR" false "[$(review "$(marker "$a")")]"
+run 0 "review of the first commit of the PR" false "[$(review "$(marker "$b")")]"
 run 0 "review of an earlier commit next to other reviews" false "[$(review "Looks fine."),$(review "$outside"),$(review "$ancestor")]"
 run 0 "earlier review, a later review has no marker" false "[$(review "$ancestor"),$(review "Looks fine.")]"
-run 0 "marker with extra spaces" false "[$(review "<!--   code-reviewer:   $b   -->")]"
+run 0 "marker with extra spaces" false "[$(review "<!--   code-reviewer:   $c   -->")]"
 run 0 "draft with no review" true "[]"
 run 0 "draft with a review of a commit outside the PR" true "[$(review "$outside")]"
 run 0 "review of the head is a request for changes" false "[$(review "$reviewed" CHANGES_REQUESTED)]"
@@ -81,6 +83,7 @@ run 1 "no reviews" false "[]"
 run 1 "review without a marker" false "[$(review "Looks fine.")]"
 run 1 "review of a commit that is not in the PR" false "[$(review "$outside")]"
 run 1 "review of a commit the repo does not have" false "[$(review "$(marker "$unknown")")]"
+run 1 "review of the tip of the base branch (a commit of main, not of the PR)" false "[$(review "$(marker "$base")")]"
 run 1 "review of a commit after the head" false "[$(review "$reviewed")]" "$b"
 run 1 "marker with a short sha" false "[$(review "<!-- code-reviewer: ${head:0:7} -->")]"
 run 1 "marker text outside an HTML comment" false "[$(review "code-reviewer: $head")]"
@@ -92,6 +95,7 @@ run 1 "input that is not JSON" false "not json"
 run 1 "input that is not a list" false '{"message":"Not Found"}'
 run 1 "head sha is not a full sha" false "[$(review "$reviewed")]" abc123
 run 1 "draft flag is not true or false" maybe "[$(review "$reviewed")]"
+run 1 "base sha is not a full sha" false "[$(review "$reviewed")]" "$head" "abc123"
 
 if [[ $failed -eq 0 ]]; then echo "all check-review cases passed"; fi
 exit $failed
