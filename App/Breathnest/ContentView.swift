@@ -6,5 +6,6 @@ struct ContentView: View {
         Text("Breathe with \(Placeholder().name)")
             .font(.title)
             .padding()
+            .accessibilityIdentifier("placeholder.greeting")
     }
 }
