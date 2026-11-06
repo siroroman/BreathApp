@@ -36,12 +36,12 @@ The safe commands above are allowlisted in `.claude/settings.json`, so they run 
 
 | Job | Runner | Runs | When |
 |---|---|---|---|
-| `Changes` | ubuntu | `scripts/ci-scope.sh`: does the diff against the base touch `App/`, `BreathnestKit/`, `project.yml`, `Makefile`, `.swiftformat`, `.swiftlint.yml`, `tools.env`, `Brewfile`, `scripts/` or `ci.yml`? | always |
+| `Changes` | ubuntu | `scripts/ci-scope.sh`: does the diff against the base touch `App/`, `BreathnestKit/` or `project.yml`? The base is the target branch of a pull request, or the previous tip of `main` on a push | always |
 | `Script tests` | ubuntu | the tests of every script, `check-workflows.sh`, `check-docs.sh`, `check-architecture.sh` | always |
 | `Kit tests` | ubuntu, in the `swift:6.2-noble` image pinned by digest | `scripts/coverage.sh`: `swift test` in `BreathnestKit/` with coverage, the table goes to the job summary | always |
 | `Build, app tests, lint` | `macos-26` | `scripts/test-make-pipefail.sh`, then `make gen build test lint` and `make run screenshot` (the screenshot is uploaded as an artifact) | unless `Changes` says no Swift file changed |
 
-- **A docs-only pull request** runs only the ubuntu jobs. The macOS job is skipped with a job-level `if`, not a workflow-level `paths:` filter: GitHub counts a skipped job as passed for a required check, but leaves the check of a filtered workflow pending. When `Changes` itself fails, the macOS job runs anyway.
+- **A pull request or push that changes neither the Kit nor the app** (docs, scripts, workflows, `Makefile`, `tools.env`, `Brewfile`, lint configs) runs only the ubuntu jobs. Accepted risk: a change to only `Makefile`, a tool pin or a lint config is not built on macOS until the next Kit or app change; start the workflow by hand (`workflow_dispatch` runs everything) when it matters. The macOS job is skipped with a job-level `if`, not a workflow-level `paths:` filter: GitHub counts a skipped job as passed for a required check, but leaves the check of a filtered workflow pending. When `Changes` itself fails, the macOS job runs anyway.
 - **Xcode** is `CI_XCODE_VERSION` in `tools.env` (26.6), selected from `/Applications/Xcode_26.6.app` on the `macos-26` image. The step fails and lists the installed Xcodes when the image no longer has it. The `Toolchain` step prints `xcodebuild -version`, `swift --version` and the Simulator runtimes.
 - **Simulator runtime** is iOS 26.2, `RUNTIME` in `scripts/simulator.sh`. The image has 26.2, 26.4 and 26.5 installed, so the pin works there without a download.
 - **Linux or macOS for the Kit:** the Kit imports only Foundation, Synchronization and Swift, so `swift test` passes on Linux. The `Build, app tests, lint` job runs the Kit tests again through `make test`, on macOS. The Swift version of the image is the `swift-tools-version` of `BreathnestKit/Package.swift`: bump the tag and the digest together.
