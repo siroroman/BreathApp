@@ -110,7 +110,7 @@ public struct SessionEngine: Sendable {
         breathed = min(breathed + delta, sessionLength.totalLength)
         let finished = breathed == sessionLength.totalLength
         let lastToStart = finished ? phaseTotal - 1 : phaseOrdinal(at: breathed)
-        for ordinal in (lastStarted + 1)..<(lastToStart + 1) {
+        for ordinal in (lastStarted + 1) ..< (lastToStart + 1) {
             transitions.append(.phaseStarted(pattern.phases[ordinal % pattern.phases.count].kind))
         }
         if finished {
