@@ -10,9 +10,4 @@ public enum PhaseKind: Sendable, Hashable, CaseIterable {
 public struct Phase: Sendable, Hashable {
     public let kind: PhaseKind
     public let duration: Duration
-
-    public init(kind: PhaseKind, duration: Duration) {
-        self.kind = kind
-        self.duration = duration
-    }
 }

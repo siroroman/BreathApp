@@ -8,13 +8,6 @@ public struct Exercise: Sendable, Hashable, Identifiable {
     public let durationOptions: [Duration]
     /// The one of `durationOptions` that is selected first.
     public let defaultDuration: Duration
-
-    public init(id: String, pattern: Pattern, durationOptions: [Duration], defaultDuration: Duration) {
-        self.id = id
-        self.pattern = pattern
-        self.durationOptions = durationOptions
-        self.defaultDuration = defaultDuration
-    }
 }
 
 public extension Exercise {
