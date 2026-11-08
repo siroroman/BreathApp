@@ -8,6 +8,8 @@ struct BreathnestApp: App {
         WindowGroup {
             ExercisesView(navigation: navigation)
                 .tint(Color(.ring))
+                // Only dark is drawn. Light follows the decision of #53, which has `line`, `pop` and `scrim` no light value yet.
+                .preferredColorScheme(.dark)
         }
     }
 }
