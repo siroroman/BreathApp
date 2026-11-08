@@ -34,7 +34,7 @@ What breaks: the Session drifts or stops when the app leaves the foreground or t
 
 ### Log, Reminders and stored data
 
-Paths: `BreathnestKit/Sources/BreathnestKit/*Log*` `BreathnestKit/Sources/BreathnestKit/*Reminder*` `BreathnestKit/Sources/BreathnestKit/*Persist*` `BreathnestKit/Sources/BreathnestKit/*Migration*` `App/Breathnest/*Log*` `App/Breathnest/*Reminder*` `App/Breathnest/*Persist*` `App/Breathnest/*Store*` `App/Breathnest/*Migration*`
+Paths: `BreathnestKit/Sources/BreathnestKit/*Log*` `BreathnestKit/Sources/BreathnestKit/*Reminder*` `BreathnestKit/Sources/BreathnestKit/*Persist*` `BreathnestKit/Sources/BreathnestKit/*Migration*` `BreathnestKit/Sources/BreathnestKit/*Store*` `BreathnestKit/Sources/BreathnestKit/*AppSettings*` `BreathnestKit/Sources/BreathnestKit/*LastSession*` `App/Breathnest/*Log*` `App/Breathnest/*Reminder*` `App/Breathnest/*Persist*` `App/Breathnest/*Store*` `App/Breathnest/*Migration*`
 
 What breaks: the user loses their Log, Custom exercises or Reminders, or a Reminder stops firing. The app is offline and keeps everything on the device, so there is no backup. A change to a stored shape without a migration is a one-way door.
 
