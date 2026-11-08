@@ -27,7 +27,10 @@ final class ExerciseDetailUITests: XCTestCase {
     func testChipsDifferPerExerciseAndTheDefaultIsSelected() {
         let app = launchApp()
         openDetail(of: "box", in: app)
-        XCTAssertEqual(["60", "180", "300", "600"].map { app.buttons["detail.chip.\($0)"].exists }, [true, true, true, true])
+        XCTAssertEqual(
+            ["60", "180", "300", "600"].map { app.buttons["detail.chip.\($0)"].exists },
+            [true, true, true, true]
+        )
         XCTAssertTrue(app.buttons["detail.chip.300"].isSelected)
         XCTAssertFalse(app.buttons["detail.chip.60"].isSelected)
         XCTAssertEqual(app.staticTexts["detail.result"].label, "19 Cycles · 5:04")

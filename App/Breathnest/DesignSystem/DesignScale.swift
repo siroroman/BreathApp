@@ -51,6 +51,12 @@ extension View {
         tracking: CGFloat = 0,
         lineHeight: CGFloat? = nil
     ) -> some View {
-        modifier(DesignFont(style: style, designSize: designSize, weight: weight, tracking: tracking, lineHeight: lineHeight))
+        modifier(DesignFont(
+            style: style,
+            designSize: designSize,
+            weight: weight,
+            tracking: tracking,
+            lineHeight: lineHeight
+        ))
     }
 }

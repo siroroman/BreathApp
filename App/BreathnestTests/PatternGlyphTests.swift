@@ -26,7 +26,9 @@ import Testing
     }
 
     @Test func everyPhaseOfTheSighAndCoherentMoves() {
-        #expect(PatternGlyph.arcs(for: Exercise.physiologicalSigh.pattern).allSatisfy { $0.isMoving })
-        #expect(PatternGlyph.arcs(for: Exercise.coherent.pattern).allSatisfy { $0.isMoving })
+        let sigh = PatternGlyph.arcs(for: Exercise.physiologicalSigh.pattern).map(\.isMoving)
+        let coherent = PatternGlyph.arcs(for: Exercise.coherent.pattern).map(\.isMoving)
+        #expect(sigh == [true, true, true])
+        #expect(coherent == [true, true])
     }
 }
