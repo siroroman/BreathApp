@@ -119,6 +119,24 @@ public struct SessionEngine: Sendable {
         }
         return transitions
     }
+
+    /// Counts the time up to `now`, then freezes the Session where it is. Returns what that time crossed.
+    /// Ignored in a paused or final state, and for a time earlier than one already seen.
+    @discardableResult
+    public mutating func pause(at now: ContinuousClock.Instant) -> [Transition] {
+        guard now >= lastSeen, state == .leadIn || state == .breathing else { return [] }
+        let transitions = advance(to: now)
+        if state != .completed { state = .paused }
+        return transitions
+    }
+
+    /// Continues from the point `pause(at:)` froze. The time spent paused is not counted.
+    /// Ignored unless the Session is paused, and for a time earlier than one already seen.
+    public mutating func resume(at now: ContinuousClock.Instant) {
+        guard now >= lastSeen, state == .paused else { return }
+        lastSeen = now
+        state = leadInLeft == .zero ? .breathing : .leadIn
+    }
 }
 
 private extension SessionEngine {
