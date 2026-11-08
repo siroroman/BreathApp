@@ -1,7 +1,8 @@
 import SwiftUI
 
-/// The design draws every size at the default text size and at AX5 (phone-design.md, rule 8). A size at a step
-/// in between is interpolated linearly by the step, so text and layout grow together and never jump.
+/// The design draws every size at the default text size and at AX5 (phone-design.md, rule 8). A layout size at a
+/// step in between is interpolated linearly by the step, so spacing and tap targets grow with the text and never
+/// jump. Text itself follows the system's curve, see `designFont`.
 struct DesignScale {
     let typeSize: DynamicTypeSize
 
@@ -22,32 +23,34 @@ struct DesignScale {
     }
 }
 
+/// Text in a text style, so it follows Dynamic Type the way the system does. The design draws its own sizes at AX5
+/// (body 44, where iOS has 53), but the accessibility audit accepts only text styles, so the text takes the
+/// style whose default size is nearest to the design's and scales on the system's curve. `designSize` is the
+/// size drawn at the default text size, in points; it sets the letter spacing and the line height.
 private struct DesignFont: ViewModifier {
-    @Environment(\.dynamicTypeSize) private var typeSize
-    let regular: CGFloat
-    let ax5: CGFloat
+    let style: Font.TextStyle
+    let designSize: CGFloat
     let weight: Font.Weight
     let tracking: CGFloat
     let lineHeight: CGFloat?
 
     func body(content: Content) -> some View {
-        let size = DesignScale(typeSize: typeSize)(regular, ax5)
         content
-            .font(.system(size: size, weight: weight))
-            .tracking(tracking * size)
-            .lineSpacing(lineHeight.map { max(0, ($0 - 1.19) * size) } ?? 0)
+            .font(.system(style, weight: weight))
+            .tracking(tracking * designSize)
+            .lineSpacing(lineHeight.map { max(0, ($0 - 1.19) * designSize) } ?? 0)
     }
 }
 
 extension View {
-    /// The system font at the design's size: `regular` at the default text size, `ax5` at AX5. `tracking` is in em.
+    /// `tracking` is in em, `lineHeight` a multiple of the size.
     func designFont(
-        _ regular: CGFloat,
-        ax5: CGFloat,
+        _ style: Font.TextStyle,
+        _ designSize: CGFloat,
         weight: Font.Weight = .regular,
         tracking: CGFloat = 0,
         lineHeight: CGFloat? = nil
     ) -> some View {
-        modifier(DesignFont(regular: regular, ax5: ax5, weight: weight, tracking: tracking, lineHeight: lineHeight))
+        modifier(DesignFont(style: style, designSize: designSize, weight: weight, tracking: tracking, lineHeight: lineHeight))
     }
 }

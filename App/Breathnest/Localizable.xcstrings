@@ -384,15 +384,51 @@
       "extractionState" : "manual",
       "localizations" : {
         "cs" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%lld Cycles · %@"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "new",
+                  "value" : "%lld Cycle · %@"
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "new",
+                  "value" : "%lld Cycles · %@"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "new",
+                  "value" : "%lld Cycles · %@"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "new",
+                  "value" : "%lld Cycles · %@"
+                }
+              }
+            }
           }
         },
         "de" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%lld Cycles · %@"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "new",
+                  "value" : "%lld Cycle · %@"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "new",
+                  "value" : "%lld Cycles · %@"
+                }
+              }
+            }
           }
         },
         "en" : {
@@ -414,21 +450,81 @@
           }
         },
         "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%lld Cycles · %@"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "new",
+                  "value" : "%lld Cycle · %@"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "new",
+                  "value" : "%lld Cycles · %@"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "new",
+                  "value" : "%lld Cycles · %@"
+                }
+              }
+            }
           }
         },
         "fr" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%lld Cycles · %@"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "new",
+                  "value" : "%lld Cycle · %@"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "new",
+                  "value" : "%lld Cycles · %@"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "new",
+                  "value" : "%lld Cycles · %@"
+                }
+              }
+            }
           }
         },
         "sk" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%lld Cycles · %@"
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "new",
+                  "value" : "%lld Cycle · %@"
+                }
+              },
+              "few" : {
+                "stringUnit" : {
+                  "state" : "new",
+                  "value" : "%lld Cycles · %@"
+                }
+              },
+              "many" : {
+                "stringUnit" : {
+                  "state" : "new",
+                  "value" : "%lld Cycles · %@"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "new",
+                  "value" : "%lld Cycles · %@"
+                }
+              }
+            }
           }
         }
       }

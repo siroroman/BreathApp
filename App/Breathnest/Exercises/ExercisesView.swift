@@ -14,7 +14,7 @@ struct ExercisesView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     Text("exercises.title")
-                        .designFont(34, ax5: 56, weight: .bold, tracking: -0.02, lineHeight: 1.1)
+                        .designFont(.largeTitle, 34, weight: .bold, tracking: -0.02, lineHeight: 1.1)
                         .padding(.horizontal, 4)
                         .padding(.bottom, 20)
                         .accessibilityAddTraits(.isHeader)
@@ -66,10 +66,10 @@ private struct ExerciseRow: View {
                 }
                 VStack(alignment: .leading, spacing: 2) {
                     Text(verbatim: ExerciseText.name(of: exercise))
-                        .designFont(17, ax5: 44, weight: .semibold, lineHeight: 1.25)
+                        .designFont(.body, 17, weight: .semibold, lineHeight: 1.25)
                         .foregroundStyle(Color(.fg))
                     Text(verbatim: ExerciseText.patternNumbers(exercise.pattern))
-                        .designFont(15, ax5: 38, lineHeight: 1.25)
+                        .designFont(.subheadline, 15, lineHeight: 1.25)
                         .monospacedDigit()
                         .foregroundStyle(Color(.fg2))
                 }
@@ -82,7 +82,7 @@ private struct ExerciseRow: View {
         .buttonStyle(.plain)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(ExerciseText.spokenRow(of: exercise))
-        .accessibilityHint(Text("exercises.row.hint"))
+        .accessibilityHint(ExerciseText.rowHint)
         .accessibilityAddTraits(.isButton)
         .accessibilityIdentifier("exercises.row.\(exercise.id)")
     }

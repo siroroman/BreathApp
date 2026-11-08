@@ -57,7 +57,7 @@ struct ExerciseDetailView: View {
             dismiss()
         } label: {
             Text("common.cancel")
-                .designFont(17, ax5: 38, weight: .medium)
+                .designFont(.body, 17, weight: .medium)
                 .foregroundStyle(Color(.ring))
                 .frame(minHeight: 44, alignment: .leading)
         }
@@ -67,16 +67,16 @@ struct ExerciseDetailView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(verbatim: ExerciseText.name(of: viewModel.exercise))
-                .designFont(30, ax5: 52, weight: .bold, tracking: -0.02, lineHeight: 1.15)
+                .designFont(.title, 30, weight: .bold, tracking: -0.02, lineHeight: 1.15)
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityIdentifier("detail.title")
             Text(verbatim: ExerciseText.patternWithNames(viewModel.exercise.pattern, locale: locale))
-                .designFont(16, ax5: 36, lineHeight: 1.35)
+                .designFont(.callout, 16, lineHeight: 1.35)
                 .foregroundStyle(Color(.fg2))
                 .padding(.top, 6)
                 .accessibilityIdentifier("detail.pattern")
             Text(verbatim: ExerciseText.description(of: viewModel.exercise))
-                .designFont(15, ax5: 34, lineHeight: 1.4)
+                .designFont(.subheadline, 15, lineHeight: 1.4)
                 .foregroundStyle(Color(.fg2))
                 .padding(.top, 10)
                 .accessibilityIdentifier("detail.description")
@@ -96,7 +96,7 @@ struct ExerciseDetailView: View {
                     .monospacedDigit()
                     .accessibilityIdentifier("detail.durationValue")
             }
-            .designFont(15, ax5: 34, weight: .semibold, lineHeight: 1.3)
+            .designFont(.subheadline, 15, weight: .semibold, lineHeight: 1.3)
             .padding(.bottom, 10)
             .accessibilityElement(children: .combine)
 
@@ -109,7 +109,7 @@ struct ExerciseDetailView: View {
             .accessibilityLabel(Text("detail.duration.options"))
 
             Text(verbatim: result)
-                .designFont(22, ax5: 44, weight: .semibold, lineHeight: 1.25)
+                .designFont(.title2, 22, weight: .semibold, lineHeight: 1.25)
                 .monospacedDigit()
                 .padding(.top, 14)
                 .accessibilityIdentifier("detail.result")
@@ -125,7 +125,7 @@ struct ExerciseDetailView: View {
             viewModel.select(duration: option)
         } label: {
             Text(verbatim: ExerciseText.option(option, wholeMinutes: wholeMinutes))
-                .designFont(17, ax5: 38, weight: .semibold)
+                .designFont(.body, 17, weight: .semibold)
                 .monospacedDigit()
                 .foregroundStyle(Color(isSelected ? .bg : .fg))
                 .padding(.horizontal, scale(20, 28))
@@ -146,7 +146,7 @@ struct ExerciseDetailView: View {
             set: { viewModel.setHaptics(isOn: $0) }
         )) {
             Text("detail.haptics")
-                .designFont(17, ax5: 40, weight: .medium)
+                .designFont(.body, 17, weight: .medium)
         }
         .tint(Color(.ring))
         .padding(.horizontal, 16)
@@ -162,7 +162,7 @@ struct ExerciseDetailView: View {
             // Start opens the Session with #29.
         } label: {
             Text("detail.start")
-                .designFont(19, ax5: 44, weight: .semibold)
+                .designFont(.title3, 19, weight: .semibold)
                 .foregroundStyle(Color(.bg))
                 .frame(maxWidth: .infinity, minHeight: scale(54, 96))
                 .background(Capsule().fill(Color(.fg)))

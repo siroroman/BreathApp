@@ -35,6 +35,11 @@ enum ExerciseText {
         }.joined(separator: separator)
     }
 
+    /// The VoiceOver hint of a row.
+    static var rowHint: String {
+        String(localized: "exercises.row.hint")
+    }
+
     /// What VoiceOver reads for a row: `Box breathing, inhale 4 seconds, hold 4 seconds, ...`.
     static func spokenRow(of exercise: Exercise, locale: Locale = .current) -> String {
         let phases = exercise.pattern.phases.map { phase in

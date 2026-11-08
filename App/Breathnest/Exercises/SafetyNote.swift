@@ -20,7 +20,7 @@ struct SafetyNote: View {
             }
             Text("safety.notAdvice", tableName: "Safety")
         }
-        .designFont(15, ax5: 34, lineHeight: 1.4)
+        .designFont(.subheadline, 15, lineHeight: 1.4)
         .foregroundStyle(Color(.fg2))
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 16)
