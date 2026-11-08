@@ -284,4 +284,58 @@ private func at(_ seconds: Double) -> ContinuousClock.Instant {
         #expect(engine.snapshot.state == .stopped)
         #expect(engine.snapshot.timeLeft == .seconds(64 - 7))
     }
+
+    // MARK: Built-in Exercises
+
+    private static let everyOption: [(exercise: Exercise, requested: Duration)] =
+        Exercise.builtIn.flatMap { exercise in exercise.durationOptions.map { (exercise, $0) } }
+
+    @Test(arguments: everyOption)
+    func aFullRunCompletesAfterTheExactTotalLengthAndNotBefore(exercise: Exercise, requested: Duration) {
+        let length = exercise.sessionLength(for: requested)
+        var engine = SessionEngine(exercise: exercise, requested: requested, startingAt: at(0))
+        let leadIn = SessionEngine.leadInLength.seconds
+        let total = length.totalLength.seconds
+
+        // Just before the end it is still breathing, on the very last Phase.
+        engine.advance(to: at(leadIn + total - 0.001))
+        #expect(engine.snapshot.state == .breathing)
+        #expect(engine.snapshot.cycle == length.cycleCount)
+
+        #expect(engine.advance(to: at(leadIn + total)) == [.completed])
+        #expect(engine.snapshot.state == .completed)
+    }
+
+    @Test(arguments: everyOption)
+    func aRunTickedTwiceASecondStartsEveryPhaseOnceInOrder(exercise: Exercise, requested: Duration) {
+        let length = exercise.sessionLength(for: requested)
+        var engine = SessionEngine(exercise: exercise, requested: requested, startingAt: at(0))
+        let end = SessionEngine.leadInLength.seconds + length.totalLength.seconds
+        var transitions: [SessionEngine.Transition] = []
+        var seconds = 0.0
+        while seconds <= end {
+            transitions += engine.advance(to: at(seconds))
+            seconds += 0.5
+        }
+        let expected: [SessionEngine.Transition] = [.leadInEnded]
+            + (0 ..< length.cycleCount).flatMap { _ in exercise.pattern.phases.map { .phaseStarted($0.kind) } }
+            + [.completed]
+        #expect(transitions == expected)
+    }
+
+    @Test func theLeadInIsAlwaysThreeSecondsAndItsBreathLevelIsZero() {
+        for exercise in Exercise.builtIn {
+            var engine = SessionEngine(exercise: exercise, requested: exercise.defaultDuration, startingAt: at(0))
+            #expect(engine.snapshot.leadInLeft == .seconds(3))
+            engine.advance(to: at(2.9))
+            #expect(engine.snapshot.breathLevel == 0)
+            #expect(engine.snapshot.state == .leadIn)
+        }
+    }
+}
+
+private extension Duration {
+    var seconds: Double {
+        Double(components.seconds) + Double(components.attoseconds) / 1e18
+    }
 }
