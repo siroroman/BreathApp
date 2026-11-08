@@ -181,7 +181,7 @@ footer { color: var(--ink-2); font-size: 13px; }
   <header>
     <div>
       <h1>Guardrails map</h1>
-      <p class="sub">Guardrails are automatic barriers that catch a mistake by an agent or a person before it reaches <code>main</code>. The map follows one change on its way: from a Claude session on your Mac to the repo settings on GitHub. Status as of 6 November 2026, from the repo and the GitHub settings.</p>
+      <p class="sub">Guardrails are automatic barriers that catch a mistake by an agent or a person before it reaches <code>main</code>. The map follows one change on its way: from a Claude session on your Mac to the repo settings on GitHub. Status as of 8 November 2026, from the repo and the GitHub settings.</p>
     </div>
     <div class="score" id="score"></div>
   </header>
@@ -469,12 +469,13 @@ const stations = [
       how: "<code>make coverage</code> (<code>scripts/coverage.sh</code>) runs the Kit tests with code coverage and prints the lines, missed lines and percent of each file in <code>BreathnestKit/Sources</code> and the total. The <code>Kit tests</code> job runs the same script and writes the table to the job summary. The script hands the table to <code>scripts/check-coverage.sh</code>, which fails when a file or the total is under 80% and names it. The floor is one number at the top of that script, tested by <code>scripts/test-check-coverage.sh</code> in <code>Script tests</code>.",
       gap: "Line coverage shows that a line ran, not that the behaviour is checked: the <code>code-reviewer</code> still reads the tests. The App target is not measured. A change of the floor is a guardrail change and needs the <strong>Guardrails touched:</strong> line.",
       done: "2026-11-06", ref: "issue #137" },
-    { st: "miss", t: "No automated UI tests check the screens",
-      s: "Neither at the largest text size AX5, nor an accessibility audit.",
-      problem: "Breathnest has to be readable at the largest system text size. A manual check is easy to skip, especially when there are many screens.",
-      example: "At AX5 an exercise name wraps to three lines and covers the Start button. No test reports it.",
-      how: "Nothing automatic. The <code>ui-verifier</code> agent takes screenshots at normal text size and at AX5 when someone starts it.",
-      gap: "Issue #72: a UI test target with <code>performAccessibilityAudit()</code> and a String Catalog check before the first screen." },
+    { st: "ok", t: "UI tests and an accessibility audit run from the first screen",
+      s: "A UI test launches the app and runs Apple's accessibility audit, and a script checks the translations.",
+      problem: "Breathnest has to be readable at the largest system text size and usable with VoiceOver. A manual check is easy to skip, and fixing finished screens costs more than checking each one as it is built.",
+      example: "A new screen has a button with no label. <code>performAccessibilityAudit()</code> reports it, and the test fails before the screen is merged.",
+      how: "<code>make test-ui</code> runs the <code>BreathnestUITests</code> target with its own scheme <code>BreathnestUI</code>. <code>RootScreenUITests</code> launches the app, finds <code>placeholder.greeting</code> and runs <code>performAccessibilityAudit()</code>. Every new screen adds a smoke test and an audit (<code>docs/agents/testing.md</code>). <code>scripts/check-catalogs.sh</code> runs in <code>make lint</code> and <code>make test</code> and fails on a missing translator comment, a <code>needs_review</code> entry, a missing translation or plural category. It has its own test, <code>scripts/test-check-catalogs.sh</code>, in <code>Script tests</code>.",
+      gap: "<code>make test-ui</code> is not part of <code>make test</code>, the Stop hook or CI until #35, so someone has to run it by hand. Only the root screen is audited today, and nothing tests the AX5 text size yet: the <code>ui-verifier</code> agent takes those screenshots when someone starts it.",
+      done: "2026-11-06", ref: "PR 141" },
     { st: "ok", t: "A linter checks the Swift conventions",
       s: "SwiftLint and an architecture script run in make lint, next to swiftformat.",
       problem: "Format is only a part. The project rules written in <code>docs/agents/ios.md</code> and <code>testing.md</code> were not reported automatically, so a break passed lint and build.",
@@ -580,7 +581,6 @@ const stations = [
 ];
 
 const todo = [
-  ["UI tests and an accessibility audit from the first screen", "A UI test target with <code>performAccessibilityAudit()</code> and a translations check, while there are few screens and adding them is cheap.", ["issue #72", "pull request"]],
   ["Later: CodeQL, CODEOWNERS", "They make sense once the repo has more code or more people. Today they would report almost nothing.", ["no ticket"]]
 ];
 
