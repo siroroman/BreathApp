@@ -45,4 +45,71 @@ private func at(_ seconds: Double) -> ContinuousClock.Instant {
         #expect(engine.snapshot.leadInLeft == .zero)
         #expect(engine.snapshot.timeLeft == .seconds(64))
     }
+
+    // MARK: Breathing
+
+    @Test func breathingReportsThePhaseAndHowFarThroughItTheSessionIs() {
+        var engine = box()
+        engine.advance(to: at(4)) // one second into the first inhale
+        let snapshot = engine.snapshot
+        #expect(snapshot.phase == Phase(kind: .inhale, duration: .seconds(4)))
+        #expect(snapshot.fractionOfPhase == 0.25)
+        #expect(snapshot.secondsLeftInPhase == 3)
+        #expect(snapshot.timeLeft == .seconds(63))
+        #expect(snapshot.cycle == 1)
+    }
+
+    @Test func breathLevelComesFromTheBreathLevelFunction() {
+        var engine = box()
+        engine.advance(to: at(4))
+        #expect(engine.snapshot.breathLevel == Exercise.box.pattern.breathLevel(at: .seconds(1)))
+        engine.advance(to: at(3 + 20)) // 20 s of breathing: 4 s into the second Cycle
+        #expect(engine.snapshot.breathLevel == Exercise.box.pattern.breathLevel(at: .seconds(4)))
+    }
+
+    @Test func secondsLeftInThePhaseRoundUpSoACountdownNeverShowsZero() {
+        var engine = SessionEngine(exercise: .coherent, requested: .seconds(66), startingAt: at(0))
+        engine.advance(to: at(3)) // the first inhale takes 5.5 s
+        #expect(engine.snapshot.secondsLeftInPhase == 6)
+        engine.advance(to: at(3 + 5.4))
+        #expect(engine.snapshot.secondsLeftInPhase == 1)
+    }
+
+    @Test func aPhaseStartsExactlyWhenThePreviousOneEnds() {
+        var engine = box()
+        engine.advance(to: at(3))
+        #expect(engine.advance(to: at(3 + 3.999)).isEmpty)
+        #expect(engine.advance(to: at(3 + 4)) == [.phaseStarted(.hold)])
+        #expect(engine.snapshot.phase?.kind == .hold)
+        #expect(engine.snapshot.fractionOfPhase == 0)
+        #expect(engine.snapshot.secondsLeftInPhase == 4)
+    }
+
+    @Test func aNewCycleStartsWithTheFirstPhaseAgain() {
+        var engine = box()
+        engine.advance(to: at(3 + 15))
+        #expect(engine.snapshot.cycle == 1)
+        #expect(engine.advance(to: at(3 + 16)) == [.phaseStarted(.inhale)])
+        #expect(engine.snapshot.cycle == 2)
+    }
+
+    @Test func theSessionCompletesAfterTheExactTotalLengthPlusTheLeadIn() {
+        var engine = box()
+        engine.advance(to: at(3 + 63.999))
+        #expect(engine.snapshot.state == .breathing)
+        #expect(engine.advance(to: at(3 + 64)) == [.completed])
+        let snapshot = engine.snapshot
+        #expect(snapshot.state == .completed)
+        #expect(snapshot.phase == nil)
+        #expect(snapshot.timeLeft == .zero)
+        #expect(snapshot.cycle == 4)
+        #expect(snapshot.breathLevel == 0)
+    }
+
+    @Test func aCompletedSessionStaysCompleted() {
+        var engine = box()
+        engine.advance(to: at(3 + 64))
+        #expect(engine.advance(to: at(1000)).isEmpty)
+        #expect(engine.snapshot.state == .completed)
+    }
 }
