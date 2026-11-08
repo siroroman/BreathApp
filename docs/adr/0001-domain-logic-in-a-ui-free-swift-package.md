@@ -4,9 +4,9 @@ status: accepted
 
 # Domain logic lives in a UI-free Swift package
 
-The Session engine, the Exercise data and the pure feel logic (Breath level and Haptic plan) live in a local Swift package, `BreathnestKit`, that imports only the Swift standard library and Foundation. The app target keeps everything that touches the system: the ticker, Core Haptics, drawing, keeping the screen awake and noticing that the app left the foreground. This looks heavy for an app with three screens, but it lets `swift test` cover the timing and the feel numbers in seconds without a simulator, keeps AFK tickets in the cloud testable, and leaves the logic reusable for the Apple Watch later.
+The Session engine, the Exercise data and the pure feel logic (Breath level and Haptic plan) live in a local Swift package, `BreathnestKit`, that imports only the Swift standard library and Foundation. The app target keeps everything that touches the system: the ticker, Core Haptics, drawing that exists on one platform only, keeping the screen awake and noticing that the app left the foreground. This looks heavy for an app with three screens, but it lets `swift test` cover the timing and the feel numbers in seconds without a simulator, keeps AFK tickets in the cloud testable, and leaves the logic reusable for the Apple Watch later.
 
-Decided in [#12](https://github.com/siroroman/BreathApp/issues/12), amended by [#19](https://github.com/siroroman/BreathApp/issues/19) and [#20](https://github.com/siroroman/BreathApp/issues/20).
+Decided in [#12](https://github.com/siroroman/BreathApp/issues/12), amended by [#19](https://github.com/siroroman/BreathApp/issues/19), [#20](https://github.com/siroroman/BreathApp/issues/20) and [#68](https://github.com/siroroman/BreathApp/issues/68). The amendment of #68 ([ADR 0002](0002-app-architecture.md)): the drawing and the Session ViewModel that the iPhone and the Apple Watch share live in a second local package, `BreathnestUI`, not in the app target.
 
 ## Considered options
 

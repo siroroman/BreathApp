@@ -9,14 +9,14 @@
 | `App/BreathnestTests/` | App unit tests (run on the simulator). |
 | `BreathnestKit/` | Local Swift package, Foundation only. Domain logic: see [ADR 0001](../adr/0001-domain-logic-in-a-ui-free-swift-package.md). It also holds the protocols of the seams to the system. |
 
-Planned, each created by its own ticket ([ADR 0002](../adr/0002-app-architecture.md)): `BreathnestUI`, a second local package (SwiftUI and Observation, depends on the Kit) with the ViewModels and drawing shared by iPhone and Watch, created before #29; `BreathnestKitTesting`, a second product of the Kit with the fakes of the seams, for tests and previews only; the Watch target (#40).
+Planned, each created by its own ticket ([ADR 0002](../adr/0002-app-architecture.md)): `BreathnestUI`, a second local package (SwiftUI and Observation, depends on the Kit) with the ViewModels and drawing shared by iPhone and Watch, created before #29 (its setup also adds the package to `scripts/ci-scope.sh` and its paths to `critical-paths.md`); `BreathnestKitTesting`, a second product of the Kit with the fakes of the seams, for tests and previews only; the Watch target (#40).
 
 ## Architecture
 
 MVVM over the Kit, decided in [ADR 0002](../adr/0002-app-architecture.md). Read it before touching a screen, a ViewModel or a seam. In short:
 
 - The Kit is the model. A `@MainActor` `@Observable` `<Screen>ViewModel` serves one screen with state or side effects. A view reads it and calls its methods, and holds no I/O or logic.
-- A ViewModel imports no view type and holds no text for the user: it exposes values and small enums, the view builds the text from the String Catalog.
+- A ViewModel imports no view type and holds no text the app writes: it exposes values and small enums, the view builds the text from the String Catalog. Text the user typed (a custom Exercise's name) passes through as data.
 - The protocols of the seams (ticker, haptics, screen awake, scene phase, notifications, stored settings) live in the Kit, the adapters in the app. Dependencies come through `init`, from one composition root in `BreathnestApp`. No singleton.
 - The Session ViewModel owns one `Task` that reads the ticker and is cancelled on Pause, Stop, completion and `deinit`.
 - One root navigation model on the iPhone, so a notification opens an Exercise detail the same way a tap on a row does.
