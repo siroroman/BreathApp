@@ -70,6 +70,20 @@ import Testing
         #expect(zip(levels, levels.dropFirst()).allSatisfy { $1 - $0 > 0.0003 })
     }
 
+    @Test func positionOutsideTheCycleIsClamped() {
+        let pattern = Exercise.coherent.pattern
+        #expect(pattern.breathLevel(at: .seconds(-3)) == pattern.breathLevel(at: .zero))
+        #expect(pattern.breathLevel(at: .seconds(99)) == pattern.breathLevel(at: pattern.cycleLength))
+    }
+
+    @Test func patternWithoutInhaleOrExhaleStaysEmpty() throws {
+        let pattern = try #require(Pattern(phases: [
+            Phase(kind: .hold, duration: .seconds(3)),
+            Phase(kind: .rest, duration: .seconds(3)),
+        ]))
+        #expect([0.0, 2, 3, 6].allSatisfy { pattern.breathLevel(at: .seconds($0)) == 0 })
+    }
+
     @Test func endsAreEasedNotLinear() {
         let pattern = Exercise.coherent.pattern
         // Linear would be 0.1 / 5.5 = 0.018 after 0.1 s; an ease-in-out has barely left 0.
