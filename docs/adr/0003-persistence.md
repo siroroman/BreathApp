@@ -59,13 +59,14 @@ The rules are statements a test can check. A test is named after its rule in the
 
 ### Failure
 
-- **F1.** A load never throws to the caller and never waits on anything but the file. It returns a value, or the default, together with an outcome: `loaded`, `empty` (nothing saved) or `recovered` (the saved bytes were unreadable).
+- **F1.** A load never throws to the caller and never waits on anything but the file. It returns a value, or the default, together with an outcome: `loaded`, `empty` (nothing saved), `recovered` (the saved bytes were unreadable, F3) or `unavailable` (the store could not be read at all, F8). An error thrown by `DocumentStore.load()` is caught by the loader and becomes `unavailable`.
 - **F2.** Nothing saved gives the default, the outcome `empty`, and no write until the first change.
 - **F3.** Bytes that are not valid JSON, have the wrong shape, carry a version newer than the app knows or fail a migration are unreadable. They are kept with `setAside()` (a file is renamed to `<name>.unreadable-<date>.json`, a `UserDefaults` value is copied to `<key>.unreadable`), the default is returned and the outcome is `recovered`. The original is not replaced until `setAside()` has succeeded. If `setAside()` itself fails, the app runs on the default and does not save that document again until the next launch, so it never writes over bytes it could not keep.
 - **F4.** For `AppSettings` and `LastSession` a missing, mistyped or unknown field falls back to the default of that field, not of the whole value. An unknown sound ID resolves to the first sound.
 - **F5.** A reference that points at nothing never crashes. `LastSession` with an unknown Exercise ID makes Quick Start show Box breathing at 5 min. A Log entry with an unknown ID shows from its own copy. A Reminder with an unknown Exercise ID is not scheduled and is not deleted; what the user sees for it is decided by the ticket that deletes custom Exercises.
 - **F6.** A write that fails never stops, pauses or ends a Session. The ViewModel keeps its in-memory state, which is what the screens show, and writes again on the next change.
 - **F7.** A write replaces the whole document atomically, so a crash in the middle leaves the old file or the new one, never half of one.
+- **F8.** A `DocumentStore.load()` that throws (an I/O error, or file protection before the first unlock after a restart) says nothing about the bytes, which may be fine. The loader returns the default with the outcome `unavailable`, does not call `setAside()`, and the document is not saved again until the next launch, so a good file is never replaced by a default. This is the case `InMemoryDocumentStore` tests with its failing load.
 
 ### Versions and migrations
 
