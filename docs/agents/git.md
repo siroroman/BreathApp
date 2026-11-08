@@ -28,7 +28,11 @@ GitHub flow with Conventional Commits. Read this before creating a branch, a com
 ```
 
 - **Types:** `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
-- **Scope:** optional, lowercase kebab-case, names a module in the ubiquitous language of `GLOSSARY.md` (the list of scopes follows the module map once it exists).
+- **Scope:** optional. When given, it is one of these, lowercase kebab-case ([ADR 0002](../adr/0002-app-architecture.md)):
+  - code, following the module map: `kit` (`BreathnestKit` and `BreathnestKitTesting`), `shared-ui` (`BreathnestUI`), `phone`, `watch`, `l10n` (the String Catalogs and their check);
+  - areas of the repo: `product`, `research`, `agents`, `guardrails`, `process`, `git`.
+
+  The type already says what kind of change it is, so `test`, `ci` and `build` are not scopes. A new scope is added to this list in its own pull request. Not yet checked by `scripts/check-commit-msg.sh` (#145).
 - **Description:** imperative mood, no trailing period. The whole header is at most 72 characters.
 - **Body:** explains why, not what. Separated from the header by a blank line.
 - **Breaking change:** `!` after the type or scope, or a `BREAKING CHANGE:` footer.

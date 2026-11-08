@@ -52,6 +52,7 @@ Has its own Enforcement table, which is the source for these.
 | PR title is a Conventional Commit | CI `check-title` |
 | Branch is `<type>/<issue>-<slug>` | `scripts/check-branch-name.sh`, CI `check-title`. Tested by `scripts/test-check-branch-name.sh`. |
 | No commit or push on `main`, no force push, no `--no-verify`, no history rewrite, no secret in a commit | `pre-commit`, `pre-push`, the Claude `PreToolUse` hook, the repository ruleset, GitHub push protection |
+| A scope in a commit header or PR title is in the list of [git](git.md) | Process rule until #145 adds the check to `scripts/check-commit-msg.sh` with a test for a wrong scope. |
 | Squash merge, PR title as commit title | Repository setting |
 | Merge `main` into the branch before the PR | Process rule. |
 | `Closes #<issue>` ends the PR body, the six sections | `scripts/check-pr-body.sh` |
@@ -84,6 +85,13 @@ Has its own Enforcement table, which is the source for these.
 | Code formatting | `make lint` (`swiftformat --lint`), the `format-swift.sh` hook formats after each edit |
 | `Breathnest.xcodeproj` is generated, never committed | `.gitignore` |
 | Use the glossary terms in type and test names | Process rule. |
+| A screen with derived values, a side effect or shared state has a `@MainActor` `@Observable` `<Screen>ViewModel`; a view holds no I/O or logic ([ADR 0002](../adr/0002-app-architecture.md)) | Process rule, the `code-reviewer` agent. |
+| A ViewModel imports no view type and holds no text the app writes (text the user typed passes through as data) | Process rule, the `code-reviewer` agent. A regex cannot tell app text from user data. |
+| The protocols of the seams are in the Kit, the adapters in the app, dependencies come through `init` from one composition root | Process rule, the `code-reviewer` agent. |
+| No `static let shared` or `static var shared` in `App/` and `BreathnestUI/` | Process rule. A check in `scripts/check-architecture.sh`, with a test, is a consequence of ADR 0002 and lands with the `BreathnestUI` setup. |
+| `SWIFT_DEFAULT_ACTOR_ISOLATION` is MainActor for the app target and `BreathnestUI` | Process rule. The check follows with the `BreathnestUI` setup: `project.yml` for the app, `Package.swift` for the package. |
+| `BreathnestUI` imports only SwiftUI, Observation, Foundation, Synchronization, Swift and the Kit | Process rule until `scripts/check-architecture.sh` knows the package. |
+| The Session ticker `Task` is cancelled on Pause, Stop, completion and `deinit`; one root navigation model on the iPhone | Process rule, the `code-reviewer` agent, the Session ViewModel tests once they exist. |
 
 ## Skills, issues and domain docs ([skills](skills.md), [issue tracker](issue-tracker.md), [triage labels](triage-labels.md), [domain](domain.md))
 
