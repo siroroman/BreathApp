@@ -54,6 +54,11 @@ import Testing
     }
 
     @Test(arguments: Exercise.builtIn)
+    func patternIsValid(exercise: Exercise) {
+        #expect(Pattern(phases: exercise.pattern.phases) != nil)
+    }
+
+    @Test(arguments: Exercise.builtIn)
     func defaultDurationIsOneOfTheDurationOptions(exercise: Exercise) {
         #expect(exercise.durationOptions.contains(exercise.defaultDuration))
     }

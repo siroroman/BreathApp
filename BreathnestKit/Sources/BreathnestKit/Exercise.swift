@@ -16,7 +16,7 @@ public extension Exercise {
 
     static let box = Exercise(
         id: "box",
-        pattern: builtInPattern([
+        pattern: Pattern(validated: [
             Phase(kind: .inhale, duration: .seconds(4)),
             Phase(kind: .hold, duration: .seconds(4)),
             Phase(kind: .exhale, duration: .seconds(4)),
@@ -29,7 +29,7 @@ public extension Exercise {
     /// Its options are 4, 6 and 8 Cycles, so a beginner is never offered a longer Session.
     static let fourSevenEight = Exercise(
         id: "four-seven-eight",
-        pattern: builtInPattern([
+        pattern: Pattern(validated: [
             Phase(kind: .inhale, duration: .seconds(4)),
             Phase(kind: .hold, duration: .seconds(7)),
             Phase(kind: .exhale, duration: .seconds(8)),
@@ -40,7 +40,7 @@ public extension Exercise {
 
     static let coherent = Exercise(
         id: "coherent",
-        pattern: builtInPattern([
+        pattern: Pattern(validated: [
             Phase(kind: .inhale, duration: .seconds(5.5)),
             Phase(kind: .exhale, duration: .seconds(5.5)),
         ]),
@@ -51,7 +51,7 @@ public extension Exercise {
     /// Two inhales in a row, then one long exhale.
     static let physiologicalSigh = Exercise(
         id: "physiological-sigh",
-        pattern: builtInPattern([
+        pattern: Pattern(validated: [
             Phase(kind: .inhale, duration: .seconds(2)),
             Phase(kind: .inhale, duration: .seconds(1)),
             Phase(kind: .exhale, duration: .seconds(6)),
@@ -59,11 +59,4 @@ public extension Exercise {
         durationOptions: [.seconds(60), .seconds(300), .seconds(600)],
         defaultDuration: .seconds(300)
     )
-
-    private static func builtInPattern(_ phases: [Phase]) -> Pattern {
-        guard let pattern = Pattern(phases: phases) else {
-            preconditionFailure("A built-in Pattern is invalid")
-        }
-        return pattern
-    }
 }
