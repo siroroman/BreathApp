@@ -91,4 +91,18 @@ final class ExerciseDetailUITests: XCTestCase {
 
         XCTAssertLessThan(app.staticTexts["detail.safetyNote"].frame.minY, app.buttons["detail.startButton"].frame.minY)
     }
+
+    func testAtTheLargestTextSizeTheSheetPassesAccessibilityAuditAndScrollsToStart() throws {
+        let app = launchApp(contentSize: "UICTContentSizeCategoryAccessibilityXXXL")
+        openDetail(of: "four-seven-eight", in: app)
+
+        // Audited before scrolling: a screenshot taken while the sheet still decelerates misreads the contrast.
+        try app.performAccessibilityAudit()
+        let start = app.buttons["detail.startButton"]
+        for _ in 0 ..< 8 where !start.isHittable {
+            app.swipeUp()
+        }
+        XCTAssertTrue(start.isHittable, "Start is reachable by scrolling")
+        XCTAssertTrue(app.staticTexts["detail.safetyNote"].exists)
+    }
 }

@@ -37,4 +37,16 @@ final class ExercisesScreenUITests: XCTestCase {
         let frame = app.windows.firstMatch.frame
         XCTAssertGreaterThan(frame.height, frame.width)
     }
+
+    func testAtTheLargestTextSizeEveryRowIsReachableAndPassesAccessibilityAudit() throws {
+        let app = launchApp(contentSize: "UICTContentSizeCategoryAccessibilityXXXL")
+
+        let last = app.buttons["exercises.row.physiological-sigh"]
+        XCTAssertTrue(last.waitForExistence(timeout: 5))
+        for _ in 0 ..< 4 where !last.isHittable {
+            app.swipeUp()
+        }
+        XCTAssertTrue(last.isHittable, "the last row is reachable by scrolling")
+        try app.performAccessibilityAudit()
+    }
 }
