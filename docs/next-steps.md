@@ -1,48 +1,46 @@
 # Breathnest: ďalšie kroky
 
-Stav k 2026-10-29. Odovzdávací dokument medzi sessions. Hotové body maž, aby nezavádzal.
+Stav k 2026-11-08. Odovzdávací dokument medzi sessions. Hotové body maž, aby nezavádzal.
 
 ## Kde sme
 
 - Hotové:
-  - git konvencie a `commit-msg` hook,
-  - squash merge,
-  - guardrails hook proti deštruktívnym git príkazom,
-  - `/setup-matt-pocock-skills` (GitHub Issues, predvolené triage štítky, single-context),
-  - kostra `docs/agents/` a subagentov,
-  - iOS feedback loop: XcodeGen, `BreathnestKit`, Makefile, simulátor na worktree, hooky (`docs/agents/commands.md`).
-- Product brief, prepis hlasovej poznámky a vizuálne referencie sú v `docs/product/`.
-- Mapa (#8) a špecifikácia (#22) sú hotové. Tickety sú pod #22: Kit (#23 až #26), iPhone (#28 až #36, #54 až #60), Watch (#38 až #51).
+  - git konvencie, `commit-msg` hook a squash merge,
+  - guardrails: hooky, ruleset s šiestimi povinnými checkami, review pred koncom draftu, coverage floor 80 % na súbor v Kite (`docs/guardrails-map.html`, ostáva len CodeQL a CODEOWNERS),
+  - kostra `docs/agents/` a subagenti,
+  - iOS feedback loop: XcodeGen, `BreathnestKit`, Makefile, simulátor na worktree (`docs/agents/commands.md`),
+  - kontrola String Catalogu a základ UI testov s accessibility auditom (`make test-ui`),
+  - ADR 0001 až 0003: logika v balíku bez UI, architektúra appky, ukladanie dát.
+- Product brief, dizajn (`docs/product/phone-design.md`, `docs/product/watch-design.md`) a špecifikácia #22 sú hotové. Návrhy sú záväzné. Tickety sú pod #22: Kit (#23 až #26), iPhone (#28 až #36, #54 až #60), Watch (#38 až #51).
 - Rozhodnuté: v1 len iPhone, iOS 26+, zadarmo, systém najprv v tomto repe.
-- Vizuál je hotový v Claude Design: `docs/product/phone-design.md` (iPhone) a `docs/product/watch-design.md` (Watch), zdroje v `docs/product/design/`. Návrhy sú záväzné.
 
 ## 1. Teraz (ty)
 
-1. Skontroluj draft PR #61 (iPhone dizajn do docs) a zmerguj ho.
-2. Rozhodni otvorené body dizajnu v #53. Najprv Safety note a light mode, blokujú #28. Potom slider vs 4-7-8, Settings, pravidlá Logu a pripomienok.
-3. Rozhodni zvuky v #49 (platí pre Watch aj iPhone).
+1. Rozhodni zvuky v #49 (platí pre Watch aj iPhone). Kit ju nepotrebuje, blokuje až zvukové časti.
 
-## 3. Implementácia
+## 2. Implementácia
 
-`/implement` na #23 (Kit). Prvý ticket ide HITL v čerstvej session, review v ďalšej čerstvej. Potom AFK pod dozorom, potom paralelné worktree. Poradie: Kit (#23 až #26), potom obrazovky (#28, #29), potom tvar, kruh a haptika (#30 až #32). Ďalšie iPhone časti (#54 až #60) idú až po #53.
+Začni ticketom #23 (Kit). Prvý ticket ide s tebou (`start-task`) v čerstvej session, review robí `code-reviewer` v ďalšej čerstvej. Potom AFK cez agenta `implementer`, potom paralelné worktree. Poradie: Kit (#23 až #26), potom obrazovky (#28, #29), potom tvar, kruh a haptika (#30 až #32). Ďalšie iPhone časti (#54 až #60) idú po nich.
 
 Pravidlá: jeden ticket na jednu session (približne 100K tokenov), reset namiesto compactu, odovzdanie cez ticket alebo ADR.
 
-## 4. Po tracer bullete
+Malé tickety nabok, nič neblokujú: #145 (scopes commitov), #148 (ADR 0003, set-aside dáta), #142 (pozdrav na jednom mieste, zmizne s Kitom), #143 a #144 (skripty).
+
+## 3. Po tracer bullete
 
 Vytiahnuť znovupoužiteľné časti (skilly, hooky, `docs/agents/`, Makefile, CI) do šablóny alebo pluginu a overiť ich na prázdnom repe.
 
-## 5. Rytmus údržby
+## 4. Rytmus údržby
 
 - `/retro` po každej session, ktorá nešla hladko.
 - `/improve-codebase-architecture` každých pár dní.
 - `/observe <poznámka>` po míľnikoch.
 - Zatvárať hotové špecy a mapy.
 
-## 6. Známe drobnosti
+## 5. Známe drobnosti
 
 - Prvý commit `Initial commit: .gitignore` nespĺňa konvenciu, históriu neprepisovať.
 - `npx skills` nefunguje, kým nemáš Node ≥ 22.20.
 - Headless observer (`claude -p`) potrebuje vlastné `claude auth login`, chyby sú v `.observer/log.txt` vo vaulte.
-- Lokálny commit na `main` nič nezastaví, push na `main` GitHub odmietne každému vrátane admina.
+- Hooky odmietnu commit a push na `main` až po `make setup` na danom klone. Push na `main` odmietne GitHub každému vrátane admina.
 - CI macOS minúty sa na súkromnom repe počítajú 10×, workflow držať štíhly.
