@@ -130,6 +130,17 @@ public struct SessionEngine: Sendable {
         return transitions
     }
 
+    /// Ends the Session at once, wherever it is, after counting the time up to `now`. That time can still
+    /// complete the Session: a Session that was already over stays completed. A `now` earlier than one
+    /// already seen stops it at the point it has reached. Returns what the counted time crossed.
+    @discardableResult
+    public mutating func stop(at now: ContinuousClock.Instant) -> [Transition] {
+        guard state != .completed, state != .stopped else { return [] }
+        let transitions = advance(to: now)
+        if state != .completed { state = .stopped }
+        return transitions
+    }
+
     /// Continues from the point `pause(at:)` froze. The time spent paused is not counted.
     /// Ignored unless the Session is paused, and for a time earlier than one already seen.
     public mutating func resume(at now: ContinuousClock.Instant) {

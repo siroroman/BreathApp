@@ -224,4 +224,64 @@ private func at(_ seconds: Double) -> ContinuousClock.Instant {
         engine.resume(at: at(3 + 80))
         #expect(engine.snapshot.state == .completed)
     }
+
+    // MARK: Stop
+
+    @Test(arguments: [3.0, 23.0, 66.9] as [Double])
+    func stopEndsTheSessionAtOnceWhileRunning(seconds: Double) {
+        var engine = box()
+        engine.advance(to: at(seconds))
+        engine.stop(at: at(seconds))
+        #expect(engine.snapshot.state == .stopped)
+        #expect(engine.advance(to: at(10000)).isEmpty)
+        #expect(engine.snapshot.state == .stopped)
+    }
+
+    @Test func stopEndsTheSessionInTheLeadIn() {
+        var engine = box()
+        engine.stop(at: at(1))
+        #expect(engine.snapshot.state == .stopped)
+        #expect(engine.snapshot.leadInLeft == .seconds(2))
+    }
+
+    @Test func stopEndsAPausedSessionAndKeepsWhereItWas() {
+        var engine = box()
+        engine.pause(at: at(3 + 5))
+        let paused = engine.snapshot
+        engine.stop(at: at(3 + 50))
+        #expect(engine.snapshot.state == .stopped)
+        #expect(engine.snapshot.timeLeft == paused.timeLeft)
+        #expect(engine.snapshot.phase == paused.phase)
+    }
+
+    @Test func aStoppedSessionStaysStopped() {
+        var engine = box()
+        engine.stop(at: at(5))
+        #expect(engine.pause(at: at(6)).isEmpty)
+        engine.resume(at: at(7))
+        #expect(engine.stop(at: at(8)).isEmpty)
+        #expect(engine.snapshot.state == .stopped)
+    }
+
+    @Test func stopAfterCompletionLeavesTheSessionCompleted() {
+        var engine = box()
+        engine.advance(to: at(3 + 64))
+        engine.stop(at: at(3 + 65))
+        #expect(engine.snapshot.state == .completed)
+    }
+
+    @Test func stopCountsTheTimeUpToItAndReturnsWhatItCrossed() {
+        var engine = box()
+        #expect(engine.stop(at: at(3 + 4)) == [.leadInEnded, .phaseStarted(.inhale), .phaseStarted(.hold)])
+        #expect(engine.snapshot.state == .stopped)
+        #expect(engine.snapshot.timeLeft == .seconds(60))
+    }
+
+    @Test func stopAtAnEarlierTimeStillStopsAtOnce() {
+        var engine = box()
+        engine.advance(to: at(10))
+        #expect(engine.stop(at: at(5)).isEmpty)
+        #expect(engine.snapshot.state == .stopped)
+        #expect(engine.snapshot.timeLeft == .seconds(64 - 7))
+    }
 }
