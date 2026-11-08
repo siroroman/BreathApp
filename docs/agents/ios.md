@@ -18,6 +18,7 @@ MVVM over the Kit, decided in [ADR 0002](../adr/0002-app-architecture.md). Read 
 - The Kit is the model. A `@MainActor` `@Observable` `<Screen>ViewModel` serves one screen with state or side effects. A view reads it and calls its methods, and holds no I/O or logic.
 - A ViewModel imports no view type and holds no text the app writes: it exposes values and small enums, the view builds the text from the String Catalog. Text the user typed (a custom Exercise's name) passes through as data.
 - The protocols of the seams (ticker, haptics, screen awake, scene phase, notifications, stored settings) live in the Kit, the adapters in the app. Dependencies come through `init`, from one composition root in `BreathnestApp`. No singleton.
+- Saved data is decided in [ADR 0003](../adr/0003-persistence.md): settings and the last Session in `UserDefaults`, the Log, custom Exercises and Reminders in one versioned JSON file each. The types, versions and migrations are Kit code, the apps only read and write bytes behind `DocumentStore`. Unreadable data is set aside and the app starts on defaults. Read it before touching a stored type.
 - The Session ViewModel owns one `Task` that reads the ticker and is cancelled on Pause, Stop, completion and `deinit`.
 - One root navigation model on the iPhone, so a notification opens an Exercise detail the same way a tap on a row does.
 

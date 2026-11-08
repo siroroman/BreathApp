@@ -91,6 +91,8 @@ Has its own Enforcement table, which is the source for these.
 | No `static let shared` or `static var shared` in `App/` and `BreathnestUI/` | Process rule. A check in `scripts/check-architecture.sh`, with a test, is a consequence of ADR 0002 and lands with the `BreathnestUI` setup. |
 | `SWIFT_DEFAULT_ACTOR_ISOLATION` is MainActor for the app target and `BreathnestUI` | Process rule. The check follows with the `BreathnestUI` setup: `project.yml` for the app, `Package.swift` for the package. |
 | `BreathnestUI` imports only SwiftUI, Observation, Foundation, Synchronization, Swift and the Kit | Process rule until `scripts/check-architecture.sh` knows the package. |
+| A change of a stored shape (rename, removal, new meaning of a field) raises the document `version` and adds a migration and a fixture of the old JSON ([ADR 0003](../adr/0003-persistence.md)) | Process rule, the `code-reviewer` agent. A test change next to a stored type is required by `scripts/check-critical-paths.sh`, but only a reader can tell whether the shape changed. |
+| The apps reach `UserDefaults` and the data files only through `DocumentStore`, and stored-data code reads no file timestamp, size or free space (a privacy manifest category) | Process rule, the `code-reviewer` agent. A check in `scripts/check-architecture.sh`, with a test, is a possible follow-up ticket. |
 | The Session ticker `Task` is cancelled on Pause, Stop, completion and `deinit`; one root navigation model on the iPhone | Process rule, the `code-reviewer` agent, the Session ViewModel tests once they exist. |
 
 ## Skills, issues and domain docs ([skills](skills.md), [issue tracker](issue-tracker.md), [triage labels](triage-labels.md), [domain](domain.md))
