@@ -50,6 +50,7 @@ lint: ## Check the tool versions, formatting and the repo rules, changes nothing
 	swiftlint lint --strict --quiet || { echo "A Swift convention is broken, see docs/agents/ios.md (Conventions) and docs/agents/testing.md (Time)" >&2; exit 1; }
 	scripts/check-workflows.sh
 	scripts/check-docs.sh
+	scripts/check-context-size.sh
 	scripts/check-architecture.sh
 	scripts/check-catalogs.sh
 

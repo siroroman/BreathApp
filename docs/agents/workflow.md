@@ -18,6 +18,8 @@ A session never goes past **15% of the context window**: long sessions get slow,
 - **Subagents** (`implementer`, `code-reviewer`) follow the same limit: at the message they post the handoff and end their run with it as the report. The caller starts a new agent from the ticket. Whether the hook sees the subagent's own transcript is not verified, see [rules enforcement](rules-enforcement.md).
 - The auto-compact setting `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` is not used: it compacts without saving first.
 
+- Keep the context small: search before reading, narrowest test first, stop after two failed tries ([tokens](tokens.md)).
+
 ## Levels of supervision
 
 | Level | Meaning | Used for |
