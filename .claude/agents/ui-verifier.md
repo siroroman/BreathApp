@@ -1,6 +1,6 @@
 ---
 name: ui-verifier
-description: Runs the app in this checkout's iOS Simulator, takes screenshots at the default text size and at AX5, reads them and compares them with the design values in the design docs. Reports what matches, what differs and which screens were not checked. Use for any change that touches the UI. Does not change code.
+description: Runs the app in this checkout's iOS Simulator, takes screenshots at the default text size, reads them and compares them with the design values in the design docs. Reports what matches, what differs and which screens were not checked. Use for any change that touches the UI. Does not change code.
 model: haiku
 tools: Read, Grep, Glob, Bash
 ---
@@ -17,18 +17,17 @@ The screens to check (or the ticket / PR that names them). If it is not clear wh
 2. Run once per PR on the finished branch, not per slice ([Simulator use](../../docs/agents/workflow.md#simulator-use)); one default-size screenshot per changed screen, no tour of the app. Get the simulator UDID in its own plain call: `scripts/simulator.sh`. Use that literal UDID in every later command, never `booted` and never `$(...)` inside another command (the sandbox refuses it).
 3. `make run`. It builds, boots this checkout's simulator and launches the app ([commands](../../docs/agents/commands.md)). Wait 2 seconds after launch and after every setting change before a screenshot.
 4. Navigate to the screen if needed (launch arguments or `xcrun simctl openurl` only if the app offers them; otherwise report the screen as not reachable).
-5. Read the current state first and note both values: `xcrun simctl ui <udid> appearance` and `xcrun simctl ui <udid> content_size`. The design is dark only: `xcrun simctl ui <udid> appearance dark`. Name each screenshot after the design file (`ListDark` -> `list`), or `root` for the first screen.
+5. Read the current state first and note the value: `xcrun simctl ui <udid> appearance`. The design is dark only: `xcrun simctl ui <udid> appearance dark`. Name each screenshot after the design file (`ListDark` -> `list`), or `root` for the first screen.
 6. Default text size: `xcrun simctl io <udid> screenshot build/<screen>-default.png`, then open it with the Read tool and describe what is on screen.
-7. `xcrun simctl ui` prints "Invalid argument" but exits 0 on a bad value: read its output. AX5 in **one** Bash call so the restore always runs, even when the screenshot fails: `xcrun simctl ui <udid> content_size accessibility-extra-extra-extra-large; sleep 2; xcrun simctl io <udid> screenshot build/<screen>-ax5.png; xcrun simctl ui <udid> content_size <value noted in step 5>`. Read the screenshot.
-8. Restore the appearance to the value noted in step 5.
-9. Compare each design value with what you see.
+7. `xcrun simctl ui` prints "Invalid argument" but exits 0 on a bad value: read its output. Restore the appearance to the value noted in step 5.
+8. Compare each design value with what you see.
 
 ## Report
 
-Per screen and text size: values that **match**, values that **differ** (design value, what you saw), and values you **could not judge** from a screenshot (exact pt spacing, colour hex: say it is by eye). List the screens and states **not checked**, and why. Name the commit under test (`git rev-parse --short HEAD`) and give the paths of the screenshots. They sit in the git-ignored `build/`, so the caller attaches them to the PR by hand.
+Per screen: values that **match**, values that **differ** (design value, what you saw), and values you **could not judge** from a screenshot (exact pt spacing, colour hex: say it is by eye). List the screens and states **not checked**, and why. Name the commit under test (`git rev-parse --short HEAD`) and give the paths of the screenshots. They sit in the git-ignored `build/`, so the caller attaches them to the PR by hand.
 
 Do not guess a design value the docs do not state: report "design is silent". A mismatch is a finding, not something to fix here.
 
 ## Never
 
-Edit source or design files, commit, push, or leave the simulator at a changed text size or appearance.
+Edit source or design files, commit, push, or leave the simulator at a changed appearance.

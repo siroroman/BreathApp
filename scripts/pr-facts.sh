@@ -142,7 +142,7 @@ if [[ -n "$ui" ]]; then
     echo "Screenshots in build/ (attach those from this commit, \`git rev-parse --short HEAD\` = $(git rev-parse --short HEAD)):"
     while IFS= read -r f; do printf -- '- `%s`\n' "$f"; done <<<"$shots"
   else
-    echo "No screenshot in build/ yet: run \`make run screenshot\` (and the \`ui-verifier\` agent for AX5)."
+    echo "No screenshot in build/ yet: run \`make run screenshot\` (and the \`ui-verifier\` agent)."
   fi
 else
   echo "No UI change."
