@@ -71,7 +71,7 @@ Summarize in short bullets, plain words:
 - **Checks**: what passed and what was not run
 - **Before the PR**: what is still open (UI screenshot, a failing check, a decision), or "nothing"
 
-If nothing blocks the PR, ask: "Create the pull request?" On yes push the branch (`git push -u origin <branch>`), run `scripts/pr-facts.sh`, and open a draft PR with the `pr` skill extended as in [pull requests](../../../docs/agents/pull-requests.md). The body ends with `Closes #N`. Check that the title is a valid Conventional Commit header.
+Before pushing run `make format lint` and read it to the last line (`0/N files require formatting.`); fix every error, a draft PR is opened only with a clean lint. If nothing blocks the PR, ask: "Create the pull request?" On yes push the branch (`git push -u origin <branch>`), run `scripts/pr-facts.sh`, and open a draft PR with the `pr` skill extended as in [pull requests](../../../docs/agents/pull-requests.md). The body ends with `Closes #N`. Check that the title is a valid Conventional Commit header.
 
 ## Step 7: Review
 

@@ -19,6 +19,10 @@ Closes #<issue>
 
 Every section is present. A section with nothing to say says so in one line ("No UI change."), it is not deleted: a missing section reads as forgotten.
 
+## Before the PR is created
+
+Run `make format lint`, read it to the last line (`0/N files require formatting.`) and fix every error first. A draft PR is opened only with a clean lint. The `pre-push` hook enforces it on the push that precedes `gh pr create` ([git](git.md)).
+
 ## Get the facts first
 
 Commit, then run:
