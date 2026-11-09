@@ -61,11 +61,11 @@ Has its own Enforcement table, which is the source for these.
 | Rule | Enforced by |
 |---|---|
 | Commit message is a Conventional Commit | `commit-msg` hook, `scripts/check-commit-msg.sh` |
-| PR title is a Conventional Commit | CI `check-title` |
+| PR title is a Conventional Commit (it is the merge commit title on `main`) | CI `check-title` |
 | Branch is `<type>/<issue>-<slug>` | `scripts/check-branch-name.sh`, CI `check-title`. Tested by `scripts/test-check-branch-name.sh`. |
 | No commit or push on `main`, no force push, no `--no-verify`, no history rewrite, no secret in a commit | `pre-commit`, `pre-push`, the Claude `PreToolUse` hook, the repository ruleset, GitHub push protection |
 | A scope in a commit header or PR title is in the list of [git](git.md) | Process rule until #145 adds the check to `scripts/check-commit-msg.sh` with a test for a wrong scope. |
-| Squash merge, PR title as commit title | Repository setting |
+| Merge commit only, PR title as merge commit title | Repository setting |
 | Merge `main` into the branch before the PR | Process rule. |
 | A PR branch that fell behind `main` is not merged as it is | Repository ruleset: **Require branches to be up to date before merging**. The user presses **Update branch**, the checks run again. A setting, not a file; see [git](git.md) (Keeping a PR branch up to date). |
 | `Closes #<issue>` ends the PR body, the six sections | `scripts/check-pr-body.sh` |

@@ -69,7 +69,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-      # Pull request: the base branch. Push to main: the previous tip (`before`), so a squash-merged PR is one diff.
+      # Pull request: the base branch. Push to main: the previous tip (`before`), so a merged PR is one diff.
       # A manual run has neither, then everything runs. An all-zero `before` (new branch) does the same in the script.
       - id: scope
         env:
