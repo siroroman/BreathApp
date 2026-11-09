@@ -47,7 +47,8 @@ final class SessionViewModel {
     var phaseKind: PhaseKind? { snapshot.phase?.kind }
     var timeLeft: Duration { snapshot.timeLeft }
     var cycleCount: Int { snapshot.cycleCount }
-    var totalLength: Duration { exercise.sessionLength(for: requested).totalLength }
+    var sessionLength: SessionLength { exercise.sessionLength(for: requested) }
+    var totalLength: Duration { sessionLength.totalLength }
     @ObservationIgnored private let requested: Duration
 
     /// The Lead-in time left rounded up: 3, 2, 1.
