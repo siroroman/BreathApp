@@ -10,10 +10,11 @@ Source: the Claude Design canvas "Breathnest Design" (row "Mobile"). The canvas 
 2. **Units.** The design is drawn on a 390 × 844 pt frame (iPhone 15/16 class). A length in a `.dc.html` file in px is the same number in pt on that frame. Sheets sit under a 44 pt top gap.
 3. **When the design is silent, stop.** Do not invent. Comment on the ticket with the question and your proposal, add the label `needs-info` and wait. "Not in the design" below lists what is already known to be open.
 4. **When the design cannot be built as drawn** (an iOS limit), stop in the same way. Do not build a lookalike. Where the design uses a custom control that iOS has natively (switch, slider, time wheel, menu, segmented control), use the native one, styled with the tokens, and keep the drawn sizes where UIKit allows.
-5. **Show the evidence.** Every iPhone UI pull request attaches a Simulator screenshot of each screen it touches (default text size and AX5), next to the design values it matched, and says which screens were not checked. The `ui-verifier` agent can take them.
+5. **Show the evidence.** Every iPhone UI pull request attaches a Simulator screenshot of each screen it touches (default text size only), next to the design values it matched, and says which screens were not checked. The `ui-verifier` agent can take them.
 6. **A screen the design does not draw is not built.** Features whose screens are drawn but whose behaviour is open have their own tickets (see the spec).
 7. **A text change needs a design change first.** Strings in this document are the English source for the String Catalog.
 8. **Dynamic Type.** The `ax` branch in each source file holds the AX5 layout (bigger sizes, stacked buttons, hidden glyphs). It is part of the design. Text scales to AX5 with no upper limit.
+9. **AX5 values are design values, not checked by the agent.** Every AX5 number in this document and in `design/phone/` is a requirement for the code, but no agent takes an AX5 screenshot or reports AX5 as verified. AX5 is covered only by `performAccessibilityAudit()` UI tests ([#33](https://github.com/siroroman/BreathApp/issues/33)).
 
 ## Tokens
 
@@ -211,7 +212,7 @@ These are open. An agent that needs one of them stops and asks (rule 3). Each ha
 10. **Log rules.** Which Sessions are logged (proposal: completed ones only, which keeps "Stop means stop" of the spec), which length is shown (the Session's exact length), the week start (the design starts on Monday; proposal: follow the system's first weekday), an empty state for a new install, and long lists (the Log scrolls).
 11. **Reminders.** When the notification permission is asked (proposal: on the first Add reminder), what a tap on the notification opens (proposal: the detail sheet of that Exercise, so the Safety note is seen and Start stays a deliberate tap), editing and deleting a reminder, and the denied-permission state. Reminders are local notifications; there is no server.
 12. **Quick Start rules.** It shows the Exercise, length and Haptics state of the last Session that was started, and Box breathing at 5 min before any. Proposal: the same rule as the watch (stopped Sessions count, written when a Session starts). Start skips the detail and begins the Lead-in. Whether the Sound setting is shown on the card is open.
-13. **The paused look and the AX5 layouts.** The component data holds Paused and the AX5 sizes, but the canvas draws only the default size and the states listed in 1 to 4. Screenshots of both are checked against the source values.
+13. **The paused look and the AX5 layouts.** The component data holds Paused and the AX5 sizes, but the canvas draws only the default size and the states listed in 1 to 4. Screenshots at the default size are checked against the source values; the AX5 sizes are design values, not checked by the agent.
 14. **Missing descriptions.** The English texts for the 4-7-8, Coherent and Physiological sigh descriptions are not in the design. Proposal: Claude drafts them in the style of the Box text and the designer approves them.
 15. **Other device sizes.** Only 390 × 844 is drawn. Smaller and larger iPhones follow the same layout with the content scrolling; no other frame is specified.
 

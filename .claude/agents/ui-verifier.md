@@ -20,7 +20,8 @@ The screens to check (or the ticket / PR that names them). If it is not clear wh
 5. Read the current state first and note the value: `xcrun simctl ui <udid> appearance`. The design is dark only: `xcrun simctl ui <udid> appearance dark`. Name each screenshot after the design file (`ListDark` -> `list`), or `root` for the first screen.
 6. Default text size: `xcrun simctl io <udid> screenshot build/<screen>-default.png`, then open it with the Read tool and describe what is on screen.
 7. `xcrun simctl ui` prints "Invalid argument" but exits 0 on a bad value: read its output. Restore the appearance to the value noted in step 5.
-8. Compare each design value with what you see.
+8. The design docs also hold AX5 values. They are design values, not checked by the agent: do not take an AX5 screenshot, do not compare against them and never report AX5 as verified; list AX5 under "not checked".
+9. Compare each design value with what you see.
 
 ## Report
 
