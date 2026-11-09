@@ -2,7 +2,7 @@ import BreathnestKit
 import SwiftUI
 
 /// Screens 1 to 3 of the design: the Session as full-screen cover, in text. The gear and its menu come with #56,
-/// the shape with #30 and the ring with #31, so the middle is empty after the Lead-in.
+/// the ring with #31.
 struct SessionView: View {
     let viewModel: SessionViewModel
     let dependencies: AppDependencies
@@ -11,6 +11,7 @@ struct SessionView: View {
 
     @Environment(\.dynamicTypeSize) private var typeSize
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         let scale = DesignScale(typeSize: typeSize)
@@ -35,10 +36,9 @@ struct SessionView: View {
     }
 
     private func runningScreen(scale: DesignScale) -> some View {
-        VStack(spacing: 0) {
-            timeBlock
-            phaseBlock.padding(.top, 24)
-            Spacer(minLength: 0)
+        ZStack {
+            // The centre content sits on the middle of the screen, not between the header and the buttons, whose
+            // heights differ.
             if viewModel.stage == .leadIn {
                 Text(verbatim: "\(viewModel.leadInDigit)")
                     // The design draws the digit at 180 (130 at AX5), larger than any text style, so it takes a
@@ -49,14 +49,26 @@ struct SessionView: View {
                     .onChange(of: viewModel.leadInDigit) {
                         AccessibilityNotification.Announcement(String(viewModel.leadInDigit)).post()
                     }
+            } else {
+                torus(level: viewModel.breathLevel, side: scale(278, 194))
             }
-            Spacer(minLength: 0)
-            buttons(scale: scale)
+            VStack(spacing: 0) {
+                timeBlock
+                phaseBlock.padding(.top, 24)
+                Spacer(minLength: 0)
+                buttons(scale: scale)
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 64)
+            .padding(.bottom, 34)
         }
-        .padding(.horizontal, 16)
-        .padding(.top, 64)
-        .padding(.bottom, 34)
         .ignoresSafeArea()
+    }
+
+    private func torus(level: Double, side: CGFloat) -> some View {
+        TorusView(level: level, reduceMotion: reduceMotion)
+            .frame(width: side, height: side)
+            .accessibilityIdentifier("session.torus")
     }
 
     private var timeBlock: some View {
@@ -138,6 +150,8 @@ struct SessionView: View {
     private func completeScreen(scale: DesignScale) -> some View {
         VStack(spacing: 0) {
             Spacer(minLength: 0)
+            torus(level: 0, side: scale(240, 190))
+                .padding(.bottom, 24)
             VStack(spacing: 8) {
                 Text("session.complete")
                     .designFont(.title, 32, weight: .semibold)
