@@ -114,3 +114,7 @@ final class SessionViewModel {
         if stage == .completed || stage == .stopped { end() }
     }
 }
+
+extension SessionViewModel: Identifiable {
+    nonisolated var id: ObjectIdentifier { ObjectIdentifier(self) }
+}

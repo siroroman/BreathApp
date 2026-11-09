@@ -5,6 +5,7 @@ import SwiftUI
 /// come with #54, #57 and #58.
 struct ExercisesView: View {
     let navigation: AppNavigation
+    let dependencies: AppDependencies
 
     @Environment(\.dynamicTypeSize) private var typeSize
 
@@ -40,7 +41,7 @@ struct ExercisesView: View {
         }
         .background(Color(.bg))
         .sheet(item: openExercise) { exercise in
-            ExerciseDetailView(exercise: exercise)
+            ExerciseDetailView(exercise: exercise, dependencies: dependencies)
         }
     }
 
