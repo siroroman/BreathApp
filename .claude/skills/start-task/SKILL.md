@@ -61,7 +61,7 @@ After approval:
 
 1. `git fetch`, then branch from the latest main: `git switch -c <branch> origin/main`. Skip if the session is already on that branch.
 2. Implement in red-green slices with the `tdd` skill, one commit per slice, Conventional Commits with `Refs #N` ([git](../../../docs/agents/git.md)).
-3. Run `make gen build test lint`. For UI changes also `make run screenshot` ([commands](../../../docs/agents/commands.md)).
+3. Run `make gen build test lint`. For a changed screen also one `make run screenshot`, once, when [Simulator use](../../../docs/agents/workflow.md#simulator-use) allows it ([commands](../../../docs/agents/commands.md)).
 
 ## Step 6: Wrap up
 

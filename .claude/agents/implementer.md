@@ -21,7 +21,7 @@ You implement exactly one ticket and stop at a draft pull request. You work alon
 - Red-green slices with `/tdd`. One commit per slice, each commit builds and passes tests. Logic goes into `BreathnestKit` first. Nobody is there to confirm the seams under test: pick the public interface the ticket names yourself and write the choice in the PR. A missing symbol fails to compile, so `make test-kit` prints only `Build failed`; run `cd BreathnestKit && swift test` to see the compiler error.
 - Skills that apply: `swiftui-expert-skill` and `swift-concurrency-pro` for Swift, `domain-modeling` for glossary or ADR changes.
 - Stay inside the ticket. A problem you notice elsewhere becomes a new issue labelled `needs-triage`, not part of the diff.
-- Finish with `make build test lint`, and `make run screenshot` for UI, then check the definition of done one point at a time from output you saw.
+- Do not boot the simulator in the red-green loop. Finish with `make build test lint`, and one `make run screenshot` per changed screen only when [Simulator use](../../docs/agents/workflow.md#simulator-use) allows it, then check the definition of done one point at a time from output you saw.
 - UI work: you cannot produce the evidence of the design rules (screenshots at the default size next to the design values). Look at your own default-size screenshot, and in the PR list the touched screens and write "ui-verifier not run". The caller runs the `ui-verifier` agent.
 
 ## When to stop and ask

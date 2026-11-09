@@ -8,7 +8,7 @@ Work in vertical red-green slices (`/tdd`): one failing test for one behaviour, 
 make test-kit
 ```
 
-That is the inner loop: `swift test` in `BreathnestKit/`, a few seconds, no simulator. Only run `make test` (adds the simulator) when you touch the app target.
+That is the inner loop: `swift test` in `BreathnestKit/`, a few seconds, no simulator. Only run `make test` (adds the simulator) when you touch the app target. When the simulator may be used at all: [Simulator use](workflow.md#simulator-use).
 
 ## Where tests live
 
