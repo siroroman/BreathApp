@@ -35,6 +35,7 @@ The Swift conventions are checked by SwiftLint (`.swiftlint.yml`, run by `make l
 | Red-green slices, one commit per slice | Process rule. A test change next to a critical path change is required by `scripts/check-critical-paths.sh`. |
 | `make build`, `make test`, `make lint` pass | CI job `Build, app tests, lint` and the Stop hook. |
 | Kit line coverage stays at or above 80%, per file and in total | CI job `Kit tests` (`scripts/coverage.sh` hands the table to `scripts/check-coverage.sh`, [testing](testing.md) Coverage), also `make coverage`. Tested by `scripts/test-check-coverage.sh` in `Script tests`. 100% still does not prove the behaviour is checked: a process rule for the `code-reviewer`. The App target is not measured. |
+| The simulator is used only when [Simulator use](workflow.md#simulator-use) allows it (no boot in the red-green loop, one screenshot per changed screen, `ui-verifier` once per PR) | Process rule, the `code-reviewer` checks the PR for a second shot of one screen. Nothing can see a boot. CI keeps `make run screenshot` on every Swift change, by decision. |
 | A UI change was run and looked at (screenshot) | Process rule. `scripts/pr-facts.sh` lists the files, `check-pr-body.sh` requires the Snapshots section to be non-empty. |
 | Acceptance criteria are met one by one, named in the PR | Process rule. The PR body sections are checked by `scripts/check-pr-body.sh`, their content by the `code-reviewer`. |
 | Domain terms follow `GLOSSARY.md`, no ADR contradicted | Process rule. |
