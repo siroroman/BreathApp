@@ -14,7 +14,7 @@ path=$(printf '%s' "$input" | jq -r '.transcript_path // empty' 2>/dev/null) || 
 # A subagent's tool calls carry agent_id, but transcript_path is still the parent session's. The subagent's own
 # transcript is <session>/subagents/agent-<agent_id>.jsonl; without it, measure nothing rather than the parent.
 agent=$(printf '%s' "$input" | jq -r '.agent_id // empty' 2>/dev/null)
-if [ -n "$agent" ]; then
+if [ -n "$agent" ] && [ -n "$path" ]; then
   case $agent in *[!A-Za-z0-9_-]*) exit 0 ;; esac
   path="${path%.jsonl}/subagents/agent-$agent.jsonl"
 fi
