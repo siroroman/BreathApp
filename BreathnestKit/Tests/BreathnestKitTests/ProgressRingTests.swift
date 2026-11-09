@@ -2,6 +2,8 @@ import Testing
 
 @testable import BreathnestKit
 
+private let base = ContinuousClock().now
+
 @Suite struct ProgressRingTests {
     private func seconds(_ duration: Duration) -> Double {
         Double(duration.components.seconds) + Double(duration.components.attoseconds) / 1e18
@@ -66,5 +68,62 @@ import Testing
             Phase(kind: .rest, duration: .seconds(0.4)),
         ]))
         #expect(ProgressRing(pattern: pattern).arcs.map(\.segmentCount) == [0, 3, 0, 1])
+    }
+
+    // MARK: Lit state
+
+    @Test(arguments: Exercise.builtIn)
+    func inTheLeadInTheWholeRingIsUnlit(exercise: Exercise) {
+        let ring = ProgressRing(pattern: exercise.pattern)
+        let fills = ring.fills(phaseIndex: nil, fractionOfPhase: 0)
+        #expect(fills.count == ring.arcs.count)
+        for (fill, arc) in zip(fills, ring.arcs) {
+            #expect(fill == (arc.segmentCount == 0 ? .fraction(0) : .segments(0)))
+        }
+    }
+
+    @Test func theArcsBeforeThePhaseAreFullAndTheOnesAfterItAreEmpty() {
+        let ring = ProgressRing(pattern: Exercise.box.pattern)
+        let fills = ring.fills(phaseIndex: 2, fractionOfPhase: 0.5)
+        #expect(fills == [.fraction(1), .segments(4), .fraction(0.5), .segments(0)])
+    }
+
+    @Test func anInhaleFillsSmoothlyFromTheStartOfItsArc() {
+        let ring = ProgressRing(pattern: Exercise.box.pattern)
+        #expect(ring.fills(phaseIndex: 0, fractionOfPhase: 0)[0] == .fraction(0))
+        #expect(ring.fills(phaseIndex: 0, fractionOfPhase: 0.3)[0] == .fraction(0.3))
+    }
+
+    @Test func aHoldLightsOneSegmentWhenItsSecondIsComplete() {
+        let ring = ProgressRing(pattern: Exercise.box.pattern)
+        #expect(ring.fills(phaseIndex: 1, fractionOfPhase: 0)[1] == .segments(0))
+        #expect(ring.fills(phaseIndex: 1, fractionOfPhase: 0.24)[1] == .segments(0))
+        #expect(ring.fills(phaseIndex: 1, fractionOfPhase: 0.25)[1] == .segments(1))
+        #expect(ring.fills(phaseIndex: 1, fractionOfPhase: 0.76)[1] == .segments(3))
+        #expect(ring.fills(phaseIndex: 1, fractionOfPhase: 0.999)[1] == .segments(3))
+    }
+
+    @Test func aFinishedHoldIsFullyLitOnceTheNextPhaseStarts() {
+        let ring = ProgressRing(pattern: Exercise.fourSevenEight.pattern)
+        #expect(ring.fills(phaseIndex: 2, fractionOfPhase: 0)[1] == .segments(7))
+    }
+
+    @Test func theRingRestartsAtTheTopAtTheStartOfEachCycle() {
+        var engine = SessionEngine(exercise: .box, requested: .seconds(64), startingAt: base)
+        let ring = ProgressRing(pattern: Exercise.box.pattern)
+        engine.advance(to: base.advanced(by: .seconds(3 + 16)))
+        let snapshot = engine.snapshot
+        #expect(snapshot.cycle == 2)
+        let fills = ring.fills(phaseIndex: snapshot.phaseIndex, fractionOfPhase: snapshot.fractionOfPhase)
+        #expect(fills == [.fraction(0), .segments(0), .fraction(0), .segments(0)])
+    }
+
+    @Test func theLeadInOfAnEngineIsUnlit() {
+        let engine = SessionEngine(exercise: .box, requested: .seconds(64), startingAt: base)
+        let snapshot = engine.snapshot
+        #expect(snapshot.phaseIndex == nil)
+        let fills = ProgressRing(pattern: Exercise.box.pattern)
+            .fills(phaseIndex: snapshot.phaseIndex, fractionOfPhase: snapshot.fractionOfPhase)
+        #expect(fills == [.fraction(0), .segments(0), .fraction(0), .segments(0)])
     }
 }

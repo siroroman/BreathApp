@@ -22,6 +22,9 @@ public struct SessionEngine: Sendable {
         public let state: State
         /// The Phase the Session is in; `nil` in the Lead-in and once the Session has completed.
         public let phase: Phase?
+        /// The index of `phase` in its Pattern; `nil` when `phase` is. A Pattern can repeat a kind of Phase,
+        /// so the kind alone does not say which one the Session is in.
+        public let phaseIndex: Int?
         /// How far through `phase` the Session is, from 0 to 1.
         public let fractionOfPhase: Double
         /// Whole seconds left in `phase`, rounded up so a countdown never shows 0 while the Phase runs.
@@ -56,14 +59,14 @@ public struct SessionEngine: Sendable {
     public var snapshot: Snapshot {
         if state == .completed {
             return Snapshot(
-                state: state, phase: nil, fractionOfPhase: 1, secondsLeftInPhase: 0, leadInLeft: .zero,
+                state: state, phase: nil, phaseIndex: nil, fractionOfPhase: 1, secondsLeftInPhase: 0, leadInLeft: .zero,
                 timeLeft: .zero, cycle: sessionLength.cycleCount, cycleCount: sessionLength.cycleCount,
                 breathLevel: 0
             )
         }
         guard leadInLeft == .zero else {
             return Snapshot(
-                state: state, phase: nil, fractionOfPhase: 0, secondsLeftInPhase: 0, leadInLeft: leadInLeft,
+                state: state, phase: nil, phaseIndex: nil, fractionOfPhase: 0, secondsLeftInPhase: 0, leadInLeft: leadInLeft,
                 timeLeft: sessionLength.totalLength, cycle: 1, cycleCount: sessionLength.cycleCount,
                 breathLevel: 0
             )
@@ -73,6 +76,7 @@ public struct SessionEngine: Sendable {
         return Snapshot(
             state: state,
             phase: phase,
+            phaseIndex: position.phaseIndex,
             fractionOfPhase: position.intoPhase / phase.duration,
             secondsLeftInPhase: (phase.duration - position.intoPhase).wholeSecondsRoundedUp,
             leadInLeft: .zero,
