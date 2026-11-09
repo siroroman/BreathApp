@@ -49,11 +49,11 @@ Has its own Enforcement table, which is the source for these.
 | Rule | Enforced by |
 |---|---|
 | Commit message is a Conventional Commit | `commit-msg` hook, `scripts/check-commit-msg.sh` |
-| PR title is a Conventional Commit | CI `check-title` |
+| PR title is a Conventional Commit (it is the merge commit title on `main`) | CI `check-title` |
 | Branch is `<type>/<issue>-<slug>` | `scripts/check-branch-name.sh`, CI `check-title`. Tested by `scripts/test-check-branch-name.sh`. |
 | No commit or push on `main`, no force push, no `--no-verify`, no history rewrite, no secret in a commit | `pre-commit`, `pre-push`, the Claude `PreToolUse` hook, the repository ruleset, GitHub push protection |
 | A scope in a commit header or PR title is in the list of [git](git.md) | Process rule until #145 adds the check to `scripts/check-commit-msg.sh` with a test for a wrong scope. |
-| Squash merge, PR title as commit title | Repository setting |
+| Merge commit only, PR title as merge commit title | Repository setting |
 | Merge `main` into the branch before the PR | Process rule. |
 | `Closes #<issue>` ends the PR body, the six sections | `scripts/check-pr-body.sh` |
 | Open as a draft until reviewed and green | Green checks are required by the ruleset. The review part is checked by `review-posted`, see the review row above: it fails a PR that is not a draft without a `code-reviewer` review of a commit of the PR. Opening as a draft stays a process rule. |

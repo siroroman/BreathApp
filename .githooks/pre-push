@@ -11,7 +11,7 @@ while read -r _ local_sha remote_ref _; do
   case "$remote_ref" in
     refs/heads/main | refs/heads/master)
       cat >&2 <<EOF
-pre-push: refusing to push to '${remote_ref#refs/heads/}'. main only changes through a squash-merged pull request.
+pre-push: refusing to push to '${remote_ref#refs/heads/}'. main only changes through a pull request.
 Push a branch and open a pull request:
   git push -u origin <type>/<issue>-<slug>
 Branch names and the flow: docs/agents/git.md. Do not use --no-verify.

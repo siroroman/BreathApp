@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Enabled with: make setup (git config core.hooksPath .githooks)
-# Refuses a commit on main or master: changes reach main through a squash-merged pull request (docs/agents/git.md).
+# Refuses a commit on main or master: changes reach main through a merged pull request (docs/agents/git.md).
 # Also scans the staged changes for secrets with gitleaks.
 # A detached HEAD (rebase, cherry-pick) has no branch name and passes.
 set -euo pipefail
@@ -8,7 +8,7 @@ set -euo pipefail
 branch=$(git branch --show-current)
 if [[ "$branch" == main || "$branch" == master ]]; then
   cat >&2 <<EOF
-pre-commit: refusing to commit on '$branch'. main only changes through a squash-merged pull request.
+pre-commit: refusing to commit on '$branch'. main only changes through a merged pull request.
 Move your work to a branch and commit there:
   git switch -c <type>/<issue>-<slug>
 Branch names and the flow: docs/agents/git.md. Do not use --no-verify.

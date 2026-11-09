@@ -91,7 +91,7 @@ popd >/dev/null || exit 1
 git -C "$tmp/wt-main" -c core.hooksPath=/dev/null commit -q --allow-empty -m "chore: g"
 check pass "push a feature branch" git push -q -u origin feat/x
 check fail "push main" git push -q origin main
-says "push main" "squash-merged pull request"
+says "push main" "through a pull request"
 check fail "push master" git push -q origin master
 check fail "push a branch to main" git push -q origin feat/x:main
 check fail "push a branch to refs/heads/main" git push -q origin feat/x:refs/heads/main
