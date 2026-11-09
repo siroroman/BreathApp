@@ -2,15 +2,18 @@ import BreathnestKit
 import SwiftUI
 
 /// Screen 6 of the design: the Exercise detail bottom sheet. The Sounds rows, the slider and the saved
-/// Haptics setting come with #54 and #55, and Start with #29.
+/// Haptics setting come with #54 and #55.
 struct ExerciseDetailView: View {
     @State private var viewModel: ExerciseDetailViewModel
+    @State private var session: SessionViewModel?
+    private let dependencies: AppDependencies
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.dynamicTypeSize) private var typeSize
     @Environment(\.locale) private var locale
 
-    init(exercise: Exercise) {
+    init(exercise: Exercise, dependencies: AppDependencies) {
+        self.dependencies = dependencies
         _viewModel = State(initialValue: ExerciseDetailViewModel(exercise: exercise))
     }
 
@@ -45,6 +48,10 @@ struct ExerciseDetailView: View {
         .presentationDragIndicator(.hidden)
         .presentationCornerRadius(38)
         .presentationBackground(Color(.bg))
+        // Closing the cover leaves the sheet as it was, with the same Duration chip and Haptics choice.
+        .fullScreenCover(item: $session) { session in
+            SessionView(viewModel: session, dependencies: dependencies) { self.session = nil }
+        }
     }
 
     /// Box and 4-7-8 are the Exercises with a long hold.
@@ -159,7 +166,10 @@ struct ExerciseDetailView: View {
 
     private func startButton(scale: DesignScale) -> some View {
         Button {
-            // Start opens the Session with #29.
+            session = SessionViewModel(
+                exercise: viewModel.exercise, requested: viewModel.selectedDuration,
+                screenAwake: dependencies.screenAwake, speed: dependencies.sessionSpeed, startedAt: .now
+            )
         } label: {
             Text("detail.start")
                 .designFont(.title3, 19, weight: .semibold)

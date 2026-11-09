@@ -3,10 +3,11 @@ import SwiftUI
 @main
 struct BreathnestApp: App {
     @State private var navigation = AppNavigation()
+    private let dependencies = AppDependencies.live()
 
     var body: some Scene {
         WindowGroup {
-            ExercisesView(navigation: navigation)
+            ExercisesView(navigation: navigation, dependencies: dependencies)
                 .tint(Color(.ring))
                 // Only dark is drawn. Light follows the decision of #53, which has `line`, `pop` and `scrim` no light
                 // value yet.
