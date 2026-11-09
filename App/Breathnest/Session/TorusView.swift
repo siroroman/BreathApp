@@ -35,7 +35,8 @@ struct TorusView: View {
         .accessibilityHidden(true)
     }
 
-    /// Linear mix in sRGB, as the design does. The values are gamma-encoded sRGB, not the `linear*` ones, like the board.
+    /// Linear mix in sRGB, as the design does. The values are gamma-encoded sRGB, not the `linear*` ones,
+    /// like the board.
     nonisolated static func mix(_ empty: Color.Resolved, _ full: Color.Resolved, _ level: Double) -> Color.Resolved {
         let t = Float(min(max(level, 0), 1))
         return Color.Resolved(

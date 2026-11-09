@@ -36,13 +36,9 @@ struct SessionView: View {
     }
 
     private func runningScreen(scale: DesignScale) -> some View {
-        VStack(spacing: 0) {
-            timeBlock
-            phaseBlock.padding(.top, 24)
-            Spacer(minLength: 0)
-            if viewModel.stage != .leadIn {
-                torus(level: viewModel.breathLevel, side: scale(278, 194))
-            }
+        ZStack {
+            // The centre content sits on the middle of the screen, not between the header and the buttons, whose
+            // heights differ.
             if viewModel.stage == .leadIn {
                 Text(verbatim: "\(viewModel.leadInDigit)")
                     // The design draws the digit at 180 (130 at AX5), larger than any text style, so it takes a
@@ -53,13 +49,19 @@ struct SessionView: View {
                     .onChange(of: viewModel.leadInDigit) {
                         AccessibilityNotification.Announcement(String(viewModel.leadInDigit)).post()
                     }
+            } else {
+                torus(level: viewModel.breathLevel, side: scale(278, 194))
             }
-            Spacer(minLength: 0)
-            buttons(scale: scale)
+            VStack(spacing: 0) {
+                timeBlock
+                phaseBlock.padding(.top, 24)
+                Spacer(minLength: 0)
+                buttons(scale: scale)
+            }
+            .padding(.horizontal, 16)
+            .padding(.top, 64)
+            .padding(.bottom, 34)
         }
-        .padding(.horizontal, 16)
-        .padding(.top, 64)
-        .padding(.bottom, 34)
         .ignoresSafeArea()
     }
 
