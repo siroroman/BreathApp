@@ -1,8 +1,7 @@
 import BreathnestKit
 import SwiftUI
 
-/// Screens 1 to 3 of the design: the Session as full-screen cover, in text. The gear and its menu come with #56,
-/// the ring with #31.
+/// Screens 1 to 3 of the design: the Session as full-screen cover, in text. The gear and its menu come with #56.
 struct SessionView: View {
     let viewModel: SessionViewModel
     let dependencies: AppDependencies
@@ -39,6 +38,8 @@ struct SessionView: View {
         ZStack {
             // The centre content sits on the middle of the screen, not between the header and the buttons, whose
             // heights differ.
+            ProgressRingView(ring: viewModel.ring, fills: viewModel.ringFills)
+                .frame(width: scale(330, 230), height: scale(330, 230))
             if viewModel.stage == .leadIn {
                 Text(verbatim: "\(viewModel.leadInDigit)")
                     // The design draws the digit at 180 (130 at AX5), larger than any text style, so it takes a

@@ -28,6 +28,7 @@ final class SessionViewModel {
         self.screenAwake = screenAwake
         self.speed = speed
         self.requested = requested
+        ring = ProgressRing(pattern: exercise.pattern)
         origin = startedAt
         engine = SessionEngine(exercise: exercise, requested: requested, startingAt: startedAt)
         snapshot = engine.snapshot
@@ -49,6 +50,12 @@ final class SessionViewModel {
     /// 0 (empty) to 1 (full) for the torus; 0 in the Lead-in and after the end.
     var breathLevel: Double { snapshot.breathLevel }
     var cycleCount: Int { snapshot.cycleCount }
+    /// The ring of the Exercise's Pattern, laid out once.
+    let ring: ProgressRing
+    /// What is lit on `ring`; nothing in the Lead-in.
+    var ringFills: [ProgressRing.ArcFill] {
+        ring.fills(phaseIndex: snapshot.phaseIndex, fractionOfPhase: snapshot.fractionOfPhase)
+    }
     var sessionLength: SessionLength { exercise.sessionLength(for: requested) }
     var totalLength: Duration { sessionLength.totalLength }
     @ObservationIgnored private let requested: Duration
