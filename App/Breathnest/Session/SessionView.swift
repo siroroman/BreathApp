@@ -86,7 +86,7 @@ struct SessionView: View {
     }
 
     private var title: LocalizedStringKey {
-        guard viewModel.stage == .breathing || viewModel.phaseKind != nil, let kind = viewModel.phaseKind else {
+        guard let kind = viewModel.phaseKind else {
             return "session.leadIn.title"
         }
         return switch kind {
