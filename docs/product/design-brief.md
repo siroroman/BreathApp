@@ -29,7 +29,7 @@ iPhone only, iOS 26, portrait only, light and dark. The Apple Watch app is desig
 ## Constraints to design within
 
 - Text contrast at least 4.5:1. Shape and ring contrast at least 3:1. Dark Mode and Increase Contrast respected.
-- Dynamic Type up to AX5 with no upper limit. On the list, the Pattern moves to its own line. On the detail, the sheet opens at full height, chips wrap and content scrolls. On the Session, text has priority, the shape takes the remaining space, and Pause and Stop stack vertically.
+- Dynamic Type up to AX5 (design values, not checked by the agent) with no upper limit. On the list, the Pattern moves to its own line. On the detail, the sheet opens at full height, chips wrap and content scrolls. On the Session, text has priority, the shape takes the remaining space, and Pause and Stop stack vertically.
 - Six languages: en, cs, sk, de, fr, es. Strings can be about twice as long (the test uses a double-length pseudolanguage). Numbers use the local format (`5,5`).
 - VoiceOver gets no decoration: shape and ring are hidden from it. Design nothing that only works visually.
 - Cancel, Start, Pause, Stop and Done have visible text (Voice Control).
@@ -54,7 +54,7 @@ Everything is in `docs/product/references/`; they are references, not designs to
 ## Output wanted
 
 - The three screens in light and dark, plus the Session states above.
-- Each screen at the default text size and at AX5.
+- Each screen at the default text size. (The AX5 layout is described above; it is a design value, not checked by the agent.)
 - One screen with a long German string.
 - Colour tokens with their contrast ratios, so they can go into the asset catalog.
 - A Reduce Motion version of the shape at Breath level 0, 0.5 and 1.

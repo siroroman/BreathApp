@@ -2,7 +2,7 @@
 
 Copies of the screen files of the Claude Design canvas "Breathnest Design" (row "Mobile"), taken from the live canvas. They are the exact markup and styles of the iPhone design. The written description is [`../../phone-design.md`](../../phone-design.md); read it first.
 
-These are design sources, not code to ship. They use the canvas runtime (`<x-dc>`, `<sc-for>`, `dc-import`), so they do not open on their own in a browser. Read the inline `style` values and the `renderVals()` numbers. Each file's `ax` branch holds the AX5 sizes.
+These are design sources, not code to ship. They use the canvas runtime (`<x-dc>`, `<sc-for>`, `dc-import`), so they do not open on their own in a browser. Read the inline `style` values and the `renderVals()` numbers. Each file's `ax` branch holds the AX5 sizes. These are design values, not checked by the agent: no agent takes or asks for an AX5 screenshot.
 
 | File | Screen |
 |---|---|
