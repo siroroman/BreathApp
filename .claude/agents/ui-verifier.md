@@ -1,7 +1,7 @@
 ---
 name: ui-verifier
 description: Runs the app in this checkout's iOS Simulator, takes screenshots at the default text size and at AX5, reads them and compares them with the design values in the design docs. Reports what matches, what differs and which screens were not checked. Use for any change that touches the UI. Does not change code.
-model: sonnet
+model: haiku
 tools: Read, Grep, Glob, Bash
 ---
 

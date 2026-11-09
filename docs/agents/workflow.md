@@ -4,9 +4,21 @@ How a ticket moves through a session to a pull request.
 
 ## One ticket, one session
 
-- One ticket = one session = one worktree = one branch = one PR (see [git](git.md)). A session is about 100K tokens of work. When it grows past that, reset instead of compacting: the handoff is the ticket, an ADR or a note, not the chat.
+- One ticket = one session = one worktree = one branch = one PR (see [git](git.md)). A session stays under 15% of the context window, see Context limit below. When it grows past that, clear instead of compacting: the handoff is the ticket, an ADR or a note, not the chat.
 - Start from the ticket (`gh issue view <n>`), `GLOSSARY.md` and the ADRs of the area ([domain](domain.md)). Do not start without acceptance criteria: ask or label the ticket `needs-info`.
 - Unrelated problems you notice become new issues (`needs-triage`), not part of the diff.
+
+## Context limit
+
+A session never goes past **15% of the context window**: long sessions get slow, expensive and less accurate.
+
+- **Measured** by `.claude/hooks/context-check.sh` (PostToolUse hook): the input, cache creation and cache read tokens of the last assistant message in the transcript, against 15% of `BREATHNEST_CONTEXT_WINDOW` (default 200000; export 1000000 for a 1M model). From the first tool call over the limit, every tool call carries a message to the agent. A hook cannot run `/clear`, so the agent does the next two steps.
+- **Save** a handoff as a comment on the ticket (`gh issue comment`): branch, what is done, what is next, open questions, how to resume (the failing test or command). Commit what builds. Nothing is saved in the chat only.
+- **Clear, do not compact.** End the turn and ask the user to run `/clear`, then restart from the ticket and the handoff comment. Compaction is a lossy summary the agent writes about itself, it keeps the old context shape and runs at a moment the agent does not choose, so it cannot save first. A fresh session reads the ticket, the glossary and the ADRs again, which is cheap at this size.
+- **Subagents** (`implementer`, `code-reviewer`) follow the same limit: at the message they post the handoff and end their run with it as the report. The caller starts a new agent from the ticket. Whether the hook sees the subagent's own transcript is not verified, see [rules enforcement](rules-enforcement.md).
+- The auto-compact setting `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` is not used: it compacts without saving first.
+
+- Keep the context small: search before reading, narrowest test first, stop after two failed tries ([tokens](tokens.md)).
 
 ## Levels of supervision
 
