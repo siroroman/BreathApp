@@ -10,10 +10,6 @@ The body starts from the `pr` skill (Summary, Evidence, Merge Danger) and adds t
 ## Snapshots
 ## Evidence
 ## Merge Danger
-## Before the PR is created
-
-Run `make format lint`, read it to the last line (`0/N files require formatting.`) and fix every error first. A draft PR is opened only with a clean lint. The `pre-push` hook enforces it on the push that precedes `gh pr create` ([git](git.md)).
-
 ## Reviewer notes
 
 Closes #<issue>
@@ -22,6 +18,10 @@ Closes #<issue>
 `.github/pull_request_template.md` opens a new PR with this skeleton, and CI (`pr-body.yml`) fails a body with a missing, misordered or empty section or without `Closes #<issue>` as the last line of your text. Attribution lines the tooling appends after it are fine.
 
 Every section is present. A section with nothing to say says so in one line ("No UI change."), it is not deleted: a missing section reads as forgotten.
+
+## Before the PR is created
+
+Run `make format lint`, read it to the last line (`0/N files require formatting.`) and fix every error first. A draft PR is opened only with a clean lint. The `pre-push` hook enforces it on the push that precedes `gh pr create` ([git](git.md)).
 
 ## Get the facts first
 
