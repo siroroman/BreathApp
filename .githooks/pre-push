@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Enabled with: make setup (git config core.hooksPath .githooks)
-# Refuses a push to main or master (docs/agents/git.md), then runs the Kit tests before anything leaves the machine:
-# seconds, no simulator (docs/agents/commands.md).
+# Refuses a push to main or master (docs/agents/git.md), then runs make lint and the Kit tests before anything leaves the machine:
+# no simulator (docs/agents/commands.md). make lint covers docs-only and script-only branches too (check-docs.sh and others),
+# and a branch is pushed before its pull request is opened, so a lint error cannot reach an open PR.
 # Git feeds one "<local ref> <local sha> <remote ref> <remote sha>" line per ref on stdin.
 set -euo pipefail
 
@@ -24,4 +25,5 @@ done
 [[ $push -eq 1 ]] || exit 0
 
 cd "$(git rev-parse --show-toplevel)"
+make lint || { echo "pre-push: make lint failed, nothing was pushed. Run make format, fix what is left, read the last line (0/N files require formatting.), do not use --no-verify." >&2; exit 1; }
 make test-kit || { echo "pre-push: make test-kit failed, nothing was pushed. Fix the test, do not use --no-verify." >&2; exit 1; }

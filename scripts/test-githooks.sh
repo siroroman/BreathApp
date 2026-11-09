@@ -12,13 +12,13 @@ failed=0
 
 export GIT_AUTHOR_NAME=t GIT_AUTHOR_EMAIL=t@t GIT_COMMITTER_NAME=t GIT_COMMITTER_EMAIL=t@t
 
-# A repo with the hooks as `make setup` configures them, and a stub `make test-kit` so pre-push needs no Swift.
+# A repo with the hooks as `make setup` configures them, and stubs of `make test-kit` and `make lint` (fails while a file lint-fails exists) so pre-push needs no Swift.
 git init -q --bare "$tmp/remote.git"
 git init -q -b main "$tmp/repo"
 cd "$tmp/repo" || exit 1
 mkdir .githooks
 cp "$root/.githooks/pre-commit" "$root/.githooks/pre-push" .githooks/
-printf 'test-kit:\n\t@true\n' >Makefile
+printf 'test-kit:\n\t@true\nlint:\n\t@[ ! -f lint-fails ]\n' >Makefile
 git config core.hooksPath .githooks
 git remote add origin "$tmp/remote.git"
 git -c core.hooksPath=/dev/null add -A
@@ -96,6 +96,14 @@ check fail "push master" git push -q origin master
 check fail "push a branch to main" git push -q origin feat/x:main
 check fail "push a branch to refs/heads/main" git push -q origin feat/x:refs/heads/main
 check fail "delete main" git push -q origin :main
+git switch -q feat/x
+git -c core.hooksPath=/dev/null commit -q --allow-empty -m "chore: l"
+touch lint-fails
+check fail "push while make lint fails" git push -q origin feat/x
+says "push while make lint fails" "make lint failed, nothing was pushed"
+check pass "delete a branch while make lint fails" git push -q origin --delete feat/x
+rm lint-fails
+check pass "push after make lint passes" git push -q -u origin feat/x
 check pass "delete a feature branch" git push -q origin :feat/x
 
 if [[ "$failed" -eq 0 ]]; then

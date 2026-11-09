@@ -19,6 +19,10 @@ Closes #<issue>
 
 Every section is present. A section with nothing to say says so in one line ("No UI change."), it is not deleted: a missing section reads as forgotten.
 
+## Before the PR is created
+
+Run `make format lint`, read it to the last line (`0/N files require formatting.`) and fix every error first. A draft PR is opened only with a clean lint. The `pre-push` hook enforces it on the push that precedes `gh pr create` ([git](git.md)).
+
 ## Get the facts first
 
 Commit, then run:
@@ -43,6 +47,7 @@ The user wants the list of tests that concern the change, and what is new.
 For a change under `App/Breathnest/` (UI): the screens it touches, as screenshots at the default text size and at AX5, next to the design value they were compared with ([definition of done](definition-of-done.md), `ui-verifier` in [workflow](workflow.md)). A screen the design does not draw is listed as such, not left out.
 
 - The files come from `make run screenshot` and the `ui-verifier` agent and sit in the git-ignored `build/`. Do not commit them. The caller drags them into the PR description in the GitHub web editor, where GitHub stores them; `scripts/pr-facts.sh` lists the files and the commit they belong to.
+- One screenshot per changed screen, no more; a change that needs no run writes "no run" and why ([Simulator use](workflow.md#simulator-use)).
 - An agent that cannot run the simulator or the `ui-verifier` writes "snapshots not attached" with the screen names, so the user knows what to add. It never writes a description of a screen it did not see.
 - No UI change: write "No UI change."
 

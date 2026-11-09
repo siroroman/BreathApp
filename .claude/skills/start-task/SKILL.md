@@ -61,7 +61,7 @@ After approval:
 
 1. `git fetch`, then branch from the latest main: `git switch -c <branch> origin/main`. Skip if the session is already on that branch.
 2. Implement in red-green slices with the `tdd` skill, one commit per slice, Conventional Commits with `Refs #N` ([git](../../../docs/agents/git.md)).
-3. Run `make gen build test lint`. For UI changes also `make run screenshot` ([commands](../../../docs/agents/commands.md)).
+3. Run `make gen build test lint`. For a changed screen also one `make run screenshot`, once, when [Simulator use](../../../docs/agents/workflow.md#simulator-use) allows it ([commands](../../../docs/agents/commands.md)).
 
 ## Step 6: Wrap up
 
@@ -71,7 +71,7 @@ Summarize in short bullets, plain words:
 - **Checks**: what passed and what was not run
 - **Before the PR**: what is still open (UI screenshot, a failing check, a decision), or "nothing"
 
-If nothing blocks the PR, ask: "Create the pull request?" On yes push the branch (`git push -u origin <branch>`), run `scripts/pr-facts.sh`, and open a draft PR with the `pr` skill extended as in [pull requests](../../../docs/agents/pull-requests.md). The body ends with `Closes #N`. Check that the title is a valid Conventional Commit header.
+Before pushing run `make format lint` and read it to the last line (`0/N files require formatting.`); fix every error, a draft PR is opened only with a clean lint. If nothing blocks the PR, ask: "Create the pull request?" On yes push the branch (`git push -u origin <branch>`), run `scripts/pr-facts.sh`, and open a draft PR with the `pr` skill extended as in [pull requests](../../../docs/agents/pull-requests.md). The body ends with `Closes #N`. Check that the title is a valid Conventional Commit header.
 
 ## Step 7: Review
 

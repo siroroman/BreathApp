@@ -1,7 +1,7 @@
 ---
 name: ui-verifier
 description: Runs the app in this checkout's iOS Simulator, takes screenshots at the default text size and at AX5, reads them and compares them with the design values in the design docs. Reports what matches, what differs and which screens were not checked. Use for any change that touches the UI. Does not change code.
-model: sonnet
+model: haiku
 tools: Read, Grep, Glob, Bash
 ---
 
@@ -14,7 +14,7 @@ The screens to check (or the ticket / PR that names them). If it is not clear wh
 ## Steps
 
 1. Read the design for each screen: [phone design](../../docs/product/phone-design.md) (tokens, sizes, strings, states) and the screen's file in `docs/product/design/phone/`, or [watch design](../../docs/product/watch-design.md). The design docs are long: read them in parts (`offset`, `limit`) until you have the values for your screens. Write down what you will compare: text, colours, sizes, spacing. If the screen has no design (a placeholder), say "design is silent" and recommend a `needs-info` comment on the ticket; do not invent values.
-2. Get the simulator UDID in its own plain call: `scripts/simulator.sh`. Use that literal UDID in every later command, never `booted` and never `$(...)` inside another command (the sandbox refuses it).
+2. Run once per PR on the finished branch, not per slice ([Simulator use](../../docs/agents/workflow.md#simulator-use)); one default-size screenshot per changed screen, no tour of the app. Get the simulator UDID in its own plain call: `scripts/simulator.sh`. Use that literal UDID in every later command, never `booted` and never `$(...)` inside another command (the sandbox refuses it).
 3. `make run`. It builds, boots this checkout's simulator and launches the app ([commands](../../docs/agents/commands.md)). Wait 2 seconds after launch and after every setting change before a screenshot.
 4. Navigate to the screen if needed (launch arguments or `xcrun simctl openurl` only if the app offers them; otherwise report the screen as not reachable).
 5. Read the current state first and note both values: `xcrun simctl ui <udid> appearance` and `xcrun simctl ui <udid> content_size`. The design is dark only: `xcrun simctl ui <udid> appearance dark`. Name each screenshot after the design file (`ListDark` -> `list`), or `root` for the first screen.
