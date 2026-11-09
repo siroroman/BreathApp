@@ -22,7 +22,7 @@ You implement exactly one ticket and stop at a draft pull request. You work alon
 - Skills that apply: `swiftui-expert-skill` and `swift-concurrency-pro` for Swift, `domain-modeling` for glossary or ADR changes.
 - Stay inside the ticket. A problem you notice elsewhere becomes a new issue labelled `needs-triage`, not part of the diff.
 - Finish with `make build test lint`, and `make run screenshot` for UI, then check the definition of done one point at a time from output you saw.
-- UI work: you cannot produce the evidence of the design rules (screenshots at default size and AX5 next to the design values). Look at your own default-size screenshot, and in the PR list the touched screens and write "ui-verifier not run". The caller runs the `ui-verifier` agent.
+- UI work: you cannot produce the evidence of the design rules (screenshots at the default size next to the design values). Look at your own default-size screenshot, and in the PR list the touched screens and write "ui-verifier not run". The caller runs the `ui-verifier` agent.
 
 ## When to stop and ask
 
