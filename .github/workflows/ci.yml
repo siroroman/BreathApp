@@ -28,6 +28,7 @@ jobs:
       - run: scripts/test-block-dangerous-git.sh
       - run: scripts/test-stop-check.sh
       - run: scripts/test-context-check.sh
+      - run: scripts/test-afk-run.sh
       # The repo rules of `make lint`, here too so they fail in seconds on a cheap runner.
       - run: scripts/test-check-workflows.sh
       - run: scripts/test-check-docs.sh
