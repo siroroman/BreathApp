@@ -70,6 +70,30 @@ check "a missing transcript is silent" silent
 printf '{}' | "$hook" >"$tmp/out" 2>/dev/null
 check "no transcript_path exits 0 and is silent" silent
 
+# grown <name> <baseline> <latest> [filler lines]: the first assistant entry has <baseline> tokens, the last <latest>.
+grown() {
+  {
+    echo '{"type":"user","message":{"role":"user","content":"hi"}}'
+    printf '{"type":"assistant","message":{"role":"assistant","usage":{"input_tokens":%s,"cache_creation_input_tokens":0,"cache_read_input_tokens":0}}}\n' "$2"
+    for _ in $(seq 1 "${4:-0}"); do echo '{"type":"user","message":{"role":"user","content":"tool result"}}'; done
+    printf '{"type":"assistant","message":{"role":"assistant","usage":{"input_tokens":%s,"cache_creation_input_tokens":0,"cache_read_input_tokens":0}}}\n' "$3"
+  } >"$tmp/$1.jsonl"
+}
+
+# The startup cost (system prompt, tools, CLAUDE.md) is the baseline; only the growth above it counts.
+grown fresh 75000 80000
+run "$tmp/fresh.jsonl" 200000 >/dev/null
+check "a fresh session with a 75000 baseline and 5000 of work is silent" silent
+
+grown worked 75000 105000
+run "$tmp/worked.jsonl" 200000 >/dev/null
+check "30000 of growth above the baseline injects" injects
+check "the message reports growth, baseline and limit" sh -c "jq -r '.hookSpecificOutput.additionalContext' '$tmp/out' | grep -q '30000 tokens since its start (baseline 75000)'"
+
+grown long 75000 105000 500
+run "$tmp/long.jsonl" 200000 >/dev/null
+check "the baseline is found beyond the lines read for the latest usage" injects
+
 echo '{"type":"user"}' >"$tmp/nousage.jsonl"
 run "$tmp/nousage.jsonl" 200000 >/dev/null
 check "a transcript without usage is silent" silent
