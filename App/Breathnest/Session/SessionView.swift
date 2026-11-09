@@ -41,8 +41,9 @@ struct SessionView: View {
             Spacer(minLength: 0)
             if viewModel.stage == .leadIn {
                 Text(verbatim: "\(viewModel.leadInDigit)")
-                    .designFont(.largeTitle, 180, weight: .semibold)
-                    .minimumScaleFactor(0.3)
+                    // The design draws the digit at 180 (130 at AX5), larger than any text style, so it takes a
+                    // size from the scale and no longer follows the system curve.
+                    .font(.system(size: scale(180, 130), weight: .semibold))
                     .monospacedDigit()
                     .accessibilityIdentifier("session.digit")
                     .onChange(of: viewModel.leadInDigit) {
