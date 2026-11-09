@@ -10,3 +10,11 @@ public protocol Ticker: Sendable {
 public protocol ScreenAwake {
     func setAwake(_ isAwake: Bool)
 }
+
+/// Plays the Haptic plan on the phone. `play` starts one Phase's haptic; `stop` silences what is playing, for
+/// Pause, Stop and Done. The app's adapter is Core Haptics and does nothing where it is unsupported.
+@MainActor
+public protocol HapticPlayer {
+    func play(_ events: [HapticEvent])
+    func stop()
+}
