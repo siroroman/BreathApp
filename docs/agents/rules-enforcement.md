@@ -55,6 +55,7 @@ Has its own Enforcement table, which is the source for these.
 | A scope in a commit header or PR title is in the list of [git](git.md) | Process rule until #145 adds the check to `scripts/check-commit-msg.sh` with a test for a wrong scope. |
 | Squash merge, PR title as commit title | Repository setting |
 | Merge `main` into the branch before the PR | Process rule. |
+| A PR branch that fell behind `main` is not merged as it is | Repository ruleset: **Require branches to be up to date before merging**. The user presses **Update branch**, the checks run again. A setting, not a file; see [git](git.md) (Keeping a PR branch up to date). |
 | `Closes #<issue>` ends the PR body, the six sections | `scripts/check-pr-body.sh` |
 | Open as a draft until reviewed and green | Green checks are required by the ruleset. The review part is checked by `review-posted`, see the review row above: it fails a PR that is not a draft without a `code-reviewer` review of a commit of the PR. Opening as a draft stays a process rule. |
 

@@ -7,6 +7,7 @@ GitHub flow with Conventional Commits. Read this before creating a branch, a com
 - `main` is always releasable and only changes through a squash-merged pull request. Never commit to `main` directly.
 - One ticket = one branch = one pull request. Work in a worktree per ticket when sessions run in parallel.
 - Branches are short-lived and branch from the latest `main`. Merge `main` into the branch (or rebase it) before opening the PR when `main` has moved.
+- A PR branch that falls behind `main` after the PR is open is not updated by itself. The ruleset refuses to merge it until the user presses **Update branch** on the PR (see "Keeping a PR branch up to date" below), and the checks then run again on the result.
 - Delete the branch after the merge.
 
 ## Branches
@@ -47,6 +48,16 @@ GitHub flow with Conventional Commits. Read this before creating a branch, a com
 - Open as a draft until the `code-reviewer` agent has reviewed the PR in a fresh session and the checks are green. Its review ends with a marker naming the commit it reviewed, and CI fails a PR that is not a draft without a review of a commit of the PR. One review round: fix the findings and push, a push after the review needs no second one.
 - Merge with **squash**. Linear history on `main`.
 
+## Keeping a PR branch up to date
+
+Chosen: the ruleset requires branches to be up to date before merging (strict required status checks). Nothing pushes to a PR branch on its own, so no workflow, token or write permission is added.
+
+- A PR that is behind `main` cannot be merged. GitHub shows **Update branch**; the user presses it, which brings `main` into the branch, and the required checks run again on the result. Checks that went green on an old base never reach `main`.
+- The update is a commit on the remote branch. An agent in that worktree runs `git pull` (never a force push) before its next push.
+- A conflict is not resolved by GitHub. The button is disabled, and the agent or the user brings `main` into the branch locally, fixes the conflict and pushes.
+- Cost: every update re-runs CI, including the macOS job, so merge related PRs one after another and not all at once.
+- Why not an updater workflow (`gh pr update-branch` on a push to `main`): a push made with `GITHUB_TOKEN` does not start workflows, so it needs a personal token or app secret that the user would have to create, and it needs `contents: write` and `pull-requests: write`, which `scripts/check-workflows.sh` refuses on purpose. It would also push into branches while agents work on them. Revisit it if the manual click becomes the bottleneck.
+
 ## Rules for agents
 
 - Push only your own feature branch: `git push -u origin <branch>`. Never force-push and never push `main`.
@@ -76,6 +87,7 @@ GitHub flow with Conventional Commits. Read this before creating a branch, a com
 | A failed `xcodebuild` or app test fails `make` | `SHELL := /bin/bash -o pipefail` in the `Makefile` (macOS ships Make 3.81, which ignores `.SHELLFLAGS`), tested by `scripts/test-make-pipefail.sh` in the `Build, app tests, lint` job on macOS |
 | Squash merge, PR title as commit title | repository setting: only squash merge is allowed, the PR title is the commit title, branches are deleted after the merge |
 | No direct commits to `main`, no force push, no deleting it, required checks green | repository ruleset `Main branch ruleset`. The Admin role can bypass it only when merging a pull request (`bypass_mode: pull_request`), a direct push to `main` is refused for everyone. Required checks: `Script tests`, `Kit tests`, `Build, app tests, lint`, `check-title`, `check-body`, `critical-paths`. A new job in a workflow is not required until it is added to the ruleset |
+| A PR branch behind `main` is merged | repository ruleset `Main branch ruleset`: setting **Require branches to be up to date before merging** (strict required status checks), on for the required checks listed above. Applied by the user, not by a file in the repo. The branch is updated by the user's **Update branch** click, nothing updates it automatically |
 | Destructive commands: force push (also `-fu`, `--force-with-lease`), deleting or mirroring remote refs, push to `main`, hard reset, forced clean, forced branch delete, `checkout .` / `restore .`. Skipping the hooks: `--no-verify` and `-n` on `git commit` and `git push` (`git push -n` is `--dry-run`, blocked with it), `git -c core.hooksPath=...` and `--config-env`. GitHub: `gh pr merge`, `gh repo delete`, `gh issue delete`, `gh release delete`, also with options before the subcommand (`gh -R owner/repo pr merge`) | Claude Code `PreToolUse` hook, `.claude/hooks/block-dangerous-git.sh`, registered in `.claude/settings.json`, tested by `scripts/test-block-dangerous-git.sh`. Needs `jq` and refuses everything without it. Pushing a feature branch and `gh pr create` / `gh pr view` are allowed. `.claude/settings.json` also lists the four `gh` commands in `permissions.deny`. Options before the subcommand (`git -C dir ...`) are ignored when matching. The hook matches the command text, so a commit message or PR body that quotes a blocked command is blocked too, reword it |
 
 Enable the `commit-msg`, `pre-commit` and `pre-push` hooks once per clone with `make setup` (linked worktrees share the setting and each uses the hooks of its own checkout). It also checks the tools from [commands](commands.md), and running it again changes nothing. The Claude Code hook needs no setup, it is registered in the checked-in `.claude/settings.json`. `make setup` runs:
