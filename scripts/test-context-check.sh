@@ -21,9 +21,12 @@ transcript() {
   } >"$tmp/$1.jsonl"
 }
 
-# run <transcript path> [window]: leaves stdout in $tmp/out, prints the exit code
+# run <transcript path> [window] [agent id]: leaves stdout in $tmp/out, prints the exit code.
+# With an agent id the input is a subagent's tool call: transcript_path is still the parent's.
 run() {
-  printf '{"transcript_path":"%s","hook_event_name":"PostToolUse"}' "$1" \
+  local agent=""
+  [ -n "${3:-}" ] && agent=",\"agent_id\":\"$3\""
+  printf '{"transcript_path":"%s","hook_event_name":"PostToolUse"%s}' "$1" "$agent" \
     | BREATHNEST_CONTEXT_WINDOW="${2:-}" "$hook" >"$tmp/out" 2>"$tmp/err"
   echo $?
 }
@@ -93,6 +96,44 @@ check "the message reports growth, baseline and limit" sh -c "jq -r '.hookSpecif
 grown long 75000 105000 500
 run "$tmp/long.jsonl" 200000 >/dev/null
 check "the baseline is found beyond the lines read for the latest usage" injects
+
+# A line that is not JSON before the first usage entry must not hide the baseline.
+{
+  echo 'not json'
+  echo '{"type":"assistant","message":{"role":"assistant","usage":{"input_tokens":75000}}}'
+  echo '{"type":"assistant","message":{"role":"assistant","usage":{"input_tokens":105000}}}'
+} >"$tmp/malformed.jsonl"
+run "$tmp/malformed.jsonl" 200000 >/dev/null
+check "a malformed line before the first usage entry keeps the baseline (30000 of growth injects)" injects
+
+grown quiet 75000 80000 500
+run "$tmp/quiet.jsonl" 200000 >/dev/null
+check "75000 to 80000 with 500 filler lines is silent" silent
+
+grown compacted 105000 40000
+run "$tmp/compacted.jsonl" 200000 >/dev/null
+check "negative growth after compaction is silent" silent
+
+# A subagent's own transcript lives in <session>/subagents/agent-<id>.jsonl next to the parent's <session>.jsonl.
+grown parent 78000 120000
+mkdir -p "$tmp/parent/subagents"
+grown sub_small 16000 18000
+mv "$tmp/sub_small.jsonl" "$tmp/parent/subagents/agent-small.jsonl"
+run "$tmp/parent.jsonl" 200000 small >/dev/null
+check "a subagent that grew 2000 is silent although its parent grew 42000" silent
+
+run "$tmp/parent.jsonl" 200000 >/dev/null
+check "the parent itself, without agent_id, still injects" injects
+
+grown sub_big 16000 46000
+mv "$tmp/sub_big.jsonl" "$tmp/parent/subagents/agent-big.jsonl"
+run "$tmp/parent.jsonl" 200000 big >/dev/null
+check "a subagent that itself grew 30000 injects" injects
+check "the message reports the subagent's growth and baseline" sh -c "jq -r '.hookSpecificOutput.additionalContext' '$tmp/out' | grep -q '30000 tokens since its start (baseline 16000)'"
+
+code=$(run "$tmp/parent.jsonl" 200000 nosuch)
+check "a subagent without a transcript file exits 0" test "$code" = 0
+check "a subagent without a transcript file is silent, the parent is not measured for it" silent
 
 echo '{"type":"user"}' >"$tmp/nousage.jsonl"
 run "$tmp/nousage.jsonl" 200000 >/dev/null
