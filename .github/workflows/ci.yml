@@ -30,6 +30,7 @@ jobs:
       # The repo rules of `make lint`, here too so they fail in seconds on a cheap runner.
       - run: scripts/test-check-workflows.sh
       - run: scripts/test-check-docs.sh
+      - run: scripts/test-check-context-size.sh
       - run: scripts/test-check-architecture.sh
       - run: scripts/test-check-catalogs.sh
       - run: scripts/test-check-tools.sh
@@ -38,6 +39,7 @@ jobs:
       - run: scripts/test-check-coverage.sh
       - run: scripts/check-workflows.sh
       - run: scripts/check-docs.sh
+      - run: scripts/check-context-size.sh
       - run: scripts/check-architecture.sh
       - run: scripts/check-catalogs.sh
       # test-githooks.sh runs the real scanner of the pre-commit hook. The version is the one of tools.env, the download

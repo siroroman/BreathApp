@@ -15,6 +15,15 @@ The Swift conventions are checked by SwiftLint (`.swiftlint.yml`, run by `make l
 | `make gen build test lint` must pass | CI job `Build, app tests, lint`. The Stop hook runs `make lint test` when Swift or project files differ from `main`. |
 | The workflow skills are vendored in `.claude/skills/` | `scripts/check-docs.sh` (in `make lint`): every skill directory is named in [skills](skills.md) and every vendored skill in its table has a directory. Whether the copy equals upstream is a manual pull request. |
 | Docs and ADRs the agent should read first | Process rule. |
+| `CLAUDE.md` stays under 3000 bytes, every skill and agent `description:` under 700 characters | `scripts/check-context-size.sh` (in `make lint` and the `Script tests` job), tested by `scripts/test-check-context-size.sh`. |
+
+## Token use ([tokens](tokens.md))
+
+| Rule | Enforced by |
+|---|---|
+| `CLAUDE.md` and the skill and agent descriptions stay within their size budget | `scripts/check-context-size.sh`, see the `CLAUDE.md` table. |
+| Read-only agents run on a smaller model, the reviewer on `opus` | Process rule. The `model:` line of the agent is the record, the `code-reviewer` reads a change to it. |
+| Search before reading, narrow tests first, wait inside one command, stop after two failed attempts, subagents for self-contained searches, results first in replies | Process rule. Nothing can see how a session read a file. |
 
 ## Testing ([testing](testing.md))
 
@@ -55,6 +64,7 @@ Has its own Enforcement table, which is the source for these.
 | A scope in a commit header or PR title is in the list of [git](git.md) | Process rule until #145 adds the check to `scripts/check-commit-msg.sh` with a test for a wrong scope. |
 | Squash merge, PR title as commit title | Repository setting |
 | Merge `main` into the branch before the PR | Process rule. |
+| A PR branch that fell behind `main` is not merged as it is | Repository ruleset: **Require branches to be up to date before merging**. The user presses **Update branch**, the checks run again. A setting, not a file; see [git](git.md) (Keeping a PR branch up to date). |
 | `Closes #<issue>` ends the PR body, the six sections | `scripts/check-pr-body.sh` |
 | Open as a draft until reviewed and green | Green checks are required by the ruleset. The review part is checked by `review-posted`, see the review row above: it fails a PR that is not a draft without a `code-reviewer` review of a commit of the PR. Opening as a draft stays a process rule. |
 

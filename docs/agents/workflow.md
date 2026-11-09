@@ -8,6 +8,8 @@ How a ticket moves through a session to a pull request.
 - Start from the ticket (`gh issue view <n>`), `GLOSSARY.md` and the ADRs of the area ([domain](domain.md)). Do not start without acceptance criteria: ask or label the ticket `needs-info`.
 - Unrelated problems you notice become new issues (`needs-triage`), not part of the diff.
 
+- Keep the context small: search before reading, narrowest test first, stop after two failed tries ([tokens](tokens.md)).
+
 ## Levels of supervision
 
 | Level | Meaning | Used for |
