@@ -82,6 +82,10 @@ Right after the draft PR is open, start the `code-reviewer` agent with the Agent
 - After the push, show the user what came after the review: `git diff <reviewed sha>..HEAD` (the sha is in the marker of the review), as a short list of files and what changed. That diff is what no agent has reviewed.
 - Marking the PR ready and merging are the user's.
 
+## Context limit
+
+When the `implementer` or `code-reviewer` you started ends with a handoff (its report says it hit the context limit and a handoff comment is on the ticket), start a new agent of the same type from the ticket number only: it reads the handoff itself. At most 3 rounds per ticket, then stop and tell the user where the ticket stands. Your own session at the limit: post the handoff, then run `scripts/afk-run.sh <issue>` in the background or ask the user to run `/clear` ([workflow](../../../docs/agents/workflow.md), Context limit).
+
 ## Examples
 
 **New request, no issue**

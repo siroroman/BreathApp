@@ -27,6 +27,7 @@ Typical order: `make test-kit` while working, `make format lint` before a commit
 
 - **PostToolUse** `.claude/hooks/format-swift.sh` formats every `.swift` file after an Edit or Write.
 - **PostToolUse** `.claude/hooks/context-check.sh` adds a message for the agent when the session context is at 15% of the window or more: save the handoff on the ticket and stop ([workflow](workflow.md), Context limit). Tested by `scripts/test-context-check.sh`.
+- **Unattended run** `scripts/afk-run.sh <issue> [--max-rounds N]` runs the `implementer` headless with `BREATHNEST_AFK=1` and starts a fresh round from the ticket and its handoff comment when one ends, 3 rounds by default. Exit 0 a PR closing the issue is open, 1 none after the last round, 2 usage, 3 the ticket is `needs-info`. `CLAUDE_FLAGS` adds claude options (permission mode, model). Tested by `scripts/test-afk-run.sh`.
 - **Stop** `.claude/hooks/stop-check.sh` runs `make lint test` when `App/`, `BreathnestKit/`, `project.yml`, `Makefile` or `.swiftformat` differ from `main`: commits since the merge-base with `origin/main` (`main` when there is no `origin/main`), plus uncommitted and untracked files. Committing after every slice does not skip it. When neither ref exists or has a merge-base with `HEAD` (a remote not named `origin`, a default branch with another name, a single-branch clone of another branch, unrelated or shallow history) only uncommitted and untracked files count. A normal clone and a linked worktree have `origin/main`, so they are covered. It runs on every stop while the branch differs from `main`, also on turns that changed nothing. When it fails, the output comes back to you: fix it, do not stop. It reports once and does not loop. Tested by `scripts/test-stop-check.sh`.
 
 The safe commands above are allowlisted in `.claude/settings.json`, so they run without a prompt. `make test-ui` and `make test-catalogs` are not on the list yet: each call asks first until `Bash(make test-ui)` and `Bash(make test-catalogs)` are added.
@@ -40,7 +41,7 @@ The safe commands above are allowlisted in `.claude/settings.json`, so they run 
 | Job | Runner | Runs | When |
 |---|---|---|---|
 | `Changes` | ubuntu | `scripts/ci-scope.sh`: does the diff against the base touch `App/`, `BreathnestKit/` or `project.yml`? The base is the target branch of a pull request, or the previous tip of `main` on a push | always |
-| `Script tests` | ubuntu | the tests of every script (among them `test-check-coverage.sh`), `check-workflows.sh`, `check-docs.sh`, `check-context-size.sh`, `check-architecture.sh`, `check-catalogs.sh` | always |
+| `Script tests` | ubuntu | the tests of every script (among them `test-check-coverage.sh` and `test-afk-run.sh`), `check-workflows.sh`, `check-docs.sh`, `check-context-size.sh`, `check-architecture.sh`, `check-catalogs.sh` | always |
 | `Kit tests` | ubuntu, in the `swift:6.2-noble` image pinned by digest | `scripts/coverage.sh`: `swift test` in `BreathnestKit/` with coverage, the table goes to the job summary, the job fails when a file or the total is under the 80% floor | always |
 | `Build, app tests, lint` | `macos-26` | `scripts/test-make-pipefail.sh`, then `make gen build test lint` and `make run screenshot` (the screenshot is uploaded as an artifact) | unless `Changes` says no Swift file changed |
 
