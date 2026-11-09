@@ -4,9 +4,9 @@ GitHub flow with Conventional Commits. Read this before creating a branch, a com
 
 ## Flow
 
-- `main` is always releasable and only changes through a squash-merged pull request. Never commit to `main` directly.
+- `main` is always releasable and only changes through a merged pull request. Never commit to `main` directly.
 - One ticket = one branch = one pull request. Work in a worktree per ticket when sessions run in parallel.
-- Branches are short-lived and branch from the latest `main`. Merge `main` into the branch (or rebase it) before opening the PR when `main` has moved.
+- Branches are short-lived and branch from the latest `main`. Merge `main` into the branch (or rebase it before the first push) when `main` has moved.
 - A PR branch that falls behind `main` after the PR is open is not updated by itself. The ruleset refuses to merge it until the user presses **Update branch** on the PR (see "Keeping a PR branch up to date" below), and the checks then run again on the result.
 - Delete the branch after the merge.
 
@@ -43,10 +43,10 @@ GitHub flow with Conventional Commits. Read this before creating a branch, a com
 
 ## Pull requests
 
-- Title is a valid Conventional Commit header. Squash merge makes it the commit message on `main`.
+- Title is a valid Conventional Commit header. The merge commit on `main` takes it as its title, with the PR number added by GitHub.
 - Body follows [pull requests](pull-requests.md), which extends the `pr` skill with the tests, snapshots, critical paths and reviewer notes, and ends with `Closes #<issue>`.
 - Open as a draft until the `code-reviewer` agent has reviewed the PR in a fresh session and the checks are green. Its review ends with a marker naming the commit it reviewed, and CI fails a PR that is not a draft without a review of a commit of the PR. One review round: fix the findings and push, a push after the review needs no second one.
-- Merge with **squash**. Linear history on `main`.
+- Merge with a **merge commit**, never squash or rebase. Every commit of the branch reaches `main`, so each one is a valid Conventional Commit (the `commit-msg` hook checks it). History on `main` is not linear.
 
 ## Keeping a PR branch up to date
 
@@ -80,12 +80,12 @@ Chosen: the ruleset requires branches to be up to date before merging (strict re
 | Branch name `<type>/<issue>-<slug>` | CI, the `check-title` job of `.github/workflows/pr-title.yml` calling `scripts/check-branch-name.sh` on the head branch, tested by `scripts/test-check-branch-name.sh`. The number is optional, the type is one of the commit types, the slug is lowercase words joined by hyphens. `dependabot/*` passes. A `research/` or `prototype/` branch is refused, use `docs` or `feat` |
 | A workflow without `permissions: contents: read` or a job without `timeout-minutes` | `make lint` and the `Script tests` job calling `scripts/check-workflows.sh`, tested by `scripts/test-check-workflows.sh` |
 | The docs name a file, script, hook, `make` target or skill that does not exist | `make lint` and the `Script tests` job calling `scripts/check-docs.sh`, tested by `scripts/test-check-docs.sh`. Which rule is checked by what: [rules enforcement](rules-enforcement.md) |
-| Kit tests before a push | `pre-push` hook, `.githooks/pre-push` running `make test-kit`. Skipped when the push only deletes a branch. A push of `main` is refused before the tests run |
+| Lint and Kit tests before a push (so before a pull request, a draft included, can be opened) | `pre-push` hook, `.githooks/pre-push` running `make lint`, then `make test-kit`. `make lint` also covers docs-only and script-only branches, which the Stop hook does not. Skipped when the push only deletes a branch. A push of `main` is refused before the tests run |
 | A stuck or over-privileged workflow job | every workflow in `.github/workflows/` sets `permissions: contents: read` and a `timeout-minutes` on each job (5 for the ubuntu jobs, 10 for `Kit tests`, 30 for `Build, app tests, lint`; the slowest run was about 9 minutes). `scripts/check-workflows.sh` checks that both are there, not the values (see the `check-workflows.sh` row) |
 | A pull request breaks the Kit tests, the build, the app tests or `make lint` | CI, `.github/workflows/ci.yml`: `Kit tests` (`swift test` with the 80% coverage floor on ubuntu in a pinned Swift image, always), `Build, app tests, lint` (`make gen build test lint` on `macos-26`, Xcode `CI_XCODE_VERSION` of `tools.env`, Simulator iOS 26.2) and `Script tests`. The jobs are described in [commands](commands.md) (CI) |
 | A pull request or push that changes neither the Kit nor the app waits for a macOS runner | `Changes` job calling `scripts/ci-scope.sh`, tested by `scripts/test-ci-scope.sh`: `Build, app tests, lint` is skipped, with a job-level `if`, when no file of `App/`, `BreathnestKit/` or `project.yml` changed (on a push, against the previous tip of `main`). A skipped job counts as passed for the required check. It runs anyway when `Changes` fails |
 | A failed `xcodebuild` or app test fails `make` | `SHELL := /bin/bash -o pipefail` in the `Makefile` (macOS ships Make 3.81, which ignores `.SHELLFLAGS`), tested by `scripts/test-make-pipefail.sh` in the `Build, app tests, lint` job on macOS |
-| Squash merge, PR title as commit title | repository setting: only squash merge is allowed, the PR title is the commit title, branches are deleted after the merge |
+| Merge commit only, PR title as merge commit title | repository setting: only merge commits are allowed (squash and rebase are off), the merge commit title is the PR title and its message the PR body, branches are deleted after the merge. `check-title` stays: the title becomes a commit header on `main`. `scripts/check-commit-msg.sh` skips `Merge ` and `Revert "` headers, so a default `Merge pull request` message would pass too. "Require linear history" stays off in the ruleset |
 | No direct commits to `main`, no force push, no deleting it, required checks green | repository ruleset `Main branch ruleset`. The Admin role can bypass it only when merging a pull request (`bypass_mode: pull_request`), a direct push to `main` is refused for everyone. Required checks: `Script tests`, `Kit tests`, `Build, app tests, lint`, `check-title`, `check-body`, `critical-paths`. A new job in a workflow is not required until it is added to the ruleset |
 | A PR branch behind `main` is merged | repository ruleset `Main branch ruleset`: setting **Require branches to be up to date before merging** (strict required status checks), on for the required checks listed above. Applied by the user, not by a file in the repo. The branch is updated by the user's **Update branch** click, nothing updates it automatically |
 | Destructive commands: force push (also `-fu`, `--force-with-lease`), deleting or mirroring remote refs, push to `main`, hard reset, forced clean, forced branch delete, `checkout .` / `restore .`. Skipping the hooks: `--no-verify` and `-n` on `git commit` and `git push` (`git push -n` is `--dry-run`, blocked with it), `git -c core.hooksPath=...` and `--config-env`. GitHub: `gh pr merge`, `gh repo delete`, `gh issue delete`, `gh release delete`, also with options before the subcommand (`gh -R owner/repo pr merge`) | Claude Code `PreToolUse` hook, `.claude/hooks/block-dangerous-git.sh`, registered in `.claude/settings.json`, tested by `scripts/test-block-dangerous-git.sh`. Needs `jq` and refuses everything without it. Pushing a feature branch and `gh pr create` / `gh pr view` are allowed. `.claude/settings.json` also lists the four `gh` commands in `permissions.deny`. Options before the subcommand (`git -C dir ...`) are ignored when matching. The hook matches the command text, so a commit message or PR body that quotes a blocked command is blocked too, reword it |
