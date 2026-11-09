@@ -135,6 +135,23 @@ code=$(run "$tmp/parent.jsonl" 200000 nosuch)
 check "a subagent without a transcript file exits 0" test "$code" = 0
 check "a subagent without a transcript file is silent, the parent is not measured for it" silent
 
+# Autonomous mode (an AFK subagent, or BREATHNEST_AFK=1): nobody can run /clear, so the message must not ask for it.
+autonomous() { ! message | grep -q '/clear' && ! message | grep -qi 'tell the user' && message | grep -q 'handoff' && message | grep -qi 'end your run'; }
+grown afk 75000 105000
+printf '{"transcript_path":"%s"}' "$tmp/afk.jsonl" | BREATHNEST_AFK=1 "$hook" >"$tmp/out" 2>/dev/null
+check "BREATHNEST_AFK=1 still injects at the limit" injects
+check "BREATHNEST_AFK=1 message has no /clear and ends the run with the handoff" autonomous
+
+run "$tmp/parent.jsonl" 200000 big >/dev/null
+check "a subagent message (agent_id) is the autonomous one" autonomous
+
+run "$tmp/parent.jsonl" 200000 >/dev/null
+check "the interactive message still asks for /clear" names_save_and_stop
+check "the interactive message offers scripts/afk-run.sh for an unattended restart" sh -c "jq -r '.hookSpecificOutput.additionalContext' '$tmp/out' | grep -q 'scripts/afk-run.sh'"
+
+printf '{"transcript_path":"%s"}' "$tmp/fresh.jsonl" | BREATHNEST_AFK=1 "$hook" >"$tmp/out" 2>/dev/null
+check "BREATHNEST_AFK=1 under the limit is silent" silent
+
 echo '{"type":"user"}' >"$tmp/nousage.jsonl"
 run "$tmp/nousage.jsonl" 200000 >/dev/null
 check "a transcript without usage is silent" silent
