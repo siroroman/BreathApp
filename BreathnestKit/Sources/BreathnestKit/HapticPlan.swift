@@ -44,7 +44,14 @@ public extension Pattern {
         case .hold, .rest:
             let ticks = Int(phase.duration.components.seconds) + (phase.duration.components.attoseconds > 0 ? 1 : 0)
             return (0 ..< ticks).map {
-                HapticEvent(kind: .transient, time: .seconds($0), duration: .zero, intensity: 1, sharpness: 1, intensityCurve: [])
+                HapticEvent(
+                    kind: .transient,
+                    time: .seconds($0),
+                    duration: .zero,
+                    intensity: 1,
+                    sharpness: 1,
+                    intensityCurve: []
+                )
             }
         }
     }

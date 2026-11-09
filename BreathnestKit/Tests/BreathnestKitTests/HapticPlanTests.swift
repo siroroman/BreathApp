@@ -14,7 +14,8 @@ import Testing
         #expect(event.duration == .seconds(5.5))
         #expect(event.sharpness == 0.7)
         #expect(event.intensity == 0.35)
-        #expect(try #require(event.intensityCurve.last).value == 1.0)
+        let last = try #require(event.intensityCurve.last)
+        #expect(last.value == 1.0)
     }
 
     @Test func exhaleIsOneContinuousEventFromFullToSixtyFiveIntensity() throws {
@@ -25,7 +26,8 @@ import Testing
         #expect(event.duration == .seconds(5.5))
         #expect(event.sharpness == 0.25)
         #expect(event.intensity == 1.0)
-        #expect(try #require(event.intensityCurve.last).value == 0.65)
+        let last = try #require(event.intensityCurve.last)
+        #expect(last.value == 0.65)
     }
 
     @Test func leadInEndedAndCompletedPlayNothing() {
@@ -81,8 +83,10 @@ import Testing
         let values = (first.intensityCurve + second.intensityCurve).map(\.value)
         #expect(first.intensity == 0.35)
         #expect(zip(values, values.dropFirst()).allSatisfy { $0 <= $1 })
-        #expect(abs(second.intensity - (try #require(first.intensityCurve.last).value)) < 1e-9)
-        #expect(abs(try #require(second.intensityCurve.last).value - 1.0) < 1e-9)
+        let firstEnd = try #require(first.intensityCurve.last)
+        let secondEnd = try #require(second.intensityCurve.last)
+        #expect(abs(second.intensity - firstEnd.value) < 1e-9)
+        #expect(abs(secondEnd.value - 1.0) < 1e-9)
     }
 
     @Test func everyPhaseOfTheBoxPatternHasEventsInItsOwnPlace() {
