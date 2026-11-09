@@ -15,13 +15,13 @@ One `make` target per check, run from the repository root (also from a worktree)
 | `make lint` | `scripts/check-tools.sh` (the installed `swiftformat` and `swiftlint` are the versions pinned in `tools.env`, else it prints the fix), `swiftformat --lint`, then `swiftlint lint --strict` (the Swift conventions of [iOS](ios.md), config in `.swiftlint.yml`), `scripts/check-workflows.sh` (every workflow sets `permissions: contents: read` and a `timeout-minutes` on each job) `scripts/check-docs.sh` (the docs only name files, `make` targets and skills that exist) `scripts/check-context-size.sh` (`CLAUDE.md` and the skill and agent descriptions stay within their size budget, [tokens](tokens.md)) `scripts/check-architecture.sh` (the Kit imports only Foundation, Synchronization and Swift, no package is declared) and `scripts/check-catalogs.sh` (the String Catalog rules of `make test-catalogs`). Changes nothing, fails when a file needs formatting or a rule is broken. | no |
 | `make coverage` | `scripts/coverage.sh`: the Kit tests with code coverage, then one line per file of `BreathnestKit/Sources` and the total (lines, missed lines, percent). It fails on a failing test and when a file or the total is under the floor of 80% (`scripts/check-coverage.sh`). How to read it: [testing](testing.md) (Coverage). | no |
 | `make format` | `swiftformat` in place. Fix a failing `make lint` with this. | no |
-| `make run` | Builds, boots this checkout's simulator, installs and launches the app. | yes |
+| `make run` | Builds, boots this checkout's simulator, installs and launches the app. Slow: only when [Simulator use](workflow.md#simulator-use) allows it. | yes |
 | `make screenshot` | Saves the simulator screen to `build/screenshot.png`. Open it with the Read tool to look at it. | yes |
 | `make sim` | Prints the UDID of this checkout's simulator, creating it when missing. | no |
 
 Compiler warnings are errors: `SWIFT_TREAT_WARNINGS_AS_ERRORS` in `project.yml` for the app and `.treatAllWarnings(as: .error)` in `BreathnestKit/Package.swift` for the Kit. Fix the warning, do not silence it.
 
-Typical order: `make test-kit` while working, `make format lint` before a commit, `make build test lint` before the pull request, `make run screenshot` for any UI change.
+Typical order: `make test-kit` while working, `make format lint` before a commit, `make build test lint` before the pull request, then one `make run screenshot` per changed screen when [Simulator use](workflow.md#simulator-use) allows it (not in the red-green loop, not for a layout or copy change).
 
 ## Hooks
 
