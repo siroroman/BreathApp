@@ -13,8 +13,8 @@ Source: the Claude Design canvas "Breathnest Design" (row "Mobile"). The canvas 
 5. **Show the evidence.** Every iPhone UI pull request attaches a Simulator screenshot of each screen it touches (default text size only), next to the design values it matched, and says which screens were not checked. The `ui-verifier` agent can take them.
 6. **A screen the design does not draw is not built.** Features whose screens are drawn but whose behaviour is open have their own tickets (see the spec).
 7. **A text change needs a design change first.** Strings in this document are the English source for the String Catalog.
-8. **Dynamic Type.** The `ax` branch in each source file holds the AX5 layout (bigger sizes, stacked buttons, hidden glyphs). It is part of the design. Text scales to AX5 with no upper limit.
-9. **AX5 values are design values, not checked by the agent.** Every AX5 number in this document and in `design/phone/` is a requirement for the code, but no agent takes an AX5 screenshot or reports AX5 as verified. AX5 is covered only by `performAccessibilityAudit()` UI tests ([#33](https://github.com/siroroman/BreathApp/issues/33)).
+8. **Dynamic Type.** The `ax` branch in each source file holds the AX5 layout (bigger sizes, stacked buttons, hidden glyphs). It is part of the design. Text scales to AX5 with no upper limit. The AX5 values are design values, not checked by the agent (rule 9).
+9. **AX5 values are design values, not checked by the agent.** Every AX5 number in this document and in `design/phone/` is a requirement for the code, but no agent takes an AX5 screenshot or reports AX5 as verified. AX5 is to be covered only by `performAccessibilityAudit()` UI tests, which do not exist yet ([#33](https://github.com/siroroman/BreathApp/issues/33)).
 
 ## Tokens
 
