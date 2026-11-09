@@ -9,6 +9,8 @@ metadata:
     url: "https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md"
 ---
 
+Before `gh pr create` (draft included) run `make format lint`, read it to the last line (`0/N files require formatting.`) and fix every error.
+
 Use this template for writing the PR body:
 
 ```markdown

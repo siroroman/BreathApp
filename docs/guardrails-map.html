@@ -331,7 +331,7 @@ const stations = [
       s: "make test-kit in a few seconds, no simulator.",
       problem: "A push with a broken test starts CI on macOS, which takes minutes. The result arrives when you are already doing something else.",
       example: "You change code in the Kit and the clock test fails. The push stops with <code>make test-kit failed, nothing was pushed</code> and you fix it right away, while it is still in your head.",
-      how: "<code>.githooks/pre-push</code> first refuses a push to <code>main</code> or <code>master</code>, then runs <code>make test-kit</code>. A push that only deletes a branch skips the tests.",
+      how: "<code>.githooks/pre-push</code> first refuses a push to <code>main</code> or <code>master</code>, then runs <code>make lint</code> and <code>make test-kit</code>. A push that only deletes a branch skips the tests.",
       gap: "It is switched on once per clone with <code>make setup</code>, and a person can still skip it with <code>--no-verify</code> (the Claude hook blocks that for the agent). It does not run the app tests that need the simulator, those run only in CI.",
       done: "2026-10-30", ref: "PR 81" },
     { st: "ok", t: "A commit message must follow Conventional Commits",

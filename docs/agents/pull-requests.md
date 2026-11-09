@@ -10,6 +10,10 @@ The body starts from the `pr` skill (Summary, Evidence, Merge Danger) and adds t
 ## Snapshots
 ## Evidence
 ## Merge Danger
+## Before the PR is created
+
+Run `make format lint`, read it to the last line (`0/N files require formatting.`) and fix every error first. A draft PR is opened only with a clean lint. The `pre-push` hook enforces it on the push that precedes `gh pr create` ([git](git.md)).
+
 ## Reviewer notes
 
 Closes #<issue>
