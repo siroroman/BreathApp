@@ -46,6 +46,8 @@ final class SessionViewModel {
     var isPaused: Bool { snapshot.state == .paused }
     var phaseKind: PhaseKind? { snapshot.phase?.kind }
     var timeLeft: Duration { snapshot.timeLeft }
+    /// 0 (empty) to 1 (full) for the torus; 0 in the Lead-in and after the end.
+    var breathLevel: Double { snapshot.breathLevel }
     var cycleCount: Int { snapshot.cycleCount }
     var sessionLength: SessionLength { exercise.sessionLength(for: requested) }
     var totalLength: Duration { sessionLength.totalLength }

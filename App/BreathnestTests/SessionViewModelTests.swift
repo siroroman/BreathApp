@@ -47,6 +47,17 @@ private final class FakeScreenAwake: ScreenAwake {
         #expect(viewModel.leadInDigit == 1)
     }
 
+    @Test func theBreathLevelIsZeroInTheLeadInRisesOnInhaleAndIsZeroAfterTheEnd() {
+        let (viewModel, _) = make()
+        #expect(viewModel.breathLevel == 0)
+        viewModel.tick(now: at(5.5))
+        #expect(viewModel.breathLevel > 0)
+        #expect(viewModel.breathLevel < 1)
+        viewModel.tick(now: at(600))
+        #expect(viewModel.stage == .completed)
+        #expect(viewModel.breathLevel == 0)
+    }
+
     @Test func afterTheLeadInThePhasesFollowThePattern() {
         let (viewModel, _) = make()
         viewModel.tick(now: at(3.5))
