@@ -36,8 +36,8 @@ struct SessionView: View {
 
     private func runningScreen(scale: DesignScale) -> some View {
         VStack(spacing: 0) {
-            timeBlock(scale: scale)
-            phaseBlock(scale: scale).padding(.top, 24)
+            timeBlock
+            phaseBlock.padding(.top, 24)
             Spacer(minLength: 0)
             if viewModel.stage == .leadIn {
                 Text(verbatim: "\(viewModel.leadInDigit)")
@@ -59,7 +59,7 @@ struct SessionView: View {
         .ignoresSafeArea()
     }
 
-    private func timeBlock(scale: DesignScale) -> some View {
+    private var timeBlock: some View {
         VStack(spacing: 0) {
             Text(verbatim: SessionText.remaining(viewModel.timeLeft))
                 .designFont(.title, 32, weight: .semibold)
@@ -72,7 +72,7 @@ struct SessionView: View {
         .accessibilityElement(children: .combine)
     }
 
-    private func phaseBlock(scale: DesignScale) -> some View {
+    private var phaseBlock: some View {
         VStack(spacing: 0) {
             Text(title)
                 .designFont(.largeTitle, 44, weight: .semibold, tracking: -0.01)
