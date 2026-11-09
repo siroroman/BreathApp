@@ -33,9 +33,10 @@ chmod +x "$tmp/gh" "$tmp/claude"
 # run <args...>: fresh stub state, prints the exit code. Set PR_ON_ROUND / CLAUDE_EXIT / LABELS / PRS before.
 run() {
   rm -f "$tmp/rounds" "$tmp/calls"
+  : "${CLAUDE_FLAGS=--permission-mode acceptEdits}"
   echo "${PRS:-[]}" >"$tmp/prs.json"
   printf '%s' "${LABELS:-}" >"$tmp/labels"
-  STUB_DIR="$tmp" GH_BIN="$tmp/gh" CLAUDE_BIN="$tmp/claude" "$script" "$@" >"$tmp/out" 2>&1
+  STUB_DIR="$tmp" CLAUDE_FLAGS="${CLAUDE_FLAGS-}" GH_BIN="$tmp/gh" CLAUDE_BIN="$tmp/claude" "$script" "$@" >"$tmp/out" 2>&1
   echo $?
 }
 rounds() { cat "$tmp/rounds" 2>/dev/null || echo 0; }
@@ -86,5 +87,9 @@ check "a failing claude run does not stop the loop" test "$(rounds)" = 2
 
 CLAUDE_FLAGS="--model sonnet" run 42 --max-rounds 1 >/dev/null
 check "CLAUDE_FLAGS are passed to claude" grep -q -- '--model sonnet' "$tmp/calls"
+
+code=$(CLAUDE_FLAGS="" run 42)
+check "without CLAUDE_FLAGS it refuses to start (2) and runs nothing" sh -c "[ '$code' = 2 ] && [ \$(cat '$tmp/rounds' 2>/dev/null || echo 0) = 0 ]"
+check "the refusal names CLAUDE_FLAGS" grep -q CLAUDE_FLAGS "$tmp/out"
 
 exit "$failed"

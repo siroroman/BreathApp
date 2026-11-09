@@ -2,8 +2,10 @@
 # Implements a ticket without a human: runs the implementer agent headless, and when a run ends (for example at the
 # context limit, with a handoff comment on the ticket) starts a fresh one from the ticket, up to N rounds.
 # Usage: afk-run.sh <issue> [--max-rounds N]
-# Env: AFK_MAX_ROUNDS (default 3), CLAUDE_BIN (default claude), GH_BIN (default gh), CLAUDE_FLAGS (extra claude flags).
-# Exit: 0 a draft PR that closes the issue exists, 1 no PR after N rounds, 2 usage error, 3 the ticket needs info.
+# Env: CLAUDE_FLAGS (required: the claude flags that let a headless run edit, commit, push and use gh, for example
+# --permission-mode bypassPermissions in a throwaway worktree; the repo settings allow none of that and -p cannot ask),
+# AFK_MAX_ROUNDS (default 3), CLAUDE_BIN (default claude), GH_BIN (default gh).
+# Exit: 0 a PR that closes the issue is open, 1 no PR after N rounds, 2 usage error (also CLAUDE_FLAGS unset), 3 needs-info.
 # Rules: docs/agents/workflow.md (Context limit). Tested by scripts/test-afk-run.sh.
 set -uo pipefail
 
@@ -23,6 +25,10 @@ while [ $# -gt 0 ]; do
 done
 case $issue in '' | *[!0-9]*) usage ;; esac
 case $max in '' | *[!0-9]* | 0) usage ;; esac
+if [ -z "${CLAUDE_FLAGS:-}" ]; then
+  echo "afk-run: set CLAUDE_FLAGS to the claude flags that let a headless run edit, commit, push and use gh (a -p run cannot ask)" >&2
+  exit 2
+fi
 
 # pr_open: succeeds when an open PR body has "Closes #<issue>" (not #<issue>0).
 pr_open() {
@@ -38,13 +44,13 @@ prompt="Implement #$issue end to end. Read the ticket and its latest handoff com
 
 round=1
 while [ "$round" -le "$max" ]; do
-  if pr_open; then echo "afk-run: a draft PR for #$issue exists" >&2; exit 0; fi
+  if pr_open; then echo "afk-run: an open PR for #$issue exists" >&2; exit 0; fi
   if needs_info; then echo "afk-run: #$issue is labelled needs-info, a human has to answer" >&2; exit 3; fi
   echo "afk-run: round $round of $max for #$issue" >&2
   # shellcheck disable=SC2086
-  BREATHNEST_AFK=1 "$claude_bin" -p --agent implementer ${CLAUDE_FLAGS:-} "$prompt" || echo "afk-run: round $round exited non-zero" >&2
+  BREATHNEST_AFK=1 "$claude_bin" -p --agent implementer $CLAUDE_FLAGS "$prompt" || echo "afk-run: round $round exited non-zero" >&2
   round=$((round + 1))
 done
-if pr_open; then echo "afk-run: a draft PR for #$issue exists" >&2; exit 0; fi
+if pr_open; then echo "afk-run: an open PR for #$issue exists" >&2; exit 0; fi
 echo "afk-run: no pull request for #$issue after $max rounds, a human has to look at the ticket" >&2
 exit 1

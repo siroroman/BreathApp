@@ -147,7 +147,6 @@ check "a subagent message (agent_id) is the autonomous one" autonomous
 
 run "$tmp/parent.jsonl" 200000 >/dev/null
 check "the interactive message still asks for /clear" names_save_and_stop
-check "the interactive message offers scripts/afk-run.sh for an unattended restart" sh -c "jq -r '.hookSpecificOutput.additionalContext' '$tmp/out' | grep -q 'scripts/afk-run.sh'"
 
 printf '{"transcript_path":"%s"}' "$tmp/fresh.jsonl" | BREATHNEST_AFK=1 "$hook" >"$tmp/out" 2>/dev/null
 check "BREATHNEST_AFK=1 under the limit is silent" silent

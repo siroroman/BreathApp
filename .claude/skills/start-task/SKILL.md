@@ -84,7 +84,7 @@ Right after the draft PR is open, start the `code-reviewer` agent with the Agent
 
 ## Context limit
 
-When the `implementer` or `code-reviewer` you started ends with a handoff (its report says it hit the context limit and a handoff comment is on the ticket), start a new agent of the same type from the ticket number only: it reads the handoff itself. At most 3 rounds per ticket, then stop and tell the user where the ticket stands. Your own session at the limit: post the handoff, then run `scripts/afk-run.sh <issue>` in the background or ask the user to run `/clear` ([workflow](../../../docs/agents/workflow.md), Context limit).
+When the `implementer` or `code-reviewer` you started ends with a handoff (its report says it hit the context limit and a handoff comment is on the ticket), start a new agent of the same type from the ticket number (and the PR number for the reviewer): it reads the handoff itself. At most 3 rounds per ticket, then stop and tell the user where the ticket stands. Your own session at the limit: post the handoff, then ask the user to run `/clear` (or to start `scripts/afk-run.sh <issue>` with `CLAUDE_FLAGS` set) ([workflow](../../../docs/agents/workflow.md), Context limit).
 
 ## Examples
 
