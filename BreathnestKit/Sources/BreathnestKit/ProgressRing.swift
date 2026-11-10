@@ -46,8 +46,9 @@ public struct ProgressRing: Sendable, Hashable {
     /// per arc. The arcs before that Phase are full and the ones after it empty, so the ring restarts at the
     /// top with each Cycle. `nil` is the Lead-in: nothing is lit.
     ///
-    /// A hold or rest lights a segment when its second is complete, so the last one lights as the Phase ends,
-    /// which is when the next arc takes over.
+    /// A hold or rest lights a segment when its second starts, the moment its haptic tick plays (see
+    /// `Pattern.hapticEvents`): the first as the Phase starts, the last at the start of its last second. So the
+    /// count is ahead of the Phase's end, not behind it.
     public func fills(phaseIndex: Int?, fractionOfPhase: Double) -> [ArcFill] {
         arcs.enumerated().map { index, arc in
             let share: Double = if let phaseIndex, index < phaseIndex {
@@ -59,7 +60,8 @@ public struct ProgressRing: Sendable, Hashable {
             }
             guard arc.segmentCount > 0 else { return .fraction(share) }
             if share >= 1 { return .segments(arc.segmentCount) }
-            return .segments(min(arc.segmentCount, Int((share * arc.seconds + 1e-9).rounded(.down))))
+            guard index == phaseIndex else { return .segments(0) }
+            return .segments(min(arc.segmentCount, Int((share * arc.seconds + 1e-9).rounded(.down)) + 1))
         }
     }
 }
