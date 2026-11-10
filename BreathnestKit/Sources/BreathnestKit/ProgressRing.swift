@@ -50,13 +50,12 @@ public struct ProgressRing: Sendable, Hashable {
     /// which is when the next arc takes over.
     public func fills(phaseIndex: Int?, fractionOfPhase: Double) -> [ArcFill] {
         arcs.enumerated().map { index, arc in
-            let share: Double
-            if let phaseIndex, index < phaseIndex {
-                share = 1
+            let share: Double = if let phaseIndex, index < phaseIndex {
+                1
             } else if index == phaseIndex {
-                share = min(max(fractionOfPhase, 0), 1)
+                min(max(fractionOfPhase, 0), 1)
             } else {
-                share = 0
+                0
             }
             guard arc.segmentCount > 0 else { return .fraction(share) }
             if share >= 1 { return .segments(arc.segmentCount) }

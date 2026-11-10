@@ -26,8 +26,10 @@ private let base = ContinuousClock().now
     @Test(arguments: Exercise.builtIn)
     func arcsFollowOneAnotherFromTheTopAndFillTheWholeRing(exercise: Exercise) throws {
         let arcs = ProgressRing(pattern: exercise.pattern).arcs
-        #expect(try #require(arcs.first).start == 0)
-        #expect(abs(try #require(arcs.last).end - 1) < 1e-12)
+        let first = try #require(arcs.first)
+        let last = try #require(arcs.last)
+        #expect(first.start == 0)
+        #expect(abs(last.end - 1) < 1e-12)
         for (previous, next) in zip(arcs, arcs.dropFirst()) {
             #expect(previous.end == next.start)
         }

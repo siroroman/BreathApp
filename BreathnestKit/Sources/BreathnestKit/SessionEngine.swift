@@ -66,7 +66,8 @@ public struct SessionEngine: Sendable {
         }
         guard leadInLeft == .zero else {
             return Snapshot(
-                state: state, phase: nil, phaseIndex: nil, fractionOfPhase: 0, secondsLeftInPhase: 0, leadInLeft: leadInLeft,
+                state: state, phase: nil, phaseIndex: nil, fractionOfPhase: 0, secondsLeftInPhase: 0,
+                leadInLeft: leadInLeft,
                 timeLeft: sessionLength.totalLength, cycle: 1, cycleCount: sessionLength.cycleCount,
                 breathLevel: 0
             )

@@ -56,6 +56,7 @@ final class SessionViewModel {
     var ringFills: [ProgressRing.ArcFill] {
         ring.fills(phaseIndex: snapshot.phaseIndex, fractionOfPhase: snapshot.fractionOfPhase)
     }
+
     var sessionLength: SessionLength { exercise.sessionLength(for: requested) }
     var totalLength: Duration { sessionLength.totalLength }
     @ObservationIgnored private let requested: Duration
