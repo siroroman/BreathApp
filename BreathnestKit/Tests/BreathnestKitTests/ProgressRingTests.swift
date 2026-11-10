@@ -105,13 +105,22 @@ private let base = ContinuousClock().now
         #expect(ring.fills(phaseIndex: 1, fractionOfPhase: 0.999)[1] == .segments(4))
     }
 
-    @Test func aSegmentLightsAtTheMomentItsHapticTickPlays() throws {
+    @Test(arguments: Exercise.builtIn)
+    func aSegmentLightsAtTheMomentItsHapticTickPlaysInABuiltInExercise(_ exercise: Exercise) {
+        expectSegmentsLightWithTheirHapticTicks(exercise.pattern)
+    }
+
+    @Test func aSegmentLightsAtTheMomentItsHapticTickPlaysForAPartSecondHoldAndRest() throws {
         let pattern = try #require(Pattern(phases: [
             Phase(kind: .inhale, duration: .seconds(4)),
             Phase(kind: .hold, duration: .seconds(2.5)),
             Phase(kind: .exhale, duration: .seconds(4)),
             Phase(kind: .rest, duration: .seconds(3)),
         ]))
+        expectSegmentsLightWithTheirHapticTicks(pattern)
+    }
+
+    private func expectSegmentsLightWithTheirHapticTicks(_ pattern: Pattern) {
         let ring = ProgressRing(pattern: pattern)
         for (index, phase) in pattern.phases.enumerated() where phase.kind == .hold || phase.kind == .rest {
             let length = seconds(phase.duration)
