@@ -54,13 +54,15 @@ struct IdleTimerScreenAwake: ScreenAwake {
 struct AppDependencies {
     let ticker: any Ticker
     let screenAwake: any ScreenAwake
+    let haptics: any HapticPlayer
     /// Scales the time fed to the Session engine. 1 in a release build; a DEBUG launch argument can raise it.
     let sessionSpeed: Double
 
     @MainActor
     static func live(arguments: [String] = ProcessInfo.processInfo.arguments) -> AppDependencies {
         AppDependencies(
-            ticker: DisplayLinkTicker(), screenAwake: IdleTimerScreenAwake(), sessionSpeed: speed(in: arguments)
+            ticker: DisplayLinkTicker(), screenAwake: IdleTimerScreenAwake(), haptics: CoreHapticsPlayer(),
+            sessionSpeed: speed(in: arguments)
         )
     }
 
