@@ -1,6 +1,6 @@
 # Token use
 
-A session pays again for everything in its context on every turn, so the cost is what stays in the context, not what one command prints. These rules keep it small. The context limit and when to reset are in [workflow](workflow.md).
+A session pays again for everything in its context on every turn, so the cost is what stays in the context, not what one command prints. These rules keep it small.
 
 ## What every session loads
 
