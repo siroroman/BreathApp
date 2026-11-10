@@ -168,8 +168,11 @@ struct ExerciseDetailView: View {
         Button {
             session = SessionViewModel(
                 exercise: viewModel.exercise, requested: viewModel.selectedDuration,
-                screenAwake: dependencies.screenAwake, haptics: dependencies.haptics, isHapticsOn: viewModel.isHapticsOn,
-                speed: dependencies.sessionSpeed, startedAt: .now
+                screenAwake: dependencies.screenAwake,
+                haptics: dependencies.haptics,
+                isHapticsOn: viewModel.isHapticsOn,
+                speed: dependencies.sessionSpeed,
+                startedAt: .now
             )
         } label: {
             Text("detail.start")
