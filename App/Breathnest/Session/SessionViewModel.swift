@@ -15,17 +15,23 @@ final class SessionViewModel {
 
     @ObservationIgnored private var engine: SessionEngine
     @ObservationIgnored private let screenAwake: any ScreenAwake
+    @ObservationIgnored private let haptics: any HapticPlayer
+    @ObservationIgnored private let isHapticsOn: Bool
+    /// How many Phases have started, counted over every Cycle; the Pattern's Phase index is this modulo its length.
+    @ObservationIgnored private var phasesStarted = 0
     @ObservationIgnored private let speed: Double
     @ObservationIgnored private let origin: ContinuousClock.Instant
     @ObservationIgnored private var task: Task<Void, Never>?
 
     /// `speed` scales the time fed to the engine; the app passes 1 except for the DEBUG launch argument.
     init(
-        exercise: Exercise, requested: Duration, screenAwake: any ScreenAwake, speed: Double = 1,
-        startedAt: ContinuousClock.Instant
+        exercise: Exercise, requested: Duration, screenAwake: any ScreenAwake, haptics: any HapticPlayer,
+        isHapticsOn: Bool, speed: Double = 1, startedAt: ContinuousClock.Instant
     ) {
         self.exercise = exercise
         self.screenAwake = screenAwake
+        self.haptics = haptics
+        self.isHapticsOn = isHapticsOn
         self.speed = speed
         self.requested = requested
         origin = startedAt
@@ -76,12 +82,13 @@ final class SessionViewModel {
     }
 
     func tick(now: ContinuousClock.Instant) {
-        engine.advance(to: fed(now))
+        handle(engine.advance(to: fed(now)))
         refresh()
     }
 
     func pause(now: ContinuousClock.Instant) {
-        engine.pause(at: fed(now))
+        handle(engine.pause(at: fed(now)), plays: false)
+        haptics.stop()
         refresh()
     }
 
@@ -96,7 +103,7 @@ final class SessionViewModel {
     }
 
     func stop(now: ContinuousClock.Instant) {
-        engine.stop(at: fed(now))
+        handle(engine.stop(at: fed(now)), plays: false)
         refresh()
     }
 
@@ -104,11 +111,25 @@ final class SessionViewModel {
     func end() {
         task?.cancel()
         task = nil
+        haptics.stop()
         screenAwake.setAwake(false)
     }
 
     private func fed(_ now: ContinuousClock.Instant) -> ContinuousClock.Instant {
         speed == 1 ? now : origin.advanced(by: (now - origin) * speed)
+    }
+
+    /// Plays the haptic of each Phase the time crossed, once, at its start. Every Phase is counted, but a batch
+    /// that pauses, stops or completes the Session plays none: the haptic would be cut at once.
+    private func handle(_ transitions: [SessionEngine.Transition], plays: Bool = true) {
+        let pattern = exercise.pattern
+        let isPlaying = plays && isHapticsOn && !transitions.contains(.completed)
+        for transition in transitions {
+            guard case .phaseStarted = transition else { continue }
+            defer { phasesStarted += 1 }
+            guard isPlaying else { continue }
+            haptics.play(pattern.hapticEvents(for: transition, phaseIndex: phasesStarted % pattern.phases.count))
+        }
     }
 
     private func refresh() {
