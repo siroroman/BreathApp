@@ -28,16 +28,19 @@ enum HapticMapping {
     /// so the chain follows the whole intensity curve of the event.
     static func curves(for events: [HapticEvent]) -> [CHHapticParameterCurve] {
         events.flatMap { event -> [CHHapticParameterCurve] in
-            let points = event.intensityCurve
-            guard points.count > 1 else { return [] }
-            return stride(from: 0, to: points.count - 1, by: maxCurvePoints - 1).map { start in
-                let run = points[start..<min(start + maxCurvePoints, points.count)]
+            let source = event.intensityCurve
+            guard source.count > 1 else { return [] }
+            return stride(from: 0, to: source.count - 1, by: maxCurvePoints - 1).map { start in
+                let run = source[start ..< min(start + maxCurvePoints, source.count)]
                 let origin = seconds(run[start].time)
+                let points = run.map {
+                    CHHapticParameterCurve.ControlPoint(
+                        relativeTime: seconds($0.time) - origin, value: Float($0.value)
+                    )
+                }
                 return CHHapticParameterCurve(
                     parameterID: .hapticIntensityControl,
-                    controlPoints: run.map {
-                        CHHapticParameterCurve.ControlPoint(relativeTime: seconds($0.time) - origin, value: Float($0.value))
-                    },
+                    controlPoints: points,
                     relativeTime: origin
                 )
             }

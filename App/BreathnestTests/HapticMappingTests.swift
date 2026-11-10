@@ -46,7 +46,8 @@ import Testing
         }
         let last = try #require(curves.last)
         let end = last.relativeTime + (last.controlPoints.last?.relativeTime ?? -1)
-        #expect(abs(end - HapticMapping.seconds(try #require(source.last).time)) < 1e-9)
+        let sourceEnd = try #require(source.last)
+        #expect(abs(end - HapticMapping.seconds(sourceEnd.time)) < 1e-9)
         #expect(last.controlPoints.last?.value == source.last.map { Float($0.value) })
     }
 
@@ -104,7 +105,7 @@ import Testing
 @MainActor private final class FakeEngine: HapticEngineDriving {
     var played = 0
     var stops = 0
-    func play(_ pattern: CHHapticPattern) throws { played += 1 }
+    func play(_: CHHapticPattern) throws { played += 1 }
     func stop() { stops += 1 }
 }
 
