@@ -5,7 +5,7 @@ One `make` target per check, run from the repository root (also from a worktree)
 | Command | What it does | Needs simulator |
 |---|---|---|
 | `make setup` | Once per clone: sets `core.hooksPath` to `.githooks` (idempotent, also from a linked worktree) installs the pinned `swiftformat` and `swiftlint` with `scripts/install-tools.sh`, and checks the tools below are installed, printing `brew bundle` when one is missing. | no |
-| `make gen` | Generates `Breathnest.xcodeproj` from `project.yml` (the project is not committed). Every target below runs it first where needed. | no |
+| `make gen` | Generates `Breathnest.xcodeproj` from `project.yml` (the project is not committed) and sets its signing team from `DEVELOPMENT_TEAM` in the environment or from `local.env` (git-ignored, one line `DEVELOPMENT_TEAM=XXXXXXXXXX`; the Team ID is in Xcode, Settings, Accounts). Without either the team stays empty, as in CI. Every target below runs it first where needed. | no |
 | `make build` | Builds the app into `build/` (DerivedData of this checkout). | yes, as a destination |
 | `make test` | `make test-kit`, `make test-app`, then `make test-catalogs`. Not `make test-ui`. | yes |
 | `make test-kit` | `swift test` in `BreathnestKit/`. Seconds, no simulator. Use this in the red-green loop. | no |
@@ -41,7 +41,7 @@ The safe commands above are allowlisted in `.claude/settings.json`, so they run 
 | `Changes` | ubuntu | `scripts/ci-scope.sh`: does the diff against the base touch `App/`, `BreathnestKit/` or `project.yml`? The base is the target branch of a pull request, or the previous tip of `main` on a push | always |
 | `Script tests` | ubuntu | the tests of every script (among them `test-check-coverage.sh`), `check-workflows.sh`, `check-docs.sh`, `check-context-size.sh`, `check-architecture.sh`, `check-catalogs.sh` | always |
 | `Kit tests` | ubuntu, in the `swift:6.2-noble` image pinned by digest | `scripts/coverage.sh`: `swift test` in `BreathnestKit/` with coverage, the table goes to the job summary, the job fails when a file or the total is under the 80% floor | always |
-| `Build, app tests, lint` | `macos-26` | `scripts/test-make-pipefail.sh`, then `make gen build test lint` and `make run screenshot` (the screenshot is uploaded as an artifact) | unless `Changes` says no Swift file changed |
+| `Build, app tests, lint` | `macos-26` | `scripts/test-make-pipefail.sh`, `scripts/test-make-gen-team.sh` (the signing team of `make gen`), then `make gen build test lint` and `make run screenshot` (the screenshot is uploaded as an artifact) | unless `Changes` says no Swift file changed |
 
 - **A pull request or push that changes neither the Kit nor the app** (docs, scripts, workflows, `Makefile`, `tools.env`, `Brewfile`, lint configs) runs only the ubuntu jobs. Accepted risk: a change to only `Makefile`, a tool pin or a lint config is not built on macOS until the next Kit or app change; start the workflow by hand (`workflow_dispatch` runs everything) when it matters. The macOS job is skipped with a job-level `if`, not a workflow-level `paths:` filter: GitHub counts a skipped job as passed for a required check, but leaves the check of a filtered workflow pending. When `Changes` itself fails, the macOS job runs anyway.
 - **Xcode** is `CI_XCODE_VERSION` in `tools.env` (26.6), selected from `/Applications/Xcode_26.6.app` on the `macos-26` image. The step fails and lists the installed Xcodes when the image no longer has it. The `Toolchain` step prints `xcodebuild -version`, `swift --version` and the Simulator runtimes.

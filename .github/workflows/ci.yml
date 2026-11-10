@@ -134,6 +134,8 @@ jobs:
       - run: swiftformat --version
       - run: swiftlint --version
       - run: scripts/test-swiftlint-rules.sh
+      # Needs xcodegen, so it runs after the tools are installed.
+      - run: scripts/test-make-gen-team.sh
       - run: make gen build test lint
       - name: Screenshot
         run: make run screenshot
