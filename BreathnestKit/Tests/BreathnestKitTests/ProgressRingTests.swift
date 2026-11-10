@@ -96,13 +96,45 @@ private let base = ContinuousClock().now
         #expect(ring.fills(phaseIndex: 0, fractionOfPhase: 0.3)[0] == .fraction(0.3))
     }
 
-    @Test func aHoldLightsOneSegmentWhenItsSecondIsComplete() {
+    @Test func aHoldLightsOneSegmentWhenItsSecondStarts() {
         let ring = ProgressRing(pattern: Exercise.box.pattern)
-        #expect(ring.fills(phaseIndex: 1, fractionOfPhase: 0)[1] == .segments(0))
-        #expect(ring.fills(phaseIndex: 1, fractionOfPhase: 0.24)[1] == .segments(0))
-        #expect(ring.fills(phaseIndex: 1, fractionOfPhase: 0.25)[1] == .segments(1))
-        #expect(ring.fills(phaseIndex: 1, fractionOfPhase: 0.76)[1] == .segments(3))
-        #expect(ring.fills(phaseIndex: 1, fractionOfPhase: 0.999)[1] == .segments(3))
+        #expect(ring.fills(phaseIndex: 1, fractionOfPhase: 0)[1] == .segments(1))
+        #expect(ring.fills(phaseIndex: 1, fractionOfPhase: 0.24)[1] == .segments(1))
+        #expect(ring.fills(phaseIndex: 1, fractionOfPhase: 0.25)[1] == .segments(2))
+        #expect(ring.fills(phaseIndex: 1, fractionOfPhase: 0.75)[1] == .segments(4))
+        #expect(ring.fills(phaseIndex: 1, fractionOfPhase: 0.999)[1] == .segments(4))
+    }
+
+    @Test(arguments: Exercise.builtIn)
+    func aSegmentLightsAtTheMomentItsHapticTickPlaysInABuiltInExercise(_ exercise: Exercise) {
+        expectSegmentsLightWithTheirHapticTicks(exercise.pattern)
+    }
+
+    @Test func aSegmentLightsAtTheMomentItsHapticTickPlaysForAPartSecondHoldAndRest() throws {
+        let pattern = try #require(Pattern(phases: [
+            Phase(kind: .inhale, duration: .seconds(4)),
+            Phase(kind: .hold, duration: .seconds(2.5)),
+            Phase(kind: .exhale, duration: .seconds(4)),
+            Phase(kind: .rest, duration: .seconds(3)),
+        ]))
+        expectSegmentsLightWithTheirHapticTicks(pattern)
+    }
+
+    private func expectSegmentsLightWithTheirHapticTicks(_ pattern: Pattern) {
+        let ring = ProgressRing(pattern: pattern)
+        for (index, phase) in pattern.phases.enumerated() where phase.kind == .hold || phase.kind == .rest {
+            let length = seconds(phase.duration)
+            let ticks = pattern.hapticEvents(for: .phaseStarted(phase.kind), phaseIndex: index).map { seconds($0.time) }
+            #expect(ticks.count == ring.arcs[index].segmentCount)
+            for (number, tick) in ticks.enumerated() {
+                let lit = ring.fills(phaseIndex: index, fractionOfPhase: tick / length)[index]
+                #expect(lit == .segments(number + 1))
+                if tick > 0 {
+                    let justBefore = ring.fills(phaseIndex: index, fractionOfPhase: (tick - 0.01) / length)[index]
+                    #expect(justBefore == .segments(number))
+                }
+            }
+        }
     }
 
     @Test func aFinishedHoldIsFullyLitOnceTheNextPhaseStarts() {
