@@ -59,6 +59,17 @@ private func at(_ seconds: Double) -> ContinuousClock.Instant {
         #expect(snapshot.cycle == 1)
     }
 
+    @Test func theSnapshotSaysWhichPhaseOfThePatternTheSessionIsIn() {
+        var engine = box()
+        #expect(engine.snapshot.phaseIndex == nil)
+        engine.advance(to: at(3 + 5))
+        #expect(engine.snapshot.phaseIndex == 1)
+        engine.advance(to: at(3 + 16 + 13))
+        #expect(engine.snapshot.phaseIndex == 3)
+        engine.advance(to: at(3 + 64))
+        #expect(engine.snapshot.phaseIndex == nil)
+    }
+
     @Test func breathLevelComesFromTheBreathLevelFunction() {
         var engine = box()
         engine.advance(to: at(4))
