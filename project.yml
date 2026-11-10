@@ -9,7 +9,7 @@ settings:
     SWIFT_VERSION: "6.0"
     SWIFT_TREAT_WARNINGS_AS_ERRORS: YES
     TARGETED_DEVICE_FAMILY: "1"
-    DEVELOPMENT_TEAM: ""
+    DEVELOPMENT_TEAM: ${DEVELOPMENT_TEAM}
 packages:
   BreathnestKit:
     path: BreathnestKit

@@ -10,6 +10,9 @@ build/
 .build/
 *.xcresult
 
+# Signing team of this machine (make gen, docs/agents/commands.md)
+local.env
+
 # Local Claude Code / observer config (machine-specific paths)
 .claude/observer.json
 .claude/settings.local.json

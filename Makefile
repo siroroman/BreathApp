@@ -21,7 +21,12 @@ SWIFT_DIRS := App BreathnestKit/Sources BreathnestKit/Tests
 setup: ## Once per clone: turn on the git hooks, check the tools
 	@scripts/setup.sh
 
-gen: ## Generate Breathnest.xcodeproj from project.yml
+# The signing team comes from the environment or from local.env (git-ignored, one line `DEVELOPMENT_TEAM=XXXXXXXXXX`).
+# project.yml reads it, so it is always exported, empty when unset (CI has no team). The variable wins over the file.
+LOCAL_TEAM := $(shell sed -nE 's/^DEVELOPMENT_TEAM=(.*)$$/\1/p' local.env 2>/dev/null)
+export DEVELOPMENT_TEAM ?= $(LOCAL_TEAM)
+
+gen: ## Generate Breathnest.xcodeproj from project.yml, with the signing team of local.env
 	xcodegen generate --quiet
 
 build: gen ## Build the app for the simulator

@@ -36,3 +36,9 @@ fi
 # swiftformat and swiftlint at the versions of tools.env, into .tools/bin. Also fails when they differ.
 scripts/install-tools.sh || exit 1
 echo "tools: ok"
+
+# The signing team is personal, so it is not in project.yml. Only a hint: setup passes without it.
+if [[ ! -f local.env && -z "${DEVELOPMENT_TEAM:-}" ]]; then
+  echo "signing: no local.env. To skip choosing the team in Xcode after each make gen:"
+  echo "  echo 'DEVELOPMENT_TEAM=<Team ID>' > local.env   (Team ID: Xcode, Settings, Accounts, your team)"
+fi
