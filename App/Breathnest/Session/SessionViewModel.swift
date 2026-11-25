@@ -136,7 +136,8 @@ final class SessionViewModel {
             guard case .phaseStarted = transition else { continue }
             defer { phasesStarted += 1 }
             guard isPlaying else { continue }
-            haptics.play(pattern.hapticEvents(for: transition, phaseIndex: phasesStarted % pattern.phases.count))
+            let events = pattern.hapticEvents(for: transition, phaseIndex: phasesStarted % pattern.phases.count)
+            haptics.play(events.map { $0.sped(by: speed) })
         }
     }
 
