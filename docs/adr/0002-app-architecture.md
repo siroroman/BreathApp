@@ -13,7 +13,7 @@ Decided in [#68](https://github.com/siroroman/BreathApp/issues/68), on top of th
 | Module | What it is | What is in it | May import |
 |---|---|---|---|
 | `BreathnestKit` | local Swift package | Domain types, the Session engine, Breath level, Haptic plan, the **protocols of the seams**. No text, no `Observation`. | Foundation, Synchronization, Swift |
-| `BreathnestKitTesting` | second product of the Kit package | Fakes of the seams: `ManualClock`, a manual ticker, a recording `HapticPlayer`, an in-memory store. Used only by tests and previews, never linked into a release build. | the Kit |
+| `BreathnestKitTesting` | second product of the Kit package | Fakes of the seams: `ManualClock`, a manual ticker, a recording `HapticPlayer` (test-local until this product exists, see Seams), an in-memory store. Used only by tests and previews, never linked into a release build. | the Kit |
 | `BreathnestUI` | second local package, created by its own setup ticket before #29 | The ViewModels and drawing shared by iPhone and Watch: the Session ViewModel, the torus, the progress ring. | SwiftUI, Observation, Foundation, Synchronization, Swift, the Kit |
 | `Breathnest` | iPhone app target | The composition root, the adapters (Core Haptics, `CADisplayLink`, UIKit, `UserNotifications`), the navigation model, the ViewModels and views that exist only on the iPhone. | everything |
 | Watch app target | standalone watchOS target, set up in #40 | The same rules, its own adapters, its own navigation (`docs/product/watch-design.md`). | everything |
@@ -34,8 +34,9 @@ Dependencies point one way: app, then `BreathnestUI`, then the Kit. The Kit depe
 
 ### Seams
 
-- The protocols live in the Kit, because they are plain Swift and the Watch uses them too: `HapticPlayer` (one method, takes the Haptic plan), a ticker that yields `ContinuousClock.Instant` as an `AsyncSequence`, screen awake, scene phase, the notification scheduler, and the stores of the saved settings.
+- The protocols live in the Kit, because they are plain Swift and the Watch uses them too: `HapticPlayer` (two methods: `play(_:)` takes the haptic events of the Haptic plan, `stop()` cancels what is still playing; `stop()` is a protocol method so that Pause and the end of a Session silence a running pattern and a test stub can see that they did), a ticker that yields `ContinuousClock.Instant` as an `AsyncSequence`, screen awake, scene phase, the notification scheduler, and the stores of the saved settings.
 - The adapters live in the app targets. A fake lives in `BreathnestKitTesting` when more than one test target needs it.
+- Today the recording `HapticPlayer` stub (`RecordingHaptics`) is test-local, private to `App/BreathnestTests/SessionViewModelTests.swift`, because `BreathnestKitTesting` and `BreathnestUI` do not exist yet. It moves to `BreathnestKitTesting` when that product is created.
 - `BreathnestKitTesting` is outside the 80% coverage floor of the Kit.
 
 ### Dependency injection
@@ -78,7 +79,7 @@ A scope is optional. When given, it is one of the scopes in `docs/agents/git.md`
 ## Consequences
 
 - `docs/agents/ios.md` links here and carries the module map. Its convention "a type that needs SwiftUI belongs in the app target" now reads "UIKit, Core Haptics and UserNotifications belong in the app target; SwiftUI shared with the Watch belongs in `BreathnestUI`".
-- Tickets #29 and #45 say the Session "model" is in the app target and tested as app unit tests; #30, #31, #44 put the torus and ring where the sharing is still open; #32 and #47 test the haptics through app unit tests; #35 describes the test layers. All are commented: the ViewModel is `SessionViewModel` in `BreathnestUI` and tested by `swift test`, the drawing is in `BreathnestUI`, the stubs come from `BreathnestKitTesting`. #28, #54 to #60 do not contradict this ADR. `BreathnestUI` tests need macOS (SwiftUI does not build on the Ubuntu job), so they run in the `Build, app tests, lint` job, not in `Kit tests`.
+- Tickets #29 and #45 say the Session "model" is in the app target and tested as app unit tests; #30, #31, #44 put the torus and ring where the sharing is still open; #32 and #47 test the haptics through app unit tests; #35 describes the test layers. All are commented: the ViewModel is `SessionViewModel` in `BreathnestUI` and tested by `swift test`, the drawing is in `BreathnestUI`, the stubs come from `BreathnestKitTesting` (the `HapticPlayer` stub is test-local until that product exists, see Seams). #28, #54 to #60 do not contradict this ADR. `BreathnestUI` tests need macOS (SwiftUI does not build on the Ubuntu job), so they run in the `Build, app tests, lint` job, not in `Kit tests`.
 - `scripts/check-architecture.sh` today allows only the package `BreathnestKit` in `project.yml`. It must learn `BreathnestUI` and its list of allowed imports.
 - Checks to add, each with a test and a row in `docs/agents/rules-enforcement.md`: `BreathnestUI` imports only SwiftUI, Observation, Foundation, Synchronization, Swift and the Kit (no UIKit, Core Haptics, WatchKit or UserNotifications); no `static let shared` or `static var shared` in `App/` and `BreathnestUI/`; `SWIFT_DEFAULT_ACTOR_ISOLATION` is set in `project.yml`; a scope in a commit header or PR title is in the list of `docs/agents/git.md`.
 - The rest are process rules for the `code-reviewer`: ViewModels are `@MainActor`, a view holds no I/O or logic, dependencies come through `init`, the seams are Kit protocols, a ViewModel has no view types or user text.
