@@ -96,4 +96,26 @@ import Testing
         }
         #expect(counts == [1, 4, 1, 4])
     }
+
+    @Test func speedShortensTheTimesOfAnEventAndItsCurveButNotItsLoudness() throws {
+        let event = try #require(coherent.hapticEvents(for: .phaseStarted(.inhale), phaseIndex: 0).first)
+        let fast = event.sped(by: 4)
+        #expect(fast.duration == event.duration / 4)
+        #expect(fast.time == event.time / 4)
+        #expect(fast.intensityCurve.map(\.time) == event.intensityCurve.map { $0.time / 4 })
+        #expect(fast.intensityCurve.map(\.value) == event.intensityCurve.map(\.value))
+        #expect(fast.intensity == event.intensity)
+        #expect(fast.sharpness == event.sharpness)
+        #expect(fast.kind == event.kind)
+    }
+
+    @Test func speedShortensTheTicksOfAHold() throws {
+        let hold = Exercise.box.pattern.hapticEvents(for: .phaseStarted(.hold), phaseIndex: 1)
+        #expect(hold.map { $0.sped(by: 2).time } == hold.map { $0.time / 2 })
+    }
+
+    @Test func speedOneChangesNothing() throws {
+        let event = try #require(coherent.hapticEvents(for: .phaseStarted(.exhale), phaseIndex: 1).first)
+        #expect(event.sped(by: 1) == event)
+    }
 }
