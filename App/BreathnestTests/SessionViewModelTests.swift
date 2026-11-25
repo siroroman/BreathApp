@@ -44,12 +44,12 @@ private final class RecordingHaptics: HapticPlayer {
     }
 
     private func makeWithHaptics(
-        _ exercise: Exercise = .box, requested: Duration = .seconds(60), isHapticsOn: Bool = true
+        _ exercise: Exercise = .box, requested: Duration = .seconds(60), isHapticsOn: Bool = true, speed: Double = 1
     ) -> (SessionViewModel, RecordingHaptics) {
         let haptics = RecordingHaptics()
         let viewModel = SessionViewModel(
             exercise: exercise, requested: requested, screenAwake: FakeScreenAwake(), haptics: haptics,
-            isHapticsOn: isHapticsOn, startedAt: origin
+            isHapticsOn: isHapticsOn, speed: speed, startedAt: origin
         )
         return (viewModel, haptics)
     }
@@ -194,6 +194,16 @@ private final class RecordingHaptics: HapticPlayer {
         #expect(haptics.played == [plan(0)])
         viewModel.tick(now: at(7.5))
         #expect(haptics.played == [plan(0), plan(1)])
+    }
+
+    @Test func theSpeedScalesTheTimesAndDurationsOfTheHaptic() {
+        let (viewModel, haptics) = makeWithHaptics(speed: 10)
+        viewModel.tick(now: at(0.4))
+        let inhale = plan(0).map { $0.sped(by: 10) }
+        #expect(haptics.played == [inhale])
+        #expect(inhale.first?.duration == plan(0).first.map { $0.duration / 10 })
+        viewModel.tick(now: at(0.8))
+        #expect(haptics.played == [inhale, plan(1).map { $0.sped(by: 10) }])
     }
 
     @Test func theHapticsFollowThePhasesAroundEveryCycle() {

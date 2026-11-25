@@ -24,6 +24,20 @@ public struct HapticEvent: Sendable, Hashable {
     public let sharpness: Double
     /// Where the intensity goes during a continuous event, from its start to its end; empty for a transient one.
     public let intensityCurve: [IntensityPoint]
+
+    /// The same event played `speed` times faster: every time and the duration are divided by `speed`, loudness
+    /// is kept. For the DEBUG speed, so a haptic still ends with its Phase.
+    public func sped(by speed: Double) -> HapticEvent {
+        guard speed != 1 else { return self }
+        return HapticEvent(
+            kind: kind,
+            time: time / speed,
+            duration: duration / speed,
+            intensity: intensity,
+            sharpness: sharpness,
+            intensityCurve: intensityCurve.map { IntensityPoint(time: $0.time / speed, value: $0.value) }
+        )
+    }
 }
 
 public extension Pattern {
