@@ -42,6 +42,9 @@ case_ 0 "critical source with an app test" "Summary" "$kit/Session.swift" App/Br
 case_ 0 "critical source with a warning first line" $'> **Warning:** not covered.\n\n## Summary' "$kit/Session.swift"
 case_ 1 "warning that is not the first line" $'## Summary\n> **Warning:** late' "$kit/Session.swift"
 case_ 0 "warning with CRLF" $'\r\n> **Warning:** not covered.\r\n' "$kit/Session.swift"
+case_ 1 "session view model without a test" "Summary" App/Breathnest/Session/SessionViewModel.swift
+case_ 0 "session view model with an app test" "Summary" App/Breathnest/Session/SessionViewModel.swift App/BreathnestTests/SessionViewModelTests.swift
+case_ 0 "other session UI file is not critical" "Summary" App/Breathnest/Session/TorusView.swift
 case_ 0 "source outside the registry" "Summary" "$kit/Greeting.swift"
 case_ 0 "module name alone is no keyword hit" "Summary" App/Breathnest/ContentView.swift
 case_ 0 "CI file is critical but not source" "Summary" Makefile scripts/x.sh

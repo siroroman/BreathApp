@@ -10,9 +10,9 @@ A path that is not listed can still be critical. If the diff changes behaviour f
 
 ### Session engine and timing
 
-Paths: `BreathnestKit/Sources/BreathnestKit/*Session*` `BreathnestKit/Sources/BreathnestKit/*Cycle*` `BreathnestKit/Sources/BreathnestKit/*Pattern*` `BreathnestKit/Sources/BreathnestKit/*Phase*` `BreathnestKit/Sources/BreathnestKit/*Lead*`
+Paths: `BreathnestKit/Sources/BreathnestKit/*Session*` `BreathnestKit/Sources/BreathnestKit/*Cycle*` `BreathnestKit/Sources/BreathnestKit/*Pattern*` `BreathnestKit/Sources/BreathnestKit/*Phase*` `BreathnestKit/Sources/BreathnestKit/*Lead*` `App/Breathnest/Session/SessionViewModel.swift`
 
-What breaks: a Session ends at the wrong time or with the wrong number of Cycles, the Lead-in counts toward the length, a Phase is skipped or doubled. The user notices by feel, a test with a wrong number is the only early signal. Time must come from the injected `Clock` ([testing](testing.md)); `Date()`, `ContinuousClock()` or `Task.sleep` in logic is a finding.
+What breaks: a Session ends at the wrong time or with the wrong number of Cycles, the Lead-in counts toward the length, a Phase is skipped or doubled, or a haptic plays at the wrong moment (`SessionViewModel.swift` decides when Phase transitions and haptics play). The user notices by feel, a test with a wrong number is the only early signal. Time must come from the injected `Clock` ([testing](testing.md)); `Date()`, `ContinuousClock()` or `Task.sleep` in logic is a finding.
 
 ### Exercise data and identity
 
