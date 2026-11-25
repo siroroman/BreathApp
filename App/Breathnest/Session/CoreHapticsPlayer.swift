@@ -61,18 +61,38 @@ protocol HapticEngineDriving: AnyObject {
     func stop()
 }
 
+/// Counts the players an engine has had, so a stop that arrives late can tell whether it is still about the
+/// current one. The engine reports a stop off the main thread and the main actor hears of it later: a new
+/// player may have started in between, and that stop must not clear it.
+final class PlayerGeneration: Sendable {
+    private let value = OSAllocatedUnfairLock(initialState: 0)
+
+    var current: Int { value.withLock { $0 } }
+
+    func advance() { value.withLock { $0 += 1 } }
+
+    func isCurrent(_ generation: Int) -> Bool { current == generation }
+}
+
 /// The real engine. The system stopping it needs nothing here: every `play` starts it again.
 @MainActor
 final class SystemHapticEngine: HapticEngineDriving {
     private let engine: CHHapticEngine
     private var player: (any CHHapticAdvancedPatternPlayer)?
+    private let generation = PlayerGeneration()
 
     /// `onReset` runs when the system reset the engine: it and its players are gone and a new one is needed.
     init(onReset: @escaping @MainActor () -> Void) throws {
         engine = try CHHapticEngine()
+        let generation = generation
         // Both arrive off the main thread.
         engine.stoppedHandler = { [weak self] _ in
-            Task { @MainActor in self?.player = nil }
+            // Read now, off the main thread: a `play` before the Task runs makes this stop a late one.
+            let stopped = generation.current
+            Task { @MainActor in
+                guard let self, generation.isCurrent(stopped) else { return }
+                self.player = nil
+            }
         }
         engine.resetHandler = {
             Task { @MainActor in onReset() }
@@ -84,11 +104,13 @@ final class SystemHapticEngine: HapticEngineDriving {
         try? player?.stop(atTime: CHHapticTimeImmediate)
         let next = try engine.makeAdvancedPlayer(with: pattern)
         try next.start(atTime: CHHapticTimeImmediate)
+        generation.advance()
         player = next
     }
 
     func stop() {
         try? player?.stop(atTime: CHHapticTimeImmediate)
+        generation.advance()
         player = nil
         engine.stop()
     }
