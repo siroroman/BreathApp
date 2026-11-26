@@ -79,28 +79,15 @@ final class ExerciseDetailUITests: XCTestCase {
         XCTAssertEqual(app.switches["detail.hapticsToggle"].value as? String, "0")
     }
 
-    func testSafetyNoteShowsOnEveryExerciseWithTheHoldLineOnBoxAndFourSevenEight() {
+    func testTheDetailSheetShowsNoSafetyNoteOnAnyExercise() {
         let app = launchApp()
-        let holdLine = "If a hold feels too long"
-        let expectations = [
-            ("box", true), ("four-seven-eight", true), ("coherent", false), ("physiological-sigh", false),
-        ]
-        for (id, hasHoldLine) in expectations {
+        for id in ["box", "four-seven-eight", "coherent", "physiological-sigh"] {
             XCTAssertTrue(app.buttons["exercises.row.\(id)"].waitForExistence(timeout: 5))
             openDetail(of: id, in: app)
-            let note = app.staticTexts["detail.safetyNote"]
-            XCTAssertTrue(note.exists, "\(id) shows the Safety note")
-            XCTAssertTrue(note.label.contains("Stop and breathe normally if you feel dizzy"))
-            XCTAssertEqual(note.label.contains(holdLine), hasHoldLine, id)
+            XCTAssertTrue(app.buttons["detail.startButton"].waitForExistence(timeout: 5), id)
+            XCTAssertFalse(app.staticTexts["detail.safetyNote"].exists, "\(id) shows no Safety note")
             app.buttons["detail.cancelButton"].tap()
         }
-    }
-
-    func testSafetyNoteComesBeforeStartInTheReadingOrder() {
-        let app = launchApp()
-        openDetail(of: "box", in: app)
-
-        XCTAssertLessThan(app.staticTexts["detail.safetyNote"].frame.minY, app.buttons["detail.startButton"].frame.minY)
     }
 
     func testAtTheLargestTextSizeTheSheetPassesAccessibilityAuditAndScrollsToStart() throws {
@@ -114,6 +101,5 @@ final class ExerciseDetailUITests: XCTestCase {
             app.swipeUp()
         }
         XCTAssertTrue(start.isHittable, "Start is reachable by scrolling")
-        XCTAssertTrue(app.staticTexts["detail.safetyNote"].exists)
     }
 }

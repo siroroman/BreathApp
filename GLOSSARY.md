@@ -52,10 +52,6 @@ _Avoid_: History, journal
 A notification at a chosen time on chosen days that invites the user to practise one Exercise.
 _Avoid_: Alarm, schedule
 
-**Safety note**:
-The short, non-blocking text shown with every Exercise about when not to practise and what to do if dizzy.
-_Avoid_: Disclaimer, warning, medical notice
-
 ### Feel
 
 **Breath level**:
