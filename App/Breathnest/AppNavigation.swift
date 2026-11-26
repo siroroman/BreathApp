@@ -8,10 +8,15 @@ import Observation
 final class AppNavigation {
     /// The Exercise whose detail sheet is open.
     private(set) var openExercise: Exercise?
+    @ObservationIgnored private let customExercises: CustomExercisesViewModel?
 
-    /// An ID that is not a built-in Exercise opens nothing.
+    init(customExercises: CustomExercisesViewModel? = nil) {
+        self.customExercises = customExercises
+    }
+
+    /// An ID that is neither a built-in nor a saved custom Exercise opens nothing.
     func openDetail(of id: Exercise.ID) {
-        openExercise = Exercise.builtIn.first { $0.id == id }
+        openExercise = Exercise.builtIn.first { $0.id == id } ?? customExercises?.exercises.first { $0.id == id }
     }
 
     func closeDetail() {

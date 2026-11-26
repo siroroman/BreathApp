@@ -2,8 +2,14 @@ import SwiftUI
 
 @main
 struct BreathnestApp: App {
-    @State private var navigation = AppNavigation()
-    private let dependencies = AppDependencies.live()
+    @State private var navigation: AppNavigation
+    private let dependencies: AppDependencies
+
+    init() {
+        let dependencies = AppDependencies.live()
+        self.dependencies = dependencies
+        _navigation = State(initialValue: AppNavigation(customExercises: dependencies.customExercises))
+    }
 
     var body: some Scene {
         WindowGroup {

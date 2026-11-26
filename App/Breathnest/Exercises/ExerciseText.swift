@@ -4,12 +4,15 @@ import Foundation
 /// The text of the Exercises screens, built from the String Catalog and the Kit's numbers. The ViewModels hold
 /// none of it (ADR 0002). Functions that format numbers take the locale so a test can name it.
 enum ExerciseText {
-    static func name(of exercise: Exercise) -> String {
-        Bundle.main.localizedString(forKey: "exercise.\(exercise.id).name", value: nil, table: nil)
+    /// A custom Exercise shows the name the user typed, as it is (ADR 0002); a built-in one is looked up by ID.
+    static func name(of exercise: Exercise, custom: CustomExerciseRecord? = nil) -> String {
+        if let custom { return custom.name }
+        return Bundle.main.localizedString(forKey: "exercise.\(exercise.id).name", value: nil, table: nil)
     }
 
-    static func description(of exercise: Exercise) -> String {
-        Bundle.main.localizedString(forKey: "exercise.\(exercise.id).description", value: nil, table: nil)
+    static func description(of exercise: Exercise, custom: CustomExerciseRecord? = nil) -> String {
+        if let custom { return custom.description }
+        return Bundle.main.localizedString(forKey: "exercise.\(exercise.id).description", value: nil, table: nil)
     }
 
     static func phaseName(_ kind: PhaseKind) -> String {
@@ -41,7 +44,7 @@ enum ExerciseText {
     }
 
     /// What VoiceOver reads for a row: `Box breathing, inhale 4 seconds, hold 4 seconds, ...`.
-    static func spokenRow(of exercise: Exercise, locale: Locale = .current) -> String {
+    static func spokenRow(of exercise: Exercise, custom: CustomExerciseRecord? = nil, locale: Locale = .current) -> String {
         let phases = exercise.pattern.phases.map { phase in
             let spoken = spokenSeconds(phase.duration, locale: locale)
             return switch phase.kind {
@@ -51,7 +54,7 @@ enum ExerciseText {
             case .rest: String(localized: "a11y.phase.rest \(spoken)")
             }
         }
-        return ([name(of: exercise)] + phases).joined(separator: ", ")
+        return ([name(of: exercise, custom: custom)] + phases).joined(separator: ", ")
     }
 
     /// `m:ss`, the form the result line and the 4-7-8 chips use.
