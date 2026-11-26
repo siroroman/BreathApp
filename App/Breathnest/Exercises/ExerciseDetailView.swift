@@ -187,12 +187,14 @@ struct ExerciseDetailView: View {
     private func settingsGroup(scale: DesignScale) -> some View {
         VStack(spacing: 0) {
             soundsRow(scale: scale)
-            switchRow("detail.sound", isOn: viewModel.isSoundOn, id: "detail.soundToggle", scale: scale) {
-                viewModel.setSound(isOn: $0)
-            }
-            switchRow("detail.haptics", isOn: viewModel.isHapticsOn, id: "detail.hapticsToggle", scale: scale) {
-                viewModel.setHaptics(isOn: $0)
-            }
+            switchRow(
+                "detail.sound", id: "detail.soundToggle", scale: scale,
+                isOn: Binding(get: { viewModel.isSoundOn }, set: { viewModel.setSound(isOn: $0) })
+            )
+            switchRow(
+                "detail.haptics", id: "detail.hapticsToggle", scale: scale,
+                isOn: Binding(get: { viewModel.isHapticsOn }, set: { viewModel.setHaptics(isOn: $0) })
+            )
         }
         .background(Color(.surface))
         .clipShape(RoundedRectangle(cornerRadius: 16))
@@ -241,9 +243,9 @@ struct ExerciseDetailView: View {
     }
 
     private func switchRow(
-        _ title: LocalizedStringKey, isOn: Bool, id: String, scale: DesignScale, set: @escaping @Sendable (Bool) -> Void
+        _ title: LocalizedStringKey, id: String, scale: DesignScale, isOn: Binding<Bool>
     ) -> some View {
-        Toggle(isOn: Binding(get: { isOn }, set: set)) {
+        Toggle(isOn: isOn) {
             Text(title)
                 .designFont(.body, 17, weight: .medium)
         }
