@@ -1,11 +1,11 @@
 import BreathnestKit
 import SwiftUI
 
-/// Screen 6 of the design: the Exercise detail bottom sheet. The Sounds rows and the saved Haptics
-/// setting come with #54.
+/// Screen 6 of the design: the Exercise detail bottom sheet.
 struct ExerciseDetailView: View {
     @State private var viewModel: ExerciseDetailViewModel
     @State private var session: SessionViewModel?
+    @State private var isSoundsOpen = false
     private let dependencies: AppDependencies
     private let custom: CustomExerciseRecord?
 
@@ -16,7 +16,9 @@ struct ExerciseDetailView: View {
     init(exercise: Exercise, custom: CustomExerciseRecord? = nil, dependencies: AppDependencies) {
         self.dependencies = dependencies
         self.custom = custom
-        _viewModel = State(initialValue: ExerciseDetailViewModel(exercise: exercise))
+        _viewModel = State(initialValue: ExerciseDetailViewModel(
+            exercise: exercise, settings: dependencies.settings, lastSession: dependencies.lastSession
+        ))
         SliderStyle.apply()
     }
 
@@ -34,7 +36,7 @@ struct ExerciseDetailView: View {
                     header
                     durationSection(scale: scale)
                     SafetyNote(showsHoldLine: showsHoldLine)
-                    hapticsGroup(scale: scale)
+                    settingsGroup(scale: scale)
                     Spacer(minLength: 0)
                     startButton(scale: scale)
                 }
@@ -183,33 +185,83 @@ struct ExerciseDetailView: View {
         .accessibilityIdentifier("detail.chip.\(Int((option / .seconds(1)).rounded()))")
     }
 
-    private func hapticsGroup(scale: DesignScale) -> some View {
-        Toggle(isOn: Binding(
-            get: { viewModel.isHapticsOn },
-            set: { viewModel.setHaptics(isOn: $0) }
-        )) {
-            Text("detail.haptics")
+    /// Sounds, Sound and Haptics: one group of three rows (design screen 6).
+    private func settingsGroup(scale: DesignScale) -> some View {
+        VStack(spacing: 0) {
+            soundsRow(scale: scale)
+            switchRow(
+                "detail.sound", id: "detail.soundToggle", scale: scale,
+                isOn: Binding(get: { viewModel.isSoundOn }, set: { viewModel.setSound(isOn: $0) })
+            )
+            switchRow(
+                "detail.haptics", id: "detail.hapticsToggle", scale: scale,
+                isOn: Binding(get: { viewModel.isHapticsOn }, set: { viewModel.setHaptics(isOn: $0) })
+            )
+        }
+        .background(Color(.surface))
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+    }
+
+    private func soundsRow(scale: DesignScale) -> some View {
+        let tint = Color(isSoundsOpen ? .ring : .fg)
+        return Button {
+            isSoundsOpen = true
+        } label: {
+            HStack(spacing: 8) {
+                Text("detail.sounds")
+                    .designFont(.body, 17, weight: .medium)
+                Spacer(minLength: 8)
+                Text(verbatim: ExerciseText.soundName(viewModel.soundID))
+                    .designFont(.body, 17, weight: .medium)
+                    .foregroundStyle(Color(isSoundsOpen ? .ring : .fg2))
+                Image(systemName: "chevron.up.chevron.down")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(Color(isSoundsOpen ? .ring : .fg2))
+                    .accessibilityHidden(true)
+            }
+            .foregroundStyle(tint)
+            .padding(.horizontal, 16)
+            .padding(.vertical, scale(10, 18))
+            .frame(minHeight: scale(44, 88))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text("detail.sounds"))
+        .accessibilityValue(ExerciseText.soundName(viewModel.soundID))
+        .accessibilityAddTraits(.isButton)
+        .accessibilityIdentifier("detail.soundsRow")
+        .popover(isPresented: $isSoundsOpen, arrowEdge: .top) {
+            SoundsList(chosen: viewModel.soundID, scale: scale) { sound in
+                viewModel.select(sound: sound)
+                isSoundsOpen = false
+            }
+            .frame(width: scale.isAccessibility ? nil : 260)
+            .clipShape(RoundedRectangle(cornerRadius: 22))
+            .overlay(RoundedRectangle(cornerRadius: 22).strokeBorder(Color(.line), lineWidth: 1))
+            .presentationCompactAdaptation(.popover)
+            .presentationBackground(Color(.pop))
+        }
+    }
+
+    private func switchRow(
+        _ title: LocalizedStringKey, id: String, scale: DesignScale, isOn: Binding<Bool>
+    ) -> some View {
+        Toggle(isOn: isOn) {
+            Text(title)
                 .designFont(.body, 17, weight: .medium)
         }
         .tint(Color(.ring))
         .padding(.horizontal, 16)
         .padding(.vertical, scale(10, 18))
         .frame(minHeight: scale(44, 88))
-        .background(Color(.surface))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .accessibilityIdentifier("detail.hapticsToggle")
+        .accessibilityIdentifier(id)
     }
 
     private func startButton(scale: DesignScale) -> some View {
         Button {
-            session = SessionViewModel(
-                exercise: viewModel.exercise, requested: viewModel.selectedDuration,
-                screenAwake: dependencies.screenAwake,
-                haptics: dependencies.haptics,
-                isHapticsOn: viewModel.isHapticsOn,
-                speed: dependencies.sessionSpeed,
-                startedAt: .now
-            )
+            viewModel.sessionStarted()
+            session = dependencies.makeSession(exercise: viewModel.exercise, requested: viewModel.selectedDuration)
         } label: {
             Text("detail.start")
                 .designFont(.title3, 19, weight: .semibold)

@@ -75,6 +75,30 @@ enum ExerciseText {
         return clock(duration)
     }
 
+    static func soundName(_ id: SoundID) -> String {
+        Bundle.main.localizedString(forKey: "sound.\(id.rawValue).name", value: nil, table: nil)
+    }
+
+    static func hapticsState(isOn: Bool) -> String {
+        isOn ? String(localized: "haptics.on") : String(localized: "haptics.off")
+    }
+
+    /// The Quick Start length and Haptics state: `5 min · Haptics on`. A length that is not whole minutes reads as
+    /// `1:15`, like the chips.
+    static func quickStartSummary(requested: Duration, isHapticsOn: Bool) -> String {
+        let wholeMinutes = requested.components.seconds % 60 == 0 && requested.components.attoseconds == 0
+        return [option(requested, wholeMinutes: wholeMinutes), hapticsState(isOn: isHapticsOn)]
+            .joined(separator: separator)
+    }
+
+    /// What VoiceOver reads for the text of the card: `Box breathing, 5 minutes, Haptics on`.
+    static func spokenQuickStart(
+        exercise: Exercise, requested: Duration, isHapticsOn: Bool, locale: Locale = .current
+    ) -> String {
+        [name(of: exercise), spokenLength(requested, locale: locale), hapticsState(isOn: isHapticsOn)]
+            .joined(separator: ", ")
+    }
+
     /// `19 Cycles · 5:04`.
     static func result(_ length: SessionLength) -> String {
         let cycles = length.cycleCount

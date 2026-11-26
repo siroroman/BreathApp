@@ -1,14 +1,24 @@
 import BreathnestKit
 import SwiftUI
 
-/// Screen 5 of the design: the Exercises list. The Quick Start card, the Custom exercise row and the tab bar
-/// come with #54, #57 and #58.
+/// Screen 5 of the design: the Exercises list with the Quick Start card. The Custom exercise row and the tab bar
+/// come with #57 and #58.
 struct ExercisesView: View {
     let navigation: AppNavigation
     let dependencies: AppDependencies
 
+    @State private var quickStart: QuickStartViewModel
+    @State private var session: SessionViewModel?
     @Environment(\.dynamicTypeSize) private var typeSize
     @State private var isAddingExercise = false
+
+    init(navigation: AppNavigation, dependencies: AppDependencies) {
+        self.navigation = navigation
+        self.dependencies = dependencies
+        _quickStart = State(initialValue: QuickStartViewModel(
+            settings: dependencies.settings, lastSession: dependencies.lastSession
+        ))
+    }
 
     var body: some View {
         let scale = DesignScale(typeSize: typeSize)
@@ -21,6 +31,14 @@ struct ExercisesView: View {
                         .padding(.bottom, 20)
                         .accessibilityAddTraits(.isHeader)
                         .accessibilityIdentifier("exercises.title")
+                    QuickStartCard(viewModel: quickStart, scale: scale) {
+                        quickStart.started()
+                        session = dependencies.makeSession(
+                            exercise: quickStart.exercise,
+                            requested: quickStart.requested
+                        )
+                    }
+                    .padding(.bottom, 16)
                     VStack(spacing: 0) {
                         CustomExerciseRow(scale: scale) { isAddingExercise = true }
                         ForEach(dependencies.customExercises.records) { record in
@@ -54,6 +72,9 @@ struct ExercisesView: View {
         }
         .sheet(isPresented: $isAddingExercise) {
             NewExerciseView { dependencies.customExercises.add($0) }
+        }
+        .fullScreenCover(item: $session) { session in
+            SessionView(viewModel: session, dependencies: dependencies) { self.session = nil }
         }
     }
 

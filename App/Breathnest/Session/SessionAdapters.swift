@@ -57,6 +57,10 @@ struct AppDependencies {
     let haptics: any HapticPlayer
     /// Scales the time fed to the Session engine. 1 in a release build; a DEBUG launch argument can raise it.
     let sessionSpeed: Double
+    /// Sound, the chosen sound and Haptics: saved, and shared by every screen that shows them.
+    let settings: AppSettingsStore
+    /// The last Session that started, which the Quick Start card offers again.
+    let lastSession: LastSessionStore
     let customExercises: CustomExercisesViewModel
 
     @MainActor
@@ -64,9 +68,32 @@ struct AppDependencies {
         AppDependencies(
             ticker: DisplayLinkTicker(), screenAwake: IdleTimerScreenAwake(), haptics: CoreHapticsPlayer(),
             sessionSpeed: speed(in: arguments),
+            settings: AppSettingsStore(store: store(key: "breathnest.settings", arguments: arguments)),
+            lastSession: LastSessionStore(store: store(key: "breathnest.lastSession", arguments: arguments)),
             customExercises: CustomExercisesViewModel(store: CustomExerciseStore(backing: FileDocumentStore
                     .customExercises))
         )
+    }
+
+    /// A new Session for `exercise`, with the seams of the app and the Haptics setting as it is now.
+    @MainActor
+    func makeSession(exercise: Exercise, requested: Duration) -> SessionViewModel {
+        SessionViewModel(
+            exercise: exercise, requested: requested, screenAwake: screenAwake, haptics: haptics,
+            isHapticsOn: settings.settings.isHapticsOn, speed: sessionSpeed, startedAt: .now
+        )
+    }
+
+    /// The `UserDefaults` store of one document. The DEBUG launch argument `-ResetSavedData` clears it first, so
+    /// a UI test starts from the defaults.
+    private static func store(key: String, arguments: [String]) -> UserDefaultsDocumentStore {
+        #if DEBUG
+            if arguments.contains("-ResetSavedData") {
+                UserDefaults.standard.removeObject(forKey: key)
+                UserDefaults.standard.removeObject(forKey: key + ".unreadable")
+            }
+        #endif
+        return UserDefaultsDocumentStore(defaults: .standard, key: key)
     }
 
     private static func speed(in arguments: [String]) -> Double {

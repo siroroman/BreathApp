@@ -1,20 +1,27 @@
 import BreathnestKit
 import Observation
 
-/// The state of one Exercise detail sheet. A sheet makes a new one, so the Duration option and the Haptics
-/// switch start at their defaults every time it opens. Holds no text: the view builds it from the catalog.
+/// The state of one Exercise detail sheet. A sheet makes a new one, so the Duration option starts at its default
+/// every time it opens; Sound, the chosen sound and Haptics are the saved settings. Holds no text: the view builds it
+/// from the catalog.
 @MainActor
 @Observable
 final class ExerciseDetailViewModel {
     let exercise: Exercise
     private(set) var selectedDuration: Duration
-    /// On by default. Not saved until #54.
-    private(set) var isHapticsOn = true
+    @ObservationIgnored private let settings: AppSettingsStore
+    @ObservationIgnored private let lastSession: LastSessionStore
 
-    init(exercise: Exercise) {
+    init(exercise: Exercise, settings: AppSettingsStore, lastSession: LastSessionStore) {
         self.exercise = exercise
+        self.settings = settings
+        self.lastSession = lastSession
         selectedDuration = exercise.defaultDuration
     }
+
+    var isHapticsOn: Bool { settings.settings.isHapticsOn }
+    var isSoundOn: Bool { settings.settings.isSoundOn }
+    var soundID: SoundID { settings.settings.soundID }
 
     var durationOptions: [Duration] {
         exercise.durationOptions
@@ -68,6 +75,19 @@ final class ExerciseDetailViewModel {
     }
 
     func setHaptics(isOn: Bool) {
-        isHapticsOn = isOn
+        settings.setHaptics(isOn: isOn)
+    }
+
+    func setSound(isOn: Bool) {
+        settings.setSound(isOn: isOn)
+    }
+
+    func select(sound: SoundID) {
+        settings.setSound(sound)
+    }
+
+    /// Start was tapped: this Exercise and length become the Quick Start choice.
+    func sessionStarted() {
+        lastSession.record(exercise: exercise, requested: selectedDuration)
     }
 }
