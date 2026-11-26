@@ -16,7 +16,8 @@ final class SessionViewModel {
     @ObservationIgnored private var engine: SessionEngine
     @ObservationIgnored private let screenAwake: any ScreenAwake
     @ObservationIgnored private let haptics: any HapticPlayer
-    @ObservationIgnored private let isHapticsOn: Bool
+    /// Read at each Phase start, so a change in the Session menu applies from the next Phase on.
+    @ObservationIgnored private let settings: AppSettingsStore
     /// How many Phases have started, counted over every Cycle; the Pattern's Phase index is this modulo its length.
     @ObservationIgnored private var phasesStarted = 0
     @ObservationIgnored private let speed: Double
@@ -26,12 +27,12 @@ final class SessionViewModel {
     /// `speed` scales the time fed to the engine; the app passes 1 except for the DEBUG launch argument.
     init(
         exercise: Exercise, requested: Duration, screenAwake: any ScreenAwake, haptics: any HapticPlayer,
-        isHapticsOn: Bool, speed: Double = 1, startedAt: ContinuousClock.Instant
+        settings: AppSettingsStore, speed: Double = 1, startedAt: ContinuousClock.Instant
     ) {
         self.exercise = exercise
         self.screenAwake = screenAwake
         self.haptics = haptics
-        self.isHapticsOn = isHapticsOn
+        self.settings = settings
         self.speed = speed
         self.requested = requested
         ring = ProgressRing(pattern: exercise.pattern)
@@ -105,6 +106,13 @@ final class SessionViewModel {
         refresh()
     }
 
+    /// The Haptics switch of the Session menu: saves it, and switching it off silences the haptic that is playing,
+    /// not only the Phases after it. Switching it on plays nothing until the next Phase starts.
+    func setHaptics(isOn: Bool) {
+        settings.setHaptics(isOn: isOn)
+        if !isOn { haptics.stop() }
+    }
+
     /// The scene is no longer active (call, lock, Control Center, app switch): the Session pauses.
     func sceneBecameInactive(now: ContinuousClock.Instant) {
         pause(now: now)
@@ -131,7 +139,7 @@ final class SessionViewModel {
     /// that pauses, stops or completes the Session plays none: the haptic would be cut at once.
     private func handle(_ transitions: [SessionEngine.Transition], plays: Bool = true) {
         let pattern = exercise.pattern
-        let isPlaying = plays && isHapticsOn && !transitions.contains(.completed)
+        let isPlaying = plays && settings.settings.isHapticsOn && !transitions.contains(.completed)
         for transition in transitions {
             guard case .phaseStarted = transition else { continue }
             defer { phasesStarted += 1 }
