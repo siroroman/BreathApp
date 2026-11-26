@@ -16,7 +16,7 @@ import Testing
     @Test func opensOnTheDefaultDurationOption() {
         for exercise in Exercise.builtIn {
             let viewModel = makeViewModel(exercise)
-            #expect(viewModel.selectedDuration == exercise.defaultDuration)
+            #expect(viewModel.selectedDuration == exercise.defaultPickerDuration)
         }
     }
 
@@ -41,8 +41,8 @@ import Testing
 
     @Test func aDurationThatIsNotAnOptionIsIgnored() {
         let viewModel = makeViewModel(.fourSevenEight)
-        viewModel.select(duration: .seconds(300))
-        #expect(viewModel.selectedDuration == Exercise.fourSevenEight.defaultDuration)
+        viewModel.select(duration: .seconds(90))
+        #expect(viewModel.selectedDuration == Exercise.fourSevenEight.defaultPickerDuration)
     }
 
     @Test func theSettingsAreKeptAndTheDurationIsNotWhenTheSheetOpensAgain() {
@@ -57,7 +57,7 @@ import Testing
         #expect(reopened.isHapticsOn == false)
         #expect(reopened.isSoundOn == false)
         #expect(reopened.soundID == .pulse)
-        #expect(reopened.selectedDuration == Exercise.box.defaultDuration)
+        #expect(reopened.selectedDuration == Exercise.box.defaultPickerDuration)
     }
 
     @Test func startingASessionWritesTheLastSessionWithTheChosenLength() {
@@ -70,71 +70,45 @@ import Testing
         #expect(lastSession.quickStart.requested == .seconds(600))
     }
 
-    @Test func fourSevenEightOffersOneMinuteFifteenAndTwoLongerOptions() {
+    // MARK: Duration picker (#205)
+
+    @Test func theSheetOpensOnTheDefaultRoundedToWholeMinutes() {
+        #expect(makeViewModel(.box).selectedMinutes == 5)
+        #expect(makeViewModel(.fourSevenEight).selectedMinutes == 1)
+    }
+
+    @Test func thePickerOffersOneToThirtyMinutesForEveryExercise() {
+        for exercise in Exercise.builtIn {
+            #expect(makeViewModel(exercise).pickerMinutes == Array(1 ... 30), "\(exercise.id)")
+        }
+    }
+
+    @Test func pickingMinutesUpdatesTheDurationAndTheSessionLength() {
+        let viewModel = makeViewModel(.box)
+        viewModel.select(minutes: 12)
+        #expect(viewModel.selectedDuration == .seconds(720))
+        #expect(viewModel.selectedMinutes == 12)
+        #expect(viewModel.sessionLength.cycleCount == 45)
+    }
+
+    @Test func fourSevenEightCanPickThirtyMinutes() {
         let viewModel = makeViewModel(.fourSevenEight)
-        #expect(viewModel.durationOptions == [.seconds(75), .seconds(120), .seconds(150)])
-        #expect(viewModel.selectedDuration == .seconds(75))
-        #expect(viewModel.optionsAreWholeMinutes == false)
+        viewModel.select(minutes: 30)
+        #expect(viewModel.selectedDuration == .seconds(1800))
     }
 
-    @Test func boxOptionsAreWholeMinutes() {
-        #expect(makeViewModel(.box).optionsAreWholeMinutes)
-    }
-
-    // MARK: Duration slider (#55)
-
-    @Test func sliderStartsAtTheStepOfTheDefaultChip() {
+    @Test func aMinuteOutsideOneToThirtyIsIgnored() {
         let viewModel = makeViewModel(.box)
-        #expect(viewModel.sliderDurations[viewModel.sliderPosition] == .seconds(300))
+        viewModel.select(minutes: 31)
+        viewModel.select(minutes: 0)
+        #expect(viewModel.selectedMinutes == 5)
     }
 
-    @Test func movingTheSliderUpdatesTheDurationAndTheResultLine() {
-        let viewModel = makeViewModel(.box)
-        viewModel.select(sliderPosition: 3)
-        #expect(viewModel.selectedDuration == .seconds(240))
-        #expect(viewModel.sliderPosition == 3)
-        #expect(viewModel.sessionLength.cycleCount == 15)
-    }
-
-    @Test func theChipFollowsTheSliderWhenItMatchesAndNoChipIsSelectedOtherwise() {
-        let viewModel = makeViewModel(.box)
-        viewModel.select(sliderPosition: 9)
-        #expect(viewModel.isSelected(option: .seconds(600)))
-        #expect(viewModel.isSelected(option: .seconds(300)) == false)
-        viewModel.select(sliderPosition: 3)
-        #expect(viewModel.durationOptions.allSatisfy { viewModel.isSelected(option: $0) == false })
-    }
-
-    @Test func tappingAChipMovesTheSlider() {
-        let viewModel = makeViewModel(.box)
-        viewModel.select(duration: .seconds(60))
-        #expect(viewModel.sliderPosition == 0)
-        viewModel.select(duration: .seconds(600))
-        #expect(viewModel.sliderPosition == 9)
-    }
-
-    @Test func aSliderPositionOutOfRangeIsClamped() {
-        let viewModel = makeViewModel(.box)
-        viewModel.select(sliderPosition: 500)
-        #expect(viewModel.selectedDuration == .seconds(3600))
-        viewModel.select(sliderPosition: -4)
-        #expect(viewModel.selectedDuration == .seconds(60))
-    }
-
-    @Test func fourSevenEightChipsSelectTheSliderStepWithTheSameCycles() {
-        let viewModel = makeViewModel(.fourSevenEight)
-        #expect(viewModel.sliderDurations.count == 5)
-        #expect(viewModel.isSelected(option: .seconds(75)))
-        viewModel.select(duration: .seconds(120))
-        #expect(viewModel.sliderPosition == 2)
-        #expect(viewModel.isSelected(option: .seconds(120)))
-        viewModel.select(sliderPosition: 3)
-        #expect(viewModel.sessionLength.cycleCount == 7)
-        #expect(viewModel.durationOptions.allSatisfy { viewModel.isSelected(option: $0) == false })
-    }
-
-    @Test func sliderValuesAreWholeMinutesOnlyWhereEveryLengthIsAWholeMinute() {
-        #expect(makeViewModel(.coherent).optionsAreWholeMinutes)
-        #expect(makeViewModel(.fourSevenEight).optionsAreWholeMinutes == false)
+    @Test func pickingARealLengthIsRunByTheSession() {
+        let lastSession = LastSessionStore(store: InMemoryDocumentStore())
+        let viewModel = makeViewModel(.box, lastSession: lastSession)
+        viewModel.select(minutes: 17)
+        viewModel.sessionStarted()
+        #expect(lastSession.quickStart.requested == .seconds(1020))
     }
 }

@@ -99,13 +99,6 @@ enum ExerciseText {
             .joined(separator: ", ")
     }
 
-    /// `19 Cycles · 5:04`.
-    static func result(_ length: SessionLength) -> String {
-        let cycles = length.cycleCount
-        let total = clock(length.totalLength)
-        return String(localized: "detail.result \(cycles) \(total)")
-    }
-
     static func spokenSeconds(_ duration: Duration, locale: Locale = .current) -> String {
         Measurement(value: duration / .seconds(1), unit: UnitDuration.seconds)
             .formatted(.measurement(width: .wide, usage: .asProvided).locale(locale))

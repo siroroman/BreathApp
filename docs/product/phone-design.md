@@ -106,16 +106,16 @@ A bottom sheet over the list (see Type and layout). Top to bottom:
 
 1. Cancel, left.
 2. Title: the Exercise name (30 / 700). Below, 6: the Pattern with Phase names (16, `fg2`), `Inhale 4 · Hold 4 · Exhale 4 · Hold 4`. Below, 10: a description (15, `fg2`, line height 1.4). Box: "Four equal counts for every breath in, hold, breath out and hold. A steady, even rhythm." Physiological sigh is drawn only in German ("Zwei kurze Atemzüge durch die Nase, dann ein langes Ausatmen."); the English source is its translation, "Two short breaths in through the nose, then one long breath out.", and is not in the design. The descriptions of 4-7-8 and Coherent are not drawn either; the designer supplies them (point 14).
-3. **Duration** section. A row: "Duration" (15 / 600, `fg2`) and the chosen length on the right ("5 min", 15 / 600). Then the **chips** ("Quick options" group, 10 apart): box 1, 3, 5, 10 min with 5 selected; physiological sigh 1, 5, 10 min. Then a **slider**, 1 to 60 min in steps of 1, labelled "Custom duration in minutes", track 6 thick in `outline`, thumb 28 in `ring`; its ends are labelled "1 min" and "60 min" (13, `fg2`). Then, 14 below, the result line (22 / 600, tabular, announced politely): "19 Cycles · 5:04".
+3. **Duration** section. One row, no chips, no slider, no result line. "Duration" on the left (15 / 600, `fg2`) and the chosen length on the right as a text button ("5 min", 15 / 600, `ring`, tabular, min touch target 44). Tapping it opens a native **wheel picker** inline under the row (the iOS inline picker pattern), with the values 1 to 30 min in steps of 1, for every Exercise. While the picker is open the value stays `ring`; tapping it again or tapping outside closes the picker. The value is read from the wheel as soon as it settles. VoiceOver: the button reads "Duration, 5 minutes" with the hint "Opens the picker"; the picker is the native adjustable control.
 4. A group (`surface`, radius 16) of three rows, 17 / 500, padding 10 / 16:
    - **Sounds**: the chosen sound ("Soft bell", `fg2`) and an up-down chevron. Opens the menu in 7.
    - **Sound**: a switch, on.
    - **Haptics**: a switch, on.
 5. The **Start** button, pinned to the bottom: primary, 54 high.
 
-AX5: the sheet is 2,100 high and scrolls; chips 76 high, rows 88, switches scaled 1.5, slider thumb 44, Start 96.
+AX5: the sheet is 2,100 high and scrolls; rows 88, the Duration value 34, switches scaled 1.5, Start 96.
 
-The German variant (physiological sigh) is drawn to check long strings: "Abbrechen", "Physiologischer Seufzer", "Einatmen 2 · Einatmen 1 · Ausatmen 6", "Dauer", "5 Min.", "33 Zyklen · 4:57", "Haptik", "Starten", "Klänge", "Sanfte Glocke", "Ton".
+The German variant (physiological sigh) is drawn to check long strings: "Abbrechen", "Physiologischer Seufzer", "Einatmen 2 · Einatmen 1 · Ausatmen 6", "Dauer", "5 Min.", "Haptik", "Starten", "Klänge", "Sanfte Glocke", "Ton".
 
 **The Safety note is not in this design.** See "Not in the design", point 1.
 
@@ -190,7 +190,7 @@ A reference board: the torus at Breath level 0, 0.5 and 1, with motion (top row)
 
 English source strings (the String Catalog gets them with translator comments):
 
-`Exercises`, `Quick Start`, `Start`, `Custom exercise`, `Stats`, `Reminder`, `This week`, `Log`, `min`, `Cancel`, `Done`, `Duration`, `Quick options`, `Custom duration in minutes` (slider label), `Sounds`, `Sound`, `Haptics`, `Haptics on`, `Settings`, `Appearance`, `Health access`, `Share the app`, `Version`, `Get ready`, `remaining`, `Paused`, `Pause`, `Resume`, `Stop`, `Session complete`, `Cycles`, `Inhale`, `Hold`, `Exhale`, `Rest`, `New exercise`, `Name`, `Name your exercise`, `Icon`, `Description`, `What is it for?`, `Pattern, in seconds`, `Add exercise`, `New reminder`, `Time`, `Exercise`, `Repeat`, `Add reminder`, `Reminders arrive as notifications. You can turn them off for Breathnest in the iOS Settings app.`, `A quiet nudge to take a few breaths at the times you choose.`, `You will get a notification at this time. Tap it to start the exercise.`, the four Exercise descriptions, the Safety note (`Safety.xcstrings`), the five sound names and the icon names (Ring, Moon, Sun, Leaf, Wave, Wind).
+`Exercises`, `Quick Start`, `Start`, `Custom exercise`, `Stats`, `Reminder`, `This week`, `Log`, `min`, `Cancel`, `Done`, `Duration`, `Duration, 5 minutes` and `Opens the picker` (Duration button label and hint), `Sounds`, `Sound`, `Haptics`, `Haptics on`, `Settings`, `Appearance`, `Health access`, `Share the app`, `Version`, `Get ready`, `remaining`, `Paused`, `Pause`, `Resume`, `Stop`, `Session complete`, `Cycles`, `Inhale`, `Hold`, `Exhale`, `Rest`, `New exercise`, `Name`, `Name your exercise`, `Icon`, `Description`, `What is it for?`, `Pattern, in seconds`, `Add exercise`, `New reminder`, `Time`, `Exercise`, `Repeat`, `Add reminder`, `Reminders arrive as notifications. You can turn them off for Breathnest in the iOS Settings app.`, `A quiet nudge to take a few breaths at the times you choose.`, `You will get a notification at this time. Tap it to start the exercise.`, the four Exercise descriptions, the Safety note (`Safety.xcstrings`), the five sound names and the icon names (Ring, Moon, Sun, Leaf, Wave, Wind).
 
 The design writes "12 s per cycle" in lower case; the catalog says "Cycle" as the glossary does, and the plural variation follows the Cycle count.
 
@@ -205,8 +205,8 @@ These are open. An agent that needs one of them stops and asks (rule 3). Each ha
 3. **Opening Settings.** No screen shows how the Settings sheet opens. Proposal: a gear button at the top right of the Exercises screen, as in the Session.
 4. **What Settings does.** "Aurora" in Appearance looks like a colour theme; no theme list is drawn. "Health access: Allowed" implies writing Mindful Minutes to Apple Health, which the first brief put out of scope; the permission flow is not drawn. "Share the app" has no link. Proposal: decided before the Settings ticket (a human decision).
 5. **Sounds on the iPhone.** Sound, the chosen sound and the Haptics switch appear in the detail, the Session menu and the Quick Start card, so they are one saved setting, like the watch. The spec said sound was out of scope; now only the real names, files and the rule for when a sound plays are open ([#49](https://github.com/siroroman/BreathApp/issues/49), widened to both apps).
-6. **Duration slider and 4-7-8.** The slider runs 1 to 60 min for every Exercise, while the spec offers 4-7-8 only 1:15, 2:00 and 2:30 for safety. Proposal: the slider's range is per Exercise; 4-7-8 has no slider (or one limited to 1:15 to 2:30 in Cycle steps). The value is shown as `m:ss` when it is not whole minutes. Whether the chips and the slider stay in step is open (proposal: the chosen chip follows the slider when it matches, otherwise none is selected).
-7. **Custom exercises.** Not drawn: where a custom Exercise sits in the list and which of its icon or Pattern glyph the row shows, its Duration options (proposal: 1, 3, 5, 10 min and the slider), editing and deleting, the step and the maximum of a Phase (proposal: 1 s steps, 1 to 30 s), and what a 0 s Hold means (proposal: the Phase is omitted). Duplicated names are allowed.
+6. **Duration picker and 4-7-8.** Decided (user, #205): the Duration is a tap-to-pick wheel, 1 to 30 min in steps of 1, the same for every Exercise, including 4-7-8. This overrides the earlier proposal to offer 4-7-8 only 1:15, 2:00 and 2:30 for safety; the spec's safe lengths for 4-7-8 no longer apply to the phone and the spec must be amended in the same change. The Session runs the chosen length rounded to whole Cycles, so the value stays whole minutes. The Cycle count and exact length are no longer shown on the detail sheet.
+7. **Custom exercises.** Not drawn: where a custom Exercise sits in the list and which of its icon or Pattern glyph the row shows, its Duration (the same 1 to 30 min picker), editing and deleting, the step and the maximum of a Phase (proposal: 1 s steps, 1 to 30 s), and what a 0 s Hold means (proposal: the Phase is omitted). Duplicated names are allowed.
 8. **Settings menu in the Session.** Opening it does not pause the Session in the design (proposal: it keeps running and the Session keeps its auto-pause rules); the menu is dismissed by a tap outside it.
 9. **Sounds names.** The five names are placeholders, as on the watch.
 10. **Log rules.** Which Sessions are logged (proposal: completed ones only, which keeps "Stop means stop" of the spec), which length is shown (the Session's exact length), the week start (the design starts on Monday; proposal: follow the system's first weekday), an empty state for a new install, and long lists (the Log scrolls).
@@ -229,7 +229,7 @@ The design added screens and features the first brief put out of scope, and chan
 | Reminders | Out of scope | A Reminder section and a New reminder sheet |
 | Sound | Out of scope | Sounds, Sound and Haptics on the detail and in the Session menu |
 | Settings screen | None | A Settings sheet (Appearance, Health access, Share, Version) |
-| Duration | Chips per Exercise only | Chips plus a 1 to 60 min slider |
+| Duration | Chips per Exercise only | One tappable value with a 1 to 30 min wheel picker |
 | Haptics switch | On the detail, reset on every open | Saved setting, also in the Session menu |
 | Session controls | Exactly two: Pause and Stop | Pause, Stop and a gear that opens the Settings menu |
 | Lead-in | Shape at its smallest, remaining Lead-in time shown | "Get ready", a large 3, 2, 1, no torus; the Session's full length is shown |
@@ -247,7 +247,7 @@ The design added screens and features the first brief put out of scope, and chan
 | Colour modes | dark drawn, light tokens | dark only |
 | Phase name on the Session | large text above the shape | not shown |
 | Time block | `m:ss` and "remaining" | `m:ss` only |
-| Length | chips and a slider | Digital Crown |
+| Length | tappable value, 1 to 30 min wheel | Digital Crown |
 | Settings | in the detail, in a Session menu and in a Settings sheet | in a Settings page beside Exercises |
 | Pause and Stop | on the Session screen | on a separate Controls page |
 | Lead-in | "Get ready" and a large digit | a large digit |

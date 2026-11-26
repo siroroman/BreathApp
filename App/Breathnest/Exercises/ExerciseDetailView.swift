@@ -6,6 +6,7 @@ struct ExerciseDetailView: View {
     @State private var viewModel: ExerciseDetailViewModel
     @State private var session: SessionViewModel?
     @State private var isSoundsOpen = false
+    @State private var isPickerOpen = false
     private let dependencies: AppDependencies
     private let custom: CustomExerciseRecord?
 
@@ -19,7 +20,6 @@ struct ExerciseDetailView: View {
         _viewModel = State(initialValue: ExerciseDetailViewModel(
             exercise: exercise, settings: dependencies.settings, lastSession: dependencies.lastSession
         ))
-        SliderStyle.apply()
     }
 
     var body: some View {
@@ -53,7 +53,7 @@ struct ExerciseDetailView: View {
         .presentationDragIndicator(.hidden)
         .presentationCornerRadius(38)
         .presentationBackground(Color(.bg))
-        // Closing the cover leaves the sheet as it was, with the same Duration chip and Haptics choice.
+        // Closing the cover leaves the sheet as it was, with the same Duration and Haptics choice.
         .fullScreenCover(item: $session) { session in
             SessionView(viewModel: session, dependencies: dependencies, custom: custom) { self.session = nil }
         }
@@ -96,93 +96,57 @@ struct ExerciseDetailView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
+    /// One row: the label and the chosen length as a button. Tapping it opens the wheel picker under the row
+    /// (screen 6, #205); the value is `ring` while the picker is open.
     private func durationSection(scale: DesignScale) -> some View {
-        let wholeMinutes = viewModel.optionsAreWholeMinutes
-        let result = ExerciseText.result(viewModel.sessionLength)
+        let value = ExerciseText.option(viewModel.selectedDuration, wholeMinutes: true)
         return VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .firstTextBaseline, spacing: 12) {
-                Text("detail.duration")
-                    .foregroundStyle(Color(.fg2))
-                Spacer(minLength: 0)
-                Text(verbatim: ExerciseText.option(viewModel.selectedDuration, wholeMinutes: wholeMinutes))
-                    .monospacedDigit()
-                    .accessibilityIdentifier("detail.durationValue")
-            }
-            .designFont(.subheadline, 15, weight: .semibold, lineHeight: 1.3)
-            .padding(.bottom, 10)
-            .accessibilityElement(children: .combine)
-
-            WrappingLayout(spacing: 10) {
-                ForEach(viewModel.durationOptions, id: \.self) { option in
-                    chip(option, wholeMinutes: wholeMinutes, scale: scale)
+            Button {
+                withAnimation(.snappy) { isPickerOpen.toggle() }
+            } label: {
+                HStack(spacing: 12) {
+                    Text("detail.duration")
+                        .foregroundStyle(Color(.fg2))
+                    Spacer(minLength: 0)
+                    Text(verbatim: value)
+                        .monospacedDigit()
+                        .foregroundStyle(Color(.ring))
                 }
+                .designFont(.subheadline, 15, weight: .semibold, lineHeight: 1.3)
+                .frame(maxWidth: .infinity, minHeight: scale(44, 88))
+                .contentShape(Rectangle())
             }
-            .accessibilityElement(children: .contain)
-            .accessibilityLabel(Text("detail.duration.options"))
-
-            durationSlider(wholeMinutes: wholeMinutes)
-
-            Text(verbatim: result)
-                .designFont(.title2, 22, weight: .semibold, lineHeight: 1.25)
-                .monospacedDigit()
-                .padding(.top, 14)
-                .accessibilityIdentifier("detail.result")
-        }
-        .onChange(of: viewModel.selectedDuration) {
-            AccessibilityNotification.Announcement(result).post()
-        }
-    }
-
-    /// A native slider over the Exercise's steps, kept in step with the chips, the value and the result line.
-    private func durationSlider(wholeMinutes: Bool) -> some View {
-        let last = viewModel.sliderDurations.count - 1
-        return VStack(spacing: 4) {
-            Slider(
-                value: Binding(
-                    get: { Double(viewModel.sliderPosition) },
-                    set: { viewModel.select(sliderPosition: Int($0.rounded())) }
-                ),
-                in: 0 ... Double(last),
-                step: 1
-            )
-            .tint(Color(.ring))
-            .controlSize(typeSize.isAccessibilitySize ? .large : .regular)
-            .accessibilityLabel(Text("detail.duration.slider"))
+            .buttonStyle(.plain)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text("detail.duration"))
             .accessibilityValue(ExerciseText.spokenLength(viewModel.selectedDuration, locale: locale))
-            .accessibilityIdentifier("detail.slider")
+            .accessibilityHint(Text("detail.duration.hint"))
+            .accessibilityAddTraits(.isButton)
+            .accessibilityIdentifier("detail.durationValue")
 
-            HStack {
-                Text(verbatim: ExerciseText.option(viewModel.sliderDurations[0], wholeMinutes: wholeMinutes))
-                Spacer(minLength: 0)
-                Text(verbatim: ExerciseText.option(viewModel.sliderDurations[last], wholeMinutes: wholeMinutes))
+            if isPickerOpen {
+                durationPicker
             }
-            .designFont(.footnote, 13, lineHeight: 1.3)
-            .foregroundStyle(Color(.fg2))
-            .monospacedDigit()
-            .accessibilityHidden(true)
         }
-        .padding(.top, 14)
     }
 
-    private func chip(_ option: Duration, wholeMinutes: Bool, scale: DesignScale) -> some View {
-        let isSelected = viewModel.isSelected(option: option)
-        return Button {
-            viewModel.select(duration: option)
+    /// A native wheel over 1 to 30 minutes, the same for every Exercise.
+    private var durationPicker: some View {
+        Picker(
+            selection: Binding(get: { viewModel.selectedMinutes }, set: { viewModel.select(minutes: $0) })
+        ) {
+            ForEach(viewModel.pickerMinutes, id: \.self) { minutes in
+                Text(verbatim: ExerciseText.option(.seconds(minutes * 60), wholeMinutes: true))
+                    .monospacedDigit()
+                    .tag(minutes)
+            }
         } label: {
-            Text(verbatim: ExerciseText.option(option, wholeMinutes: wholeMinutes))
-                .designFont(.body, 17, weight: .semibold)
-                .monospacedDigit()
-                .foregroundStyle(Color(isSelected ? .bg : .fg))
-                .padding(.horizontal, scale(20, 28))
-                .frame(minHeight: scale(44, 76))
-                .background(Capsule().fill(Color(isSelected ? .fg : .surface)))
-                .overlay(Capsule().strokeBorder(Color(isSelected ? .fg : .outline), lineWidth: 1.5))
-                .contentShape(Capsule())
+            Text("detail.duration")
         }
-        .buttonStyle(.plain)
-        .accessibilityLabel(ExerciseText.spokenLength(option, locale: locale))
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
-        .accessibilityIdentifier("detail.chip.\(Int((option / .seconds(1)).rounded()))")
+        .pickerStyle(.wheel)
+        .labelsHidden()
+        .accessibilityIdentifier("detail.durationPicker")
+        .transition(.opacity)
     }
 
     /// Sounds, Sound and Haptics: one group of three rows (design screen 6).

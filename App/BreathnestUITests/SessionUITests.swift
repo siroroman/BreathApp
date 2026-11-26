@@ -11,9 +11,10 @@ final class SessionUITests: XCTestCase {
     func testWholeSessionRunsFromStartToDone() {
         let app = launchApp(sessionSpeed: 20)
         app.buttons["exercises.row.box"].tap()
-        let oneMinute = app.buttons["detail.chip.60"]
-        XCTAssertTrue(oneMinute.waitForExistence(timeout: 5))
-        oneMinute.tap()
+        let duration = app.buttons["detail.durationValue"]
+        XCTAssertTrue(duration.waitForExistence(timeout: 5))
+        duration.tap()
+        app.pickerWheels.firstMatch.adjust(toPickerWheelValue: "1 min")
         app.buttons["detail.startButton"].tap()
 
         XCTAssertTrue(app.buttons["session.pauseButton"].waitForExistence(timeout: 5))
@@ -27,7 +28,7 @@ final class SessionUITests: XCTestCase {
         done.tap()
 
         XCTAssertTrue(app.staticTexts["detail.title"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.buttons["detail.chip.60"].isSelected)
+        XCTAssertEqual(app.buttons["detail.durationValue"].value as? String, "1 minute")
     }
 
     func testStopReturnsToTheSheetWithNoEndScreen() {
@@ -39,7 +40,7 @@ final class SessionUITests: XCTestCase {
 
         XCTAssertTrue(app.staticTexts["detail.title"].waitForExistence(timeout: 5))
         XCTAssertFalse(app.staticTexts["session.completeTitle"].exists)
-        XCTAssertTrue(app.buttons["detail.chip.300"].isSelected)
+        XCTAssertEqual(app.buttons["detail.durationValue"].value as? String, "5 minutes")
     }
 
     func testGearOpensTheMenuAndAChangeIsSavedWithoutPausingTheSession() {
