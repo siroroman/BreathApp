@@ -78,9 +78,11 @@ final class ExerciseDetailUITests: XCTestCase {
         let slider = app.sliders["detail.slider"]
         slider.adjust(toNormalizedSliderPosition: 1)
         XCTAssertEqual(app.staticTexts["detail.result"].label, "8 Cycles · 2:32")
+        XCTAssertEqual(app.staticTexts["detail.durationValue"].label, "2:30")
         XCTAssertTrue(app.buttons["detail.chip.150"].isSelected)
         slider.adjust(toNormalizedSliderPosition: 0)
         XCTAssertEqual(app.staticTexts["detail.result"].label, "4 Cycles · 1:16")
+        XCTAssertEqual(app.staticTexts["detail.durationValue"].label, "1:15")
     }
 
     func testChoicesResetToTheDefaultsEachTimeTheSheetOpens() {

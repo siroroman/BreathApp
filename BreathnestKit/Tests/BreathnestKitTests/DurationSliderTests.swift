@@ -12,9 +12,9 @@ import Testing
         #expect(zip(steps, steps.dropFirst()).allSatisfy { $1 - $0 == .seconds(60) })
     }
 
-    @Test func fourSevenEightSlidesOnlyBetweenFourAndEightCycles() {
+    @Test func fourSevenEightSlidesInCycleStepsFromOneMinuteFifteenToTwoMinutesThirty() {
         let steps = Exercise.fourSevenEight.sliderDurations
-        #expect(steps == (4 ... 8).map { Duration.seconds(19 * $0) })
+        #expect(steps == [.seconds(75), .seconds(95), .seconds(114), .seconds(133), .seconds(150)])
         #expect(steps.map { Exercise.fourSevenEight.sessionLength(for: $0).cycleCount } == [4, 5, 6, 7, 8])
     }
 

@@ -15,6 +15,7 @@ struct ExerciseDetailView: View {
     init(exercise: Exercise, dependencies: AppDependencies) {
         self.dependencies = dependencies
         _viewModel = State(initialValue: ExerciseDetailViewModel(exercise: exercise))
+        SliderStyle.apply()
     }
 
     var body: some View {
