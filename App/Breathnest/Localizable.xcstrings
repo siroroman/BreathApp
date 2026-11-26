@@ -295,6 +295,48 @@
         }
       }
     },
+    "detail.duration.slider" : {
+      "comment" : "VoiceOver name of the slider that sets a custom Session length in minutes. Its value is read as a length, such as 5 minutes.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Custom duration in minutes"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Custom duration in minutes"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Custom duration in minutes"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Custom duration in minutes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Custom duration in minutes"
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Custom duration in minutes"
+          }
+        }
+      }
+    },
     "detail.haptics" : {
       "comment" : "Label of the switch that turns the phone's vibration on or off during a Session.",
       "extractionState" : "manual",

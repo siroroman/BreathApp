@@ -55,6 +55,34 @@ final class ExerciseDetailUITests: XCTestCase {
         XCTAssertEqual(app.staticTexts["detail.result"].label, "4 Cycles · 1:04")
     }
 
+    func testSliderAndChipsStayInStep() {
+        let app = launchApp()
+        openDetail(of: "box", in: app)
+        let slider = app.sliders["detail.slider"]
+        XCTAssertTrue(slider.exists)
+        XCTAssertEqual(slider.label, "Custom duration in minutes")
+        XCTAssertEqual(slider.value as? String, "5 minutes")
+
+        slider.adjust(toNormalizedSliderPosition: 0)
+        XCTAssertEqual(app.staticTexts["detail.durationValue"].label, "1 min")
+        XCTAssertTrue(app.buttons["detail.chip.60"].isSelected)
+        XCTAssertEqual(app.staticTexts["detail.result"].label, "4 Cycles · 1:04")
+
+        app.buttons["detail.chip.600"].tap()
+        XCTAssertEqual(slider.value as? String, "10 minutes")
+    }
+
+    func testFourSevenEightSliderIsLimitedToFourToEightCycles() {
+        let app = launchApp()
+        openDetail(of: "four-seven-eight", in: app)
+        let slider = app.sliders["detail.slider"]
+        slider.adjust(toNormalizedSliderPosition: 1)
+        XCTAssertEqual(app.staticTexts["detail.result"].label, "8 Cycles · 2:32")
+        XCTAssertTrue(app.buttons["detail.chip.150"].isSelected)
+        slider.adjust(toNormalizedSliderPosition: 0)
+        XCTAssertEqual(app.staticTexts["detail.result"].label, "4 Cycles · 1:16")
+    }
+
     func testChoicesResetToTheDefaultsEachTimeTheSheetOpens() {
         let app = launchApp()
         openDetail(of: "box", in: app)
