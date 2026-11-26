@@ -1,13 +1,23 @@
 import BreathnestKit
 import SwiftUI
 
-/// Screen 5 of the design: the Exercises list. The Quick Start card, the Custom exercise row and the tab bar
-/// come with #54, #57 and #58.
+/// Screen 5 of the design: the Exercises list with the Quick Start card. The Custom exercise row and the tab bar
+/// come with #57 and #58.
 struct ExercisesView: View {
     let navigation: AppNavigation
     let dependencies: AppDependencies
 
+    @State private var quickStart: QuickStartViewModel
+    @State private var session: SessionViewModel?
     @Environment(\.dynamicTypeSize) private var typeSize
+
+    init(navigation: AppNavigation, dependencies: AppDependencies) {
+        self.navigation = navigation
+        self.dependencies = dependencies
+        _quickStart = State(initialValue: QuickStartViewModel(
+            settings: dependencies.settings, lastSession: dependencies.lastSession
+        ))
+    }
 
     var body: some View {
         let scale = DesignScale(typeSize: typeSize)
@@ -20,6 +30,11 @@ struct ExercisesView: View {
                         .padding(.bottom, 20)
                         .accessibilityAddTraits(.isHeader)
                         .accessibilityIdentifier("exercises.title")
+                    QuickStartCard(viewModel: quickStart, scale: scale) {
+                        quickStart.started()
+                        session = dependencies.makeSession(exercise: quickStart.exercise, requested: quickStart.requested)
+                    }
+                    .padding(.bottom, 16)
                     VStack(spacing: 0) {
                         ForEach(Array(Exercise.builtIn.enumerated()), id: \.element.id) { index, exercise in
                             if index > 0 {
@@ -42,6 +57,9 @@ struct ExercisesView: View {
         .background(Color(.bg))
         .sheet(item: openExercise) { exercise in
             ExerciseDetailView(exercise: exercise, dependencies: dependencies)
+        }
+        .fullScreenCover(item: $session) { session in
+            SessionView(viewModel: session, dependencies: dependencies) { self.session = nil }
         }
     }
 

@@ -47,6 +47,16 @@ case_() {
 fixture
 case_ 0 "clean tree"
 
+mkdir -p BreathnestKit/Sources/BreathnestKitTesting
+printf 'import BreathnestKit\nimport Foundation\n' >BreathnestKit/Sources/BreathnestKitTesting/Fake.swift
+case_ 0 "the Testing target may import BreathnestKit"
+printf 'import BreathnestKit\n' >BreathnestKit/Sources/BreathnestKit/B.swift
+case_ 1 "the Kit may not import itself by name"
+rm BreathnestKit/Sources/BreathnestKit/B.swift
+printf 'import UIKit\n' >BreathnestKit/Sources/BreathnestKitTesting/Fake.swift
+case_ 1 "the Testing target may not import UIKit"
+rm -r BreathnestKit/Sources/BreathnestKitTesting
+
 for framework in UIKit SwiftUI CoreHaptics AVFoundation Combine WatchKit; do
   fixture
   printf 'import %s\n' "$framework" >>BreathnestKit/Sources/BreathnestKit/A.swift

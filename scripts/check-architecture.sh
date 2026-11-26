@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Fails when the Kit stops being UI free or a dependency sneaks in (rules: docs/agents/ios.md, Conventions):
-#   - a file in BreathnestKit/Sources imports anything but Foundation, Synchronization or Swift
+#   - a file in BreathnestKit/Sources imports anything but Foundation, Synchronization or Swift (the fakes in
+#     BreathnestKit/Sources/BreathnestKitTesting may also import BreathnestKit)
 #   - BreathnestKit/Package.swift declares a dependency (`.package(`)
 #   - project.yml lists a package other than the local BreathnestKit
 #   scripts/check-architecture.sh [repo root]    root defaults to the repository
@@ -23,11 +24,13 @@ bad=()
 
 if [[ -d "$sources" ]]; then
   while IFS= read -r file; do
+    allowed=$allowed_imports
+    [[ "$file" == "$sources/BreathnestKitTesting/"* ]] && allowed="$allowed_imports BreathnestKit"
     # `public import Foundation`, `@testable import X`, `import struct Foundation.URL`: the module is the first
     # word of the path after `import` (and after an optional declaration kind). Lines in a `//` comment are skipped.
     while IFS= read -r module; do
       [[ -n "$module" ]] || continue
-      case " $allowed_imports " in
+      case " $allowed " in
         *" $module "*) ;;
         *) bad+=("$file imports $module") ;;
       esac

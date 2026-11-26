@@ -6,7 +6,7 @@ import XCTest
 @MainActor
 func launchApp(contentSize: String? = nil, sessionSpeed: Int? = nil) -> XCUIApplication {
     let app = XCUIApplication()
-    app.launchArguments += ["-AppleLanguages", "(en)", "-AppleLocale", "en_US"]
+    app.launchArguments += ["-AppleLanguages", "(en)", "-AppleLocale", "en_US", "-ResetSavedData"]
     if let contentSize {
         app.launchArguments += ["-UIPreferredContentSizeCategoryName", contentSize]
     }

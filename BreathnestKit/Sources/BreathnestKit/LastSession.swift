@@ -38,6 +38,11 @@ public struct LastSession: StoredDocument {
 public struct QuickStart: Sendable, Hashable {
     public let exercise: Exercise
     public let requested: Duration
+
+    public init(exercise: Exercise, requested: Duration) {
+        self.exercise = exercise
+        self.requested = requested
+    }
 }
 
 public extension LastSession {

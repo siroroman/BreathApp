@@ -55,6 +55,9 @@ targets:
       - App/BreathnestTests
     dependencies:
       - target: Breathnest
+      # The in-memory store and the other fakes of the Kit: tests and previews only, never linked into the app.
+      - package: BreathnestKit
+        product: BreathnestKitTesting
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.siroroman.breathnest.tests
