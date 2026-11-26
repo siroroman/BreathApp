@@ -140,7 +140,7 @@ Decided by the user in [#39](https://github.com/siroroman/BreathApp/issues/39). 
 6. **Length on Set duration** that is not whole minutes is written as `1:15` with "min" beside it, like "5 min". The number scales down to stay on one line next to "min" when it is wider than a whole-minute value (at 150 `1:15` and "min" do not fit in 356); it never wraps. The result must be checked with a screenshot.
 7. **Dynamic Type.** Text on the watch keeps the fixed sizes of the design.
 8. **VoiceOver** still speaks each Phase name at its start, although it is not shown.
-9. **Safety note.** The watch has none. This is a deliberate exception to the iPhone, where it is shown before Start on every Exercise.
+9. **Safety note.** The watch has none (decided in #39), and the iPhone detail sheet has none either (decided in #206).
 
 ## Still open
 
@@ -163,6 +163,6 @@ The watch is a different product surface, not a small iPhone. These differences 
 | Haptics switch | on the detail sheet, reset each time | in Settings, saved |
 | Sound | out of scope | Settings has a Sound switch and a Sounds list |
 | Quick Start | out of scope | on the Exercises screen |
-| Safety note | on the detail sheet | none (decided in #39) |
+| Safety note | none (decided in #206) | none (decided in #39) |
 | Pause and Stop | on the Session screen | on a separate Controls page |
 | Lead-in | countdown time shown | a large 3, 2, 1 and no torus |
