@@ -2,9 +2,9 @@ import BreathnestKit
 import SwiftUI
 
 /// The single-choice list of the five sounds (design screen 7), shared by the detail sheet and the Session menu.
-/// The chosen row is `ring` with a check mark, the others `fg`. The Session plays the chosen one at each inhale and
-/// exhale
-/// start (#210).
+/// The chosen row is `ring` with a check mark, the others `fg`. The Session plays the chosen one: a tone at each
+/// inhale, a lower
+/// one at each exhale and ticks in a hold (#210).
 struct SoundsList: View {
     let chosen: SoundID
     let scale: DesignScale

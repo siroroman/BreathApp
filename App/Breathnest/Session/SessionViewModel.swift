@@ -139,27 +139,28 @@ final class SessionViewModel {
         speed == 1 ? now : origin.advanced(by: (now - origin) * speed)
     }
 
-    /// Plays the chosen sound when an inhale or an exhale starts, if Sound is on. A hold or a rest has no cue. A
-    /// batch that crosses several Phases plays one cue, not one per Phase, and one that completes the Session plays
-    /// none. The switch and the choice are read now.
-    private func playCue(for transitions: [SessionEngine.Transition]) {
-        guard settings.settings.isSoundOn, !transitions.contains(.completed) else { return }
-        let hasCue = transitions.contains { $0 == .phaseStarted(.inhale) || $0 == .phaseStarted(.exhale) }
-        if hasCue { sounds.play(settings.settings.soundID) }
-    }
-
-    /// Plays the haptic of each Phase the time crossed, once, at its start. Every Phase is counted, but a batch
-    /// that pauses, stops or completes the Session plays none: the haptic would be cut at once.
+    /// Plays the haptic and the sound of each Phase the time crossed, at its start. Every Phase is counted, but a
+    /// batch that pauses, stops or completes the Session plays none: it would be cut at once. A haptic plays for
+    /// every Phase a long gap crossed; a sound only for the last one, so tones do not pile up. The haptics and the
+    /// sound switches and the chosen sound are read now.
     private func handle(_ transitions: [SessionEngine.Transition], plays: Bool = true) {
-        if plays { playCue(for: transitions) }
         let pattern = exercise.pattern
-        let isPlaying = plays && settings.settings.isHapticsOn && !transitions.contains(.completed)
+        let isPlaying = plays && !transitions.contains(.completed)
+        let isHapticsPlaying = isPlaying && settings.settings.isHapticsOn
+        var soundEvents: [SoundEvent] = []
         for transition in transitions {
             guard case .phaseStarted = transition else { continue }
-            defer { phasesStarted += 1 }
+            let phaseIndex = phasesStarted % pattern.phases.count
+            phasesStarted += 1
             guard isPlaying else { continue }
-            let events = pattern.hapticEvents(for: transition, phaseIndex: phasesStarted % pattern.phases.count)
-            haptics.play(events.map { $0.sped(by: speed) })
+            if isHapticsPlaying {
+                haptics.play(pattern.hapticEvents(for: transition, phaseIndex: phaseIndex).map { $0.sped(by: speed) })
+            }
+            let events = pattern.soundEvents(for: transition, phaseIndex: phaseIndex)
+            if !events.isEmpty { soundEvents = events.map { $0.sped(by: speed) } }
+        }
+        if !soundEvents.isEmpty, settings.settings.isSoundOn {
+            sounds.play(settings.settings.soundID, events: soundEvents)
         }
     }
 

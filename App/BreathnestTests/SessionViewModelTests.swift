@@ -27,10 +27,12 @@ private final class RecordingHaptics: HapticPlayer {
 
 @MainActor
 private final class RecordingSounds: SoundPlayer {
-    private(set) var played: [SoundID] = []
+    private(set) var plays: [(sound: SoundID, events: [SoundEvent])] = []
     private(set) var stopCount = 0
-    func play(_ sound: SoundID) {
-        played.append(sound)
+    var played: [SoundID] { plays.map(\.sound) }
+    var cues: [[SoundCue]] { plays.map { $0.events.map(\.cue) } }
+    func play(_ sound: SoundID, events: [SoundEvent]) {
+        plays.append((sound, events))
     }
 
     func stop() {
@@ -225,18 +227,39 @@ private final class RecordingSounds: SoundPlayer {
         #expect(sounds.played.isEmpty)
     }
 
-    @Test func theChosenSoundPlaysAtEachInhaleAndExhaleStartAndNotAtAHold() {
+    @Test func eachPhaseStartPlaysItsToneWithTheChosenSound() {
         let (viewModel, sounds, _) = makeWithSounds(sound: .chime)
         viewModel.tick(now: at(3.5))
-        #expect(sounds.played == [.chime])
+        #expect(sounds.cues == [[.inhale]])
         viewModel.tick(now: at(7.5))
-        #expect(sounds.played == [.chime])
+        #expect(sounds.cues == [[.inhale], [.tick, .tick, .tick, .tick]])
         viewModel.tick(now: at(11.5))
-        #expect(sounds.played == [.chime, .chime])
         viewModel.tick(now: at(15.5))
-        #expect(sounds.played == [.chime, .chime])
         viewModel.tick(now: at(19.5))
-        #expect(sounds.played == [.chime, .chime, .chime])
+        #expect(sounds.cues.map(\.first) == [.inhale, .tick, .exhale, .tick, .inhale])
+        #expect(Set(sounds.played) == [.chime])
+    }
+
+    @Test func theTicksOfAHoldAreAskedAtTheTimesOfItsHapticTicks() {
+        let (viewModel, sounds, _) = makeWithSounds()
+        viewModel.tick(now: at(7.5))
+        let hold = Exercise.box.pattern.hapticEvents(for: .phaseStarted(.hold), phaseIndex: 1)
+        #expect(sounds.plays.last?.events.map(\.time) == hold.map(\.time))
+    }
+
+    @Test func theSpeedScalesTheTimesOfTheTicks() {
+        let sounds = RecordingSounds()
+        let viewModel = SessionViewModel(
+            exercise: .box, requested: .seconds(60), screenAwake: FakeScreenAwake(), haptics: RecordingHaptics(),
+            sounds: sounds, settings: AppSettingsStore(store: InMemoryDocumentStore()), speed: 4, startedAt: origin
+        )
+        viewModel.tick(now: at(1.8))
+        #expect(sounds.plays.last?.events.map(\.time) == [
+            .zero,
+            .milliseconds(250),
+            .milliseconds(500),
+            .milliseconds(750),
+        ])
     }
 
     @Test func aPhaseThatIsStillRunningDoesNotPlayAgain() {
@@ -244,13 +267,13 @@ private final class RecordingSounds: SoundPlayer {
         viewModel.tick(now: at(3.5))
         viewModel.tick(now: at(4))
         viewModel.tick(now: at(6.9))
-        #expect(sounds.played == [.softBell])
+        #expect(sounds.cues == [[.inhale]])
     }
 
-    @Test func aGapThatCrossesSeveralPhasesPlaysOneCueNotOnePerPhase() {
+    @Test func aGapThatCrossesSeveralPhasesPlaysTheLastOneOnly() {
         let (viewModel, sounds, _) = makeWithSounds()
-        viewModel.tick(now: at(3 + 12.5))
-        #expect(sounds.played == [.softBell])
+        viewModel.tick(now: at(3 + 8.5))
+        #expect(sounds.cues == [[.exhale]])
     }
 
     @Test func completionPlaysNoSoundOfItsOwn() {
@@ -259,7 +282,7 @@ private final class RecordingSounds: SoundPlayer {
             viewModel.tick(now: at(Double(second)))
         }
         #expect(viewModel.stage == .completed)
-        #expect(sounds.played.count == 8)
+        #expect(sounds.plays.count == 16)
     }
 
     @Test func withSoundOffNothingPlays() {
