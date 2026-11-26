@@ -61,7 +61,7 @@ final class ExerciseDetailUITests: XCTestCase {
         XCTAssertEqual(durationValue(in: app).value as? String, "30 minutes")
     }
 
-    func testChoicesResetToTheDefaultsEachTimeTheSheetOpens() {
+    func testDurationResetsAndHapticsAreKeptWhenTheSheetOpensAgain() {
         let app = launchApp()
         openDetail(of: "box", in: app)
         let haptics = app.switches["detail.hapticsToggle"]
@@ -75,7 +75,8 @@ final class ExerciseDetailUITests: XCTestCase {
 
         openDetail(of: "box", in: app)
         XCTAssertEqual(durationValue(in: app).value as? String, "5 minutes")
-        XCTAssertEqual(app.switches["detail.hapticsToggle"].value as? String, "1")
+        // Haptics is a saved setting (ADR 0003), so it keeps the last choice.
+        XCTAssertEqual(app.switches["detail.hapticsToggle"].value as? String, "0")
     }
 
     func testSafetyNoteShowsOnEveryExerciseWithTheHoldLineOnBoxAndFourSevenEight() {
