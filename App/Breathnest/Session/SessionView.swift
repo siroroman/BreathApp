@@ -1,7 +1,7 @@
 import BreathnestKit
 import SwiftUI
 
-/// Screens 1 to 3 of the design: the Session as full-screen cover, in text. The gear and its menu come with #56.
+/// Screens 1 to 4 of the design: the Session as full-screen cover, in text, with the gear and its Settings menu.
 struct SessionView: View {
     let viewModel: SessionViewModel
     let dependencies: AppDependencies
@@ -13,6 +13,8 @@ struct SessionView: View {
     @Environment(\.dynamicTypeSize) private var typeSize
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var isMenuOpen = false
+    @AccessibilityFocusState private var isGearFocused: Bool
 
     var body: some View {
         let scale = DesignScale(typeSize: typeSize)
@@ -31,6 +33,9 @@ struct SessionView: View {
             viewModel.run(ticker: dependencies.ticker)
         }
         .onDisappear { viewModel.end() }
+        .onChange(of: viewModel.stage) {
+            if viewModel.stage == .completed { isMenuOpen = false }
+        }
         .onChange(of: scenePhase) {
             if scenePhase != .active { viewModel.sceneBecameInactive(now: .now) }
         }
@@ -59,13 +64,65 @@ struct SessionView: View {
                 timeBlock
                 phaseBlock.padding(.top, 24)
                 Spacer(minLength: 0)
-                buttons(scale: scale)
             }
             .padding(.horizontal, 16)
             .padding(.top, 64)
             .padding(.bottom, 34)
+            // A tap outside the menu closes it. The layer sits under the buttons, so Pause and Stop stay
+            // reachable with the menu open.
+            if isMenuOpen {
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture { closeMenu() }
+                    .accessibilityHidden(true)
+            }
+            VStack(spacing: 0) {
+                Spacer(minLength: 0)
+                buttons(scale: scale)
+            }
+            .padding(.horizontal, 16)
+            .padding(.bottom, 34)
+            gear(scale: scale)
         }
         .ignoresSafeArea()
+    }
+
+    /// The gear at the top right, and under it the menu while it is open. Present in the Lead-in, while breathing
+    /// and while paused; the end screen has none.
+    private func gear(scale: DesignScale) -> some View {
+        let side = scale(44, 64)
+        return ZStack(alignment: .topTrailing) {
+            Color.clear
+            Button {
+                if isMenuOpen { closeMenu() } else { isMenuOpen = true }
+            } label: {
+                Image(systemName: "gearshape")
+                    .font(.system(size: scale(26, 38)))
+                    .foregroundStyle(Color(isMenuOpen ? .ring : .fg2))
+                    .frame(width: side, height: side)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(Text("session.settings"))
+            .accessibilityAddTraits(isMenuOpen ? .isSelected : [])
+            .accessibilityFocused($isGearFocused)
+            .accessibilityIdentifier("session.gearButton")
+            .padding(.top, 56)
+            .padding(.trailing, 16)
+
+            if isMenuOpen {
+                SessionMenu(settings: dependencies.settings, scale: scale)
+                    .padding(.top, 110 - 9)
+                    .padding(.horizontal, 16)
+                    .accessibilityAction(.escape) { closeMenu() }
+            }
+        }
+    }
+
+    /// Closes the menu and hands the VoiceOver focus back to the gear.
+    private func closeMenu() {
+        isMenuOpen = false
+        isGearFocused = true
     }
 
     private func torus(level: Double, side: CGFloat) -> some View {

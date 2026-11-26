@@ -41,4 +41,49 @@ final class SessionUITests: XCTestCase {
         XCTAssertFalse(app.staticTexts["session.completeTitle"].exists)
         XCTAssertTrue(app.buttons["detail.chip.300"].isSelected)
     }
+
+    func testGearOpensTheMenuAndAChangeIsSavedWithoutPausingTheSession() {
+        let app = launchApp()
+        app.buttons["exercises.row.box"].tap()
+        app.buttons["detail.startButton"].tap()
+        let gear = app.buttons["session.gearButton"]
+        XCTAssertTrue(gear.waitForExistence(timeout: 5))
+        XCTAssertEqual(gear.label, "Settings")
+        gear.tap()
+
+        let haptics = app.switches["session.menu.hapticsToggle"]
+        XCTAssertTrue(haptics.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.switches["session.menu.soundToggle"].exists)
+        XCTAssertEqual(app.buttons["session.menu.soundsRow"].value as? String, "Soft bell")
+        haptics.switches.firstMatch.tap()
+
+        // The Session keeps running, and Pause is still reachable with the menu open.
+        XCTAssertEqual(app.buttons["session.pauseButton"].label, "Pause")
+        app.buttons["session.pauseButton"].tap()
+        XCTAssertEqual(app.buttons["session.pauseButton"].label, "Resume")
+        app.buttons["session.stopButton"].tap()
+
+        XCTAssertTrue(app.switches["detail.hapticsToggle"].waitForExistence(timeout: 5))
+        XCTAssertEqual(app.switches["detail.hapticsToggle"].value as? String, "0")
+    }
+
+    func testSoundsListInTheMenuChangesTheChosenSound() {
+        let app = launchApp()
+        app.buttons["exercises.row.box"].tap()
+        app.buttons["detail.startButton"].tap()
+        app.buttons["session.gearButton"].tap()
+        app.buttons["session.menu.soundsRow"].tap()
+        app.buttons["sounds.option.chime"].tap()
+        XCTAssertEqual(app.buttons["session.menu.soundsRow"].value as? String, "Chime")
+    }
+
+    func testGearIsNotOnTheEndScreen() {
+        let app = launchApp(sessionSpeed: 20)
+        app.buttons["exercises.row.box"].tap()
+        app.buttons["detail.chip.60"].tap()
+        app.buttons["detail.startButton"].tap()
+        XCTAssertTrue(app.buttons["session.gearButton"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["session.doneButton"].waitForExistence(timeout: 15))
+        XCTAssertFalse(app.buttons["session.gearButton"].exists)
+    }
 }
