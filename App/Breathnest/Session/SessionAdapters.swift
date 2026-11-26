@@ -55,6 +55,7 @@ struct AppDependencies {
     let ticker: any Ticker
     let screenAwake: any ScreenAwake
     let haptics: any HapticPlayer
+    let sounds: any SoundPlayer
     /// Scales the time fed to the Session engine. 1 in a release build; a DEBUG launch argument can raise it.
     let sessionSpeed: Double
     /// Sound, the chosen sound and Haptics: saved, and shared by every screen that shows them.
@@ -67,6 +68,7 @@ struct AppDependencies {
     static func live(arguments: [String] = ProcessInfo.processInfo.arguments) -> AppDependencies {
         AppDependencies(
             ticker: DisplayLinkTicker(), screenAwake: IdleTimerScreenAwake(), haptics: CoreHapticsPlayer(),
+            sounds: AVSoundPlayer(),
             sessionSpeed: speed(in: arguments),
             settings: AppSettingsStore(store: store(key: "breathnest.settings", arguments: arguments)),
             lastSession: LastSessionStore(store: store(key: "breathnest.lastSession", arguments: arguments)),
@@ -80,7 +82,7 @@ struct AppDependencies {
     func makeSession(exercise: Exercise, requested: Duration) -> SessionViewModel {
         SessionViewModel(
             exercise: exercise, requested: requested, screenAwake: screenAwake, haptics: haptics,
-            settings: settings, speed: sessionSpeed, startedAt: .now
+            sounds: sounds, settings: settings, speed: sessionSpeed, startedAt: .now
         )
     }
 

@@ -2,7 +2,8 @@ import BreathnestKit
 import SwiftUI
 
 /// The single-choice list of the five sounds (design screen 7), shared by the detail sheet and the Session menu.
-/// The chosen row is `ring` with a check mark, the others `fg`. Nothing plays yet: the sounds are placeholders (#49).
+/// The chosen row is `ring` with a check mark, the others `fg`. The Session plays the chosen one at its start and end
+/// (#210).
 struct SoundsList: View {
     let chosen: SoundID
     let scale: DesignScale
