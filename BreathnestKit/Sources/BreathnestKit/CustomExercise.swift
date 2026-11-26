@@ -42,17 +42,20 @@ public struct CustomExerciseRecord: Sendable, Hashable, Codable, Identifiable {
 
     public init(from decoder: any Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
-        guard let record = CustomExerciseRecord(
-            id: try values.decode(String.self, forKey: .id),
-            name: try values.decode(String.self, forKey: .name),
-            icon: try values.decode(CustomExerciseIcon.self, forKey: .icon),
-            description: try values.decode(String.self, forKey: .description),
-            inhale: try values.decode(Int.self, forKey: .inhale),
-            holdAfterInhale: try values.decode(Int.self, forKey: .holdAfterInhale),
-            exhale: try values.decode(Int.self, forKey: .exhale),
-            holdAfterExhale: try values.decode(Int.self, forKey: .holdAfterExhale)
+        guard let record = try CustomExerciseRecord(
+            id: values.decode(String.self, forKey: .id),
+            name: values.decode(String.self, forKey: .name),
+            icon: values.decode(CustomExerciseIcon.self, forKey: .icon),
+            description: values.decode(String.self, forKey: .description),
+            inhale: values.decode(Int.self, forKey: .inhale),
+            holdAfterInhale: values.decode(Int.self, forKey: .holdAfterInhale),
+            exhale: values.decode(Int.self, forKey: .exhale),
+            holdAfterExhale: values.decode(Int.self, forKey: .holdAfterExhale)
         ) else {
-            throw DecodingError.dataCorrupted(.init(codingPath: decoder.codingPath, debugDescription: "Pattern out of range"))
+            throw DecodingError.dataCorrupted(.init(
+                codingPath: decoder.codingPath,
+                debugDescription: "Pattern out of range"
+            ))
         }
         self = record
     }

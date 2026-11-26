@@ -161,11 +161,15 @@ struct SessionView: View {
                     .multilineTextAlignment(.center)
                     .accessibilityAddTraits(.isHeader)
                     .accessibilityIdentifier("session.completeTitle")
-                Text(verbatim: SessionText.summary(of: viewModel.exercise, custom: custom, length: viewModel.sessionLength))
-                    .designFont(.body, 17)
-                    .foregroundStyle(Color(.fg2))
-                    .multilineTextAlignment(.center)
-                    .accessibilityIdentifier("session.summary")
+                Text(verbatim: SessionText.summary(
+                    of: viewModel.exercise,
+                    custom: custom,
+                    length: viewModel.sessionLength
+                ))
+                .designFont(.body, 17)
+                .foregroundStyle(Color(.fg2))
+                .multilineTextAlignment(.center)
+                .accessibilityIdentifier("session.summary")
             }
             Spacer(minLength: 0)
             Button(action: close) {

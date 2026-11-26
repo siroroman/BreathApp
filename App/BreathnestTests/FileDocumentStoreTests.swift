@@ -11,22 +11,22 @@ import Testing
     }
 
     @Test func nothingSavedLoadsNil() throws {
-        #expect(try makeStore().load() == nil)
+        #expecttry (makeStore().load() == nil)
     }
 
     @Test func savedBytesComeBack() throws {
         let store = makeStore()
         try store.save(Data("hello".utf8))
-        #expect(try store.load() == Data("hello".utf8))
+        #expecttry (store.load() == Data("hello".utf8))
     }
 
     @Test func setAsideKeepsTheBytesUnderAnotherName() throws {
         let store = makeStore()
         try store.save(Data("junk".utf8))
         try store.setAside()
-        #expect(try store.load() == nil)
+        #expecttry (store.load() == nil)
         let kept = store.url.deletingLastPathComponent().appending(path: "custom-exercises.unreadable-T.json")
-        #expect(try Data(contentsOf: kept) == Data("junk".utf8))
+        #expecttry (Data(contentsOf: kept) == Data("junk".utf8))
     }
 
     @Test func aCustomExerciseListSurvivesThroughTheFile() throws {

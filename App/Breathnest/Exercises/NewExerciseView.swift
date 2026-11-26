@@ -89,16 +89,21 @@ struct NewExerciseView: View {
     private var descriptionField: some View {
         VStack(alignment: .leading, spacing: 6) {
             label("newExercise.description")
-            TextField("", text: $viewModel.details, prompt: Text("newExercise.description.placeholder"), axis: .vertical)
-                .lineLimit(2 ... 4)
-                .designFont(.body, 17)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 12)
-                .frame(minHeight: 68, alignment: .topLeading)
-                .background(RoundedRectangle(cornerRadius: 14).fill(Color(.surface)))
-                .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Color(.outline), lineWidth: 1.5))
-                .accessibilityLabel(Text("newExercise.description"))
-                .accessibilityIdentifier("newExercise.descriptionField")
+            TextField(
+                "",
+                text: $viewModel.details,
+                prompt: Text("newExercise.description.placeholder"),
+                axis: .vertical
+            )
+            .lineLimit(2 ... 4)
+            .designFont(.body, 17)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .frame(minHeight: 68, alignment: .topLeading)
+            .background(RoundedRectangle(cornerRadius: 14).fill(Color(.surface)))
+            .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Color(.outline), lineWidth: 1.5))
+            .accessibilityLabel(Text("newExercise.description"))
+            .accessibilityIdentifier("newExercise.descriptionField")
         }
     }
 

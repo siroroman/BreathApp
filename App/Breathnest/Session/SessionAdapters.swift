@@ -64,7 +64,8 @@ struct AppDependencies {
         AppDependencies(
             ticker: DisplayLinkTicker(), screenAwake: IdleTimerScreenAwake(), haptics: CoreHapticsPlayer(),
             sessionSpeed: speed(in: arguments),
-            customExercises: CustomExercisesViewModel(store: CustomExerciseStore(backing: FileDocumentStore.customExercises))
+            customExercises: CustomExercisesViewModel(store: CustomExerciseStore(backing: FileDocumentStore
+                    .customExercises))
         )
     }
 

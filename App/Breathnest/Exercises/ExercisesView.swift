@@ -123,14 +123,24 @@ private struct CustomExerciseRow: View {
                     Canvas { context, size in
                         let center = CGPoint(x: size.width / 2, y: size.height / 2)
                         var ring = Path()
-                        ring.addArc(center: center, radius: 17, startAngle: .zero, endAngle: .degrees(360), clockwise: false)
+                        ring.addArc(
+                            center: center,
+                            radius: 17,
+                            startAngle: .zero,
+                            endAngle: .degrees(360),
+                            clockwise: false
+                        )
                         context.stroke(ring, with: .color(Color(.ring)), style: StrokeStyle(lineWidth: 2, dash: [4, 4]))
                         var plus = Path()
                         plus.move(to: CGPoint(x: center.x - 7, y: center.y))
                         plus.addLine(to: CGPoint(x: center.x + 7, y: center.y))
                         plus.move(to: CGPoint(x: center.x, y: center.y - 7))
                         plus.addLine(to: CGPoint(x: center.x, y: center.y + 7))
-                        context.stroke(plus, with: .color(Color(.ring)), style: StrokeStyle(lineWidth: 2, lineCap: .round))
+                        context.stroke(
+                            plus,
+                            with: .color(Color(.ring)),
+                            style: StrokeStyle(lineWidth: 2, lineCap: .round)
+                        )
                     }
                     .frame(width: PatternGlyph.side, height: PatternGlyph.side)
                     .accessibilityHidden(true)

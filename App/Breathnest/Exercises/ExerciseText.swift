@@ -44,7 +44,9 @@ enum ExerciseText {
     }
 
     /// What VoiceOver reads for a row: `Box breathing, inhale 4 seconds, hold 4 seconds, ...`.
-    static func spokenRow(of exercise: Exercise, custom: CustomExerciseRecord? = nil, locale: Locale = .current) -> String {
+    static func spokenRow(of exercise: Exercise, custom: CustomExerciseRecord? = nil,
+                          locale: Locale = .current) -> String
+    {
         let phases = exercise.pattern.phases.map { phase in
             let spoken = spokenSeconds(phase.duration, locale: locale)
             return switch phase.kind {

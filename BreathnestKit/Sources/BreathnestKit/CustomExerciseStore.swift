@@ -46,7 +46,9 @@ public final class CustomExerciseStore: @unchecked Sendable {
             return CustomExerciseLoad(records: [], outcome: .unavailable)
         }
         guard let bytes else { return CustomExerciseLoad(records: [], outcome: .empty) }
-        if let document = try? JSONDecoder().decode(Document.self, from: bytes), document.version == Self.currentVersion {
+        if let document = try? JSONDecoder().decode(Document.self, from: bytes),
+           document.version == Self.currentVersion
+        {
             return CustomExerciseLoad(records: document.items, outcome: .loaded)
         }
         do {
