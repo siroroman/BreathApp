@@ -58,13 +58,13 @@ final class ExerciseDetailUITests: XCTestCase {
     func testSliderAndChipsStayInStep() {
         let app = launchApp()
         openDetail(of: "box", in: app)
-        let slider = app.sliders["detail.slider"]
+        let slider = app.sliders.matching(identifier: "detail.slider").firstMatch
         XCTAssertTrue(slider.exists)
         XCTAssertEqual(slider.label, "Custom duration in minutes")
         XCTAssertEqual(slider.value as? String, "5 minutes")
 
         slider.adjust(toNormalizedSliderPosition: 0)
-        XCTAssertEqual(app.staticTexts["detail.durationValue"].label, "1 min")
+        XCTAssertEqual(app.staticTexts.matching(identifier: "detail.durationValue").firstMatch.label, "Duration, 1 min")
         XCTAssertTrue(app.buttons["detail.chip.60"].isSelected)
         XCTAssertEqual(app.staticTexts["detail.result"].label, "4 Cycles · 1:04")
 
@@ -75,14 +75,14 @@ final class ExerciseDetailUITests: XCTestCase {
     func testFourSevenEightSliderIsLimitedToFourToEightCycles() {
         let app = launchApp()
         openDetail(of: "four-seven-eight", in: app)
-        let slider = app.sliders["detail.slider"]
+        let slider = app.sliders.matching(identifier: "detail.slider").firstMatch
         slider.adjust(toNormalizedSliderPosition: 1)
         XCTAssertEqual(app.staticTexts["detail.result"].label, "8 Cycles · 2:32")
-        XCTAssertEqual(app.staticTexts["detail.durationValue"].label, "2:30")
+        XCTAssertEqual(app.staticTexts.matching(identifier: "detail.durationValue").firstMatch.label, "Duration, 2:30")
         XCTAssertTrue(app.buttons["detail.chip.150"].isSelected)
         slider.adjust(toNormalizedSliderPosition: 0)
         XCTAssertEqual(app.staticTexts["detail.result"].label, "4 Cycles · 1:16")
-        XCTAssertEqual(app.staticTexts["detail.durationValue"].label, "1:15")
+        XCTAssertEqual(app.staticTexts.matching(identifier: "detail.durationValue").firstMatch.label, "Duration, 1:15")
     }
 
     func testChoicesResetToTheDefaultsEachTimeTheSheetOpens() {
