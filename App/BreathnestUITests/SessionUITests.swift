@@ -57,8 +57,10 @@ final class SessionUITests: XCTestCase {
         XCTAssertEqual(app.buttons["session.menu.soundsRow"].value as? String, "Soft bell")
         haptics.switches.firstMatch.tap()
 
-        // The Session keeps running, and Pause is still reachable with the menu open.
+        // The Session keeps running behind the menu; a tap outside closes it and Pause is one tap away.
         XCTAssertEqual(app.buttons["session.pauseButton"].label, "Pause")
+        app.otherElements["PopoverDismissRegion"].firstMatch.tap()
+        XCTAssertFalse(haptics.exists)
         app.buttons["session.pauseButton"].tap()
         XCTAssertEqual(app.buttons["session.pauseButton"].label, "Resume")
         app.buttons["session.stopButton"].tap()

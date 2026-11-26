@@ -36,6 +36,10 @@ struct SessionView: View {
         .onChange(of: viewModel.stage) {
             if viewModel.stage == .completed { isMenuOpen = false }
         }
+        .onChange(of: isMenuOpen) {
+            // VoiceOver focus goes back to the gear when the menu closes.
+            if !isMenuOpen { isGearFocused = true }
+        }
         .onChange(of: scenePhase) {
             if scenePhase != .active { viewModel.sceneBecameInactive(now: .now) }
         }
@@ -68,14 +72,6 @@ struct SessionView: View {
             .padding(.horizontal, 16)
             .padding(.top, 64)
             .padding(.bottom, 34)
-            // A tap outside the menu closes it. The layer sits under the buttons, so Pause and Stop stay
-            // reachable with the menu open.
-            if isMenuOpen {
-                Color.clear
-                    .contentShape(Rectangle())
-                    .onTapGesture { closeMenu() }
-                    .accessibilityHidden(true)
-            }
             VStack(spacing: 0) {
                 Spacer(minLength: 0)
                 buttons(scale: scale)
@@ -87,14 +83,15 @@ struct SessionView: View {
         .ignoresSafeArea()
     }
 
-    /// The gear at the top right, and under it the menu while it is open. Present in the Lead-in, while breathing
-    /// and while paused; the end screen has none.
+    /// The gear at the top right, with the menu as a popover under it. Present in the Lead-in, while breathing and
+    /// while paused; the end screen has none. Opening the menu does not pause the Session. A tap outside closes
+    /// it, as the design says, so Pause and Stop are one tap away.
     private func gear(scale: DesignScale) -> some View {
         let side = scale(44, 64)
         return ZStack(alignment: .topTrailing) {
             Color.clear
             Button {
-                if isMenuOpen { closeMenu() } else { isMenuOpen = true }
+                isMenuOpen = true
             } label: {
                 Image(systemName: "gearshape")
                     .font(.system(size: scale(26, 38)))
@@ -104,25 +101,17 @@ struct SessionView: View {
             }
             .buttonStyle(.plain)
             .accessibilityLabel(Text("session.settings"))
-            .accessibilityAddTraits(isMenuOpen ? .isSelected : [])
             .accessibilityFocused($isGearFocused)
             .accessibilityIdentifier("session.gearButton")
-            .padding(.top, 56)
-            .padding(.trailing, 16)
-
-            if isMenuOpen {
-                SessionMenu(settings: dependencies.settings, scale: scale)
-                    .padding(.top, 110 - 9)
-                    .padding(.horizontal, 16)
-                    .accessibilityAction(.escape) { closeMenu() }
+            .popover(isPresented: $isMenuOpen, arrowEdge: .top) {
+                SessionMenu(settings: dependencies.settings, scale: scale) { viewModel.setHaptics(isOn: $0) }
+                    .clipShape(RoundedRectangle(cornerRadius: 22))
+                    .presentationCompactAdaptation(.popover)
+                    .presentationBackground(Color(.pop))
             }
+            .padding(.top, scale(56, 64))
+            .padding(.trailing, 16)
         }
-    }
-
-    /// Closes the menu and hands the VoiceOver focus back to the gear.
-    private func closeMenu() {
-        isMenuOpen = false
-        isGearFocused = true
     }
 
     private func torus(level: Double, side: CGFloat) -> some View {
