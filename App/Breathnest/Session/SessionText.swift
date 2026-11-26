@@ -10,9 +10,11 @@ enum SessionText {
     }
 
     /// `Box breathing · 19 Cycles · 5:04`.
-    static func summary(of exercise: Exercise, length: SessionLength) -> String {
+    static func summary(of exercise: Exercise, custom: CustomExerciseRecord? = nil, length: SessionLength) -> String {
         let cycles = length.cycleCount
         let total = ExerciseText.clock(length.totalLength)
-        return String(localized: "session.summary \(ExerciseText.name(of: exercise)) \(cycles) \(total)")
+        return String(
+            localized: "session.summary \(ExerciseText.name(of: exercise, custom: custom)) \(cycles) \(total)"
+        )
     }
 }

@@ -7,13 +7,15 @@ struct ExerciseDetailView: View {
     @State private var session: SessionViewModel?
     @State private var isSoundsOpen = false
     private let dependencies: AppDependencies
+    private let custom: CustomExerciseRecord?
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.dynamicTypeSize) private var typeSize
     @Environment(\.locale) private var locale
 
-    init(exercise: Exercise, dependencies: AppDependencies) {
+    init(exercise: Exercise, custom: CustomExerciseRecord? = nil, dependencies: AppDependencies) {
         self.dependencies = dependencies
+        self.custom = custom
         _viewModel = State(initialValue: ExerciseDetailViewModel(
             exercise: exercise, settings: dependencies.settings, lastSession: dependencies.lastSession
         ))
@@ -53,7 +55,7 @@ struct ExerciseDetailView: View {
         .presentationBackground(Color(.bg))
         // Closing the cover leaves the sheet as it was, with the same Duration chip and Haptics choice.
         .fullScreenCover(item: $session) { session in
-            SessionView(viewModel: session, dependencies: dependencies) { self.session = nil }
+            SessionView(viewModel: session, dependencies: dependencies, custom: custom) { self.session = nil }
         }
     }
 
@@ -76,7 +78,7 @@ struct ExerciseDetailView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(verbatim: ExerciseText.name(of: viewModel.exercise))
+            Text(verbatim: ExerciseText.name(of: viewModel.exercise, custom: custom))
                 .designFont(.title, 30, weight: .bold, tracking: -0.02, lineHeight: 1.15)
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityIdentifier("detail.title")
@@ -85,7 +87,7 @@ struct ExerciseDetailView: View {
                 .foregroundStyle(Color(.fg2))
                 .padding(.top, 6)
                 .accessibilityIdentifier("detail.pattern")
-            Text(verbatim: ExerciseText.description(of: viewModel.exercise))
+            Text(verbatim: ExerciseText.description(of: viewModel.exercise, custom: custom))
                 .designFont(.subheadline, 15, lineHeight: 1.4)
                 .foregroundStyle(Color(.fg2))
                 .padding(.top, 10)

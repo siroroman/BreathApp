@@ -1,32 +1,12 @@
 import Foundation
 
-/// Where one saved document's bytes live (ADR 0003). The app's adapters are a `UserDefaults` key and a file.
-/// Synchronous on purpose: a document is a few kilobytes and has one writer.
-public protocol DocumentStore: Sendable {
-    /// `nil` means nothing is saved yet.
-    func load() throws -> Data?
-    /// Replaces the whole document.
-    func save(_ data: Data) throws
-    /// Keeps the current bytes under another name, so they are never overwritten.
-    func setAside() throws
-}
+// `DocumentStore` and `LoadOutcome` (ADR 0003) are declared in CustomExerciseStore.swift.
 
 /// A small value that is saved as one JSON object with a `version` (ADR 0003, rule M1).
 public protocol StoredDocument: Codable, Equatable, Sendable {
     static var defaultValue: Self { get }
     /// The version `encode(to:)` writes. A saved document with a newer one is unreadable (rule M4).
     static var currentVersion: Int { get }
-}
-
-/// What a load found (ADR 0003, rule F1).
-public enum LoadOutcome: Sendable, Hashable {
-    case loaded
-    /// Nothing was saved yet.
-    case empty
-    /// The saved bytes were unreadable and were kept with `setAside()`.
-    case recovered
-    /// The store could not be read at all.
-    case unavailable
 }
 
 /// One document and its store: reads it once, never fails, and writes on every `update` (ADR 0003, rules F1 to F8).

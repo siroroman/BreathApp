@@ -61,6 +61,7 @@ struct AppDependencies {
     let settings: AppSettingsStore
     /// The last Session that started, which the Quick Start card offers again.
     let lastSession: LastSessionStore
+    let customExercises: CustomExercisesViewModel
 
     @MainActor
     static func live(arguments: [String] = ProcessInfo.processInfo.arguments) -> AppDependencies {
@@ -68,7 +69,9 @@ struct AppDependencies {
             ticker: DisplayLinkTicker(), screenAwake: IdleTimerScreenAwake(), haptics: CoreHapticsPlayer(),
             sessionSpeed: speed(in: arguments),
             settings: AppSettingsStore(store: store(key: "breathnest.settings", arguments: arguments)),
-            lastSession: LastSessionStore(store: store(key: "breathnest.lastSession", arguments: arguments))
+            lastSession: LastSessionStore(store: store(key: "breathnest.lastSession", arguments: arguments)),
+            customExercises: CustomExercisesViewModel(store: CustomExerciseStore(backing: FileDocumentStore
+                    .customExercises))
         )
     }
 
