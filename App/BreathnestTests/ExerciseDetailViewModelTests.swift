@@ -80,4 +80,61 @@ import Testing
     @Test func boxOptionsAreWholeMinutes() {
         #expect(makeViewModel(.box).optionsAreWholeMinutes)
     }
+
+    // MARK: Duration slider (#55)
+
+    @Test func sliderStartsAtTheStepOfTheDefaultChip() {
+        let viewModel = makeViewModel(.box)
+        #expect(viewModel.sliderDurations[viewModel.sliderPosition] == .seconds(300))
+    }
+
+    @Test func movingTheSliderUpdatesTheDurationAndTheResultLine() {
+        let viewModel = makeViewModel(.box)
+        viewModel.select(sliderPosition: 3)
+        #expect(viewModel.selectedDuration == .seconds(240))
+        #expect(viewModel.sliderPosition == 3)
+        #expect(viewModel.sessionLength.cycleCount == 15)
+    }
+
+    @Test func theChipFollowsTheSliderWhenItMatchesAndNoChipIsSelectedOtherwise() {
+        let viewModel = makeViewModel(.box)
+        viewModel.select(sliderPosition: 9)
+        #expect(viewModel.isSelected(option: .seconds(600)))
+        #expect(viewModel.isSelected(option: .seconds(300)) == false)
+        viewModel.select(sliderPosition: 3)
+        #expect(viewModel.durationOptions.allSatisfy { viewModel.isSelected(option: $0) == false })
+    }
+
+    @Test func tappingAChipMovesTheSlider() {
+        let viewModel = makeViewModel(.box)
+        viewModel.select(duration: .seconds(60))
+        #expect(viewModel.sliderPosition == 0)
+        viewModel.select(duration: .seconds(600))
+        #expect(viewModel.sliderPosition == 9)
+    }
+
+    @Test func aSliderPositionOutOfRangeIsClamped() {
+        let viewModel = makeViewModel(.box)
+        viewModel.select(sliderPosition: 500)
+        #expect(viewModel.selectedDuration == .seconds(3600))
+        viewModel.select(sliderPosition: -4)
+        #expect(viewModel.selectedDuration == .seconds(60))
+    }
+
+    @Test func fourSevenEightChipsSelectTheSliderStepWithTheSameCycles() {
+        let viewModel = makeViewModel(.fourSevenEight)
+        #expect(viewModel.sliderDurations.count == 5)
+        #expect(viewModel.isSelected(option: .seconds(75)))
+        viewModel.select(duration: .seconds(120))
+        #expect(viewModel.sliderPosition == 2)
+        #expect(viewModel.isSelected(option: .seconds(120)))
+        viewModel.select(sliderPosition: 3)
+        #expect(viewModel.sessionLength.cycleCount == 7)
+        #expect(viewModel.durationOptions.allSatisfy { viewModel.isSelected(option: $0) == false })
+    }
+
+    @Test func sliderValuesAreWholeMinutesOnlyWhereEveryLengthIsAWholeMinute() {
+        #expect(makeViewModel(.coherent).optionsAreWholeMinutes)
+        #expect(makeViewModel(.fourSevenEight).optionsAreWholeMinutes == false)
+    }
 }
