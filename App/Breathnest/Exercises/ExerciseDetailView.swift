@@ -101,31 +101,28 @@ struct ExerciseDetailView: View {
     private func durationSection(scale: DesignScale) -> some View {
         let value = ExerciseText.option(viewModel.selectedDuration, wholeMinutes: true)
         return VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 12) {
-                Text("detail.duration")
-                    .foregroundStyle(Color(.fg2))
-                    .accessibilityHidden(true)
-                Spacer(minLength: 0)
-                Button {
-                    withAnimation(.snappy) { isPickerOpen.toggle() }
-                } label: {
+            Button {
+                withAnimation(.snappy) { isPickerOpen.toggle() }
+            } label: {
+                HStack(spacing: 12) {
+                    Text("detail.duration")
+                        .foregroundStyle(Color(.fg2))
+                    Spacer(minLength: 0)
                     Text(verbatim: value)
                         .monospacedDigit()
                         .foregroundStyle(Color(.ring))
-                        .padding(.horizontal, 4)
-                        .frame(minWidth: 44, minHeight: scale(44, 88), alignment: .trailing)
-                        .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
-                .accessibilityElement(children: .ignore)
-                .accessibilityLabel(Text("detail.duration"))
-                .accessibilityValue(ExerciseText.spokenLength(viewModel.selectedDuration, locale: locale))
-                .accessibilityHint(Text("detail.duration.hint"))
-                .accessibilityAddTraits(.isButton)
-                .accessibilityIdentifier("detail.durationValue")
+                .designFont(.subheadline, 15, weight: .semibold, lineHeight: 1.3)
+                .frame(maxWidth: .infinity, minHeight: scale(44, 88))
+                .contentShape(Rectangle())
             }
-            .designFont(.subheadline, 15, weight: .semibold, lineHeight: 1.3)
-            .frame(minHeight: scale(44, 88))
+            .buttonStyle(.plain)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text("detail.duration"))
+            .accessibilityValue(ExerciseText.spokenLength(viewModel.selectedDuration, locale: locale))
+            .accessibilityHint(Text("detail.duration.hint"))
+            .accessibilityAddTraits(.isButton)
+            .accessibilityIdentifier("detail.durationValue")
 
             if isPickerOpen {
                 durationPicker
