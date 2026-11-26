@@ -1,8 +1,8 @@
 import BreathnestKit
 import SwiftUI
 
-/// Screen 6 of the design: the Exercise detail bottom sheet. The Sounds rows, the slider and the saved
-/// Haptics setting come with #54 and #55.
+/// Screen 6 of the design: the Exercise detail bottom sheet. The Sounds rows and the saved Haptics
+/// setting come with #54.
 struct ExerciseDetailView: View {
     @State private var viewModel: ExerciseDetailViewModel
     @State private var session: SessionViewModel?
@@ -17,6 +17,7 @@ struct ExerciseDetailView: View {
         self.dependencies = dependencies
         self.custom = custom
         _viewModel = State(initialValue: ExerciseDetailViewModel(exercise: exercise))
+        SliderStyle.apply()
     }
 
     var body: some View {
@@ -117,6 +118,8 @@ struct ExerciseDetailView: View {
             .accessibilityElement(children: .contain)
             .accessibilityLabel(Text("detail.duration.options"))
 
+            durationSlider(wholeMinutes: wholeMinutes)
+
             Text(verbatim: result)
                 .designFont(.title2, 22, weight: .semibold, lineHeight: 1.25)
                 .monospacedDigit()
@@ -128,8 +131,39 @@ struct ExerciseDetailView: View {
         }
     }
 
+    /// A native slider over the Exercise's steps, kept in step with the chips, the value and the result line.
+    private func durationSlider(wholeMinutes: Bool) -> some View {
+        let last = viewModel.sliderDurations.count - 1
+        return VStack(spacing: 4) {
+            Slider(
+                value: Binding(
+                    get: { Double(viewModel.sliderPosition) },
+                    set: { viewModel.select(sliderPosition: Int($0.rounded())) }
+                ),
+                in: 0 ... Double(last),
+                step: 1
+            )
+            .tint(Color(.ring))
+            .controlSize(typeSize.isAccessibilitySize ? .large : .regular)
+            .accessibilityLabel(Text("detail.duration.slider"))
+            .accessibilityValue(ExerciseText.spokenLength(viewModel.selectedDuration, locale: locale))
+            .accessibilityIdentifier("detail.slider")
+
+            HStack {
+                Text(verbatim: ExerciseText.option(viewModel.sliderDurations[0], wholeMinutes: wholeMinutes))
+                Spacer(minLength: 0)
+                Text(verbatim: ExerciseText.option(viewModel.sliderDurations[last], wholeMinutes: wholeMinutes))
+            }
+            .designFont(.footnote, 13, lineHeight: 1.3)
+            .foregroundStyle(Color(.fg2))
+            .monospacedDigit()
+            .accessibilityHidden(true)
+        }
+        .padding(.top, 14)
+    }
+
     private func chip(_ option: Duration, wholeMinutes: Bool, scale: DesignScale) -> some View {
-        let isSelected = option == viewModel.selectedDuration
+        let isSelected = viewModel.isSelected(option: option)
         return Button {
             viewModel.select(duration: option)
         } label: {
