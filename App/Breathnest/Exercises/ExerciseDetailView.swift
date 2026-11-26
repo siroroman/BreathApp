@@ -35,7 +35,6 @@ struct ExerciseDetailView: View {
                     cancelButton
                     header
                     durationSection(scale: scale)
-                    SafetyNote(showsHoldLine: showsHoldLine)
                     settingsGroup(scale: scale)
                     Spacer(minLength: 0)
                     startButton(scale: scale)
@@ -57,11 +56,6 @@ struct ExerciseDetailView: View {
         .fullScreenCover(item: $session) { session in
             SessionView(viewModel: session, dependencies: dependencies, custom: custom) { self.session = nil }
         }
-    }
-
-    /// Box and 4-7-8 are the Exercises with a long hold.
-    private var showsHoldLine: Bool {
-        viewModel.exercise.pattern.phases.contains { $0.kind == .hold && $0.duration >= .seconds(4) }
     }
 
     private var cancelButton: some View {

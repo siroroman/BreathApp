@@ -108,6 +108,8 @@ Offer a lower bound: exhale at least as long as both inhales combined (a design 
 
 ## Safety notes and contraindications
 
+> The research stays as it is. The product decided (#206) that the iPhone detail sheet shows no Safety note, so none of the copy below is in the app.
+
 ### What the evidence actually says
 
 | Source | What it says | Strength |

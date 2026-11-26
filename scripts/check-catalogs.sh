@@ -7,7 +7,7 @@
 #   - a plural of a required language lacks a CLDR category of that language
 #   scripts/check-catalogs.sh [repo root]    root defaults to the repository
 #
-# Checks App/Breathnest/Localizable.xcstrings. Safety.xcstrings has its own rule (#34) and is not read here.
+# Checks App/Breathnest/Localizable.xcstrings.
 # Languages required: the environment variable CATALOG_REQUIRED_LANGUAGES, a space separated list of
 # en cs sk de fr es. Default "en": only English is filled in for now. #34 (localization in six languages) changes
 # the default below to all six when the translations land.

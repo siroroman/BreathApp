@@ -117,7 +117,7 @@ AX5: the sheet is 2,100 high and scrolls; rows 88, the Duration value 34, switch
 
 The German variant (physiological sigh) is drawn to check long strings: "Abbrechen", "Physiologischer Seufzer", "Einatmen 2 · Einatmen 1 · Ausatmen 6", "Dauer", "5 Min.", "Haptik", "Starten", "Klänge", "Sanfte Glocke", "Ton".
 
-**The Safety note is not in this design.** See "Not in the design", point 1.
+**There is no Safety note on the detail sheet.** Decided in #206; see "Not in the design", point 1.
 
 ### 7. Sounds menu (`SoundsDark`)
 
@@ -190,7 +190,7 @@ A reference board: the torus at Breath level 0, 0.5 and 1, with motion (top row)
 
 English source strings (the String Catalog gets them with translator comments):
 
-`Exercises`, `Quick Start`, `Start`, `Custom exercise`, `Stats`, `Reminder`, `This week`, `Log`, `min`, `Cancel`, `Done`, `Duration`, `Duration, 5 minutes` and `Opens the picker` (Duration button label and hint), `Sounds`, `Sound`, `Haptics`, `Haptics on`, `Settings`, `Appearance`, `Health access`, `Share the app`, `Version`, `Get ready`, `remaining`, `Paused`, `Pause`, `Resume`, `Stop`, `Session complete`, `Cycles`, `Inhale`, `Hold`, `Exhale`, `Rest`, `New exercise`, `Name`, `Name your exercise`, `Icon`, `Description`, `What is it for?`, `Pattern, in seconds`, `Add exercise`, `New reminder`, `Time`, `Exercise`, `Repeat`, `Add reminder`, `Reminders arrive as notifications. You can turn them off for Breathnest in the iOS Settings app.`, `A quiet nudge to take a few breaths at the times you choose.`, `You will get a notification at this time. Tap it to start the exercise.`, the four Exercise descriptions, the Safety note (`Safety.xcstrings`), the five sound names and the icon names (Ring, Moon, Sun, Leaf, Wave, Wind).
+`Exercises`, `Quick Start`, `Start`, `Custom exercise`, `Stats`, `Reminder`, `This week`, `Log`, `min`, `Cancel`, `Done`, `Duration`, `Duration, 5 minutes` and `Opens the picker` (Duration button label and hint), `Sounds`, `Sound`, `Haptics`, `Haptics on`, `Settings`, `Appearance`, `Health access`, `Share the app`, `Version`, `Get ready`, `remaining`, `Paused`, `Pause`, `Resume`, `Stop`, `Session complete`, `Cycles`, `Inhale`, `Hold`, `Exhale`, `Rest`, `New exercise`, `Name`, `Name your exercise`, `Icon`, `Description`, `What is it for?`, `Pattern, in seconds`, `Add exercise`, `New reminder`, `Time`, `Exercise`, `Repeat`, `Add reminder`, `Reminders arrive as notifications. You can turn them off for Breathnest in the iOS Settings app.`, `A quiet nudge to take a few breaths at the times you choose.`, `You will get a notification at this time. Tap it to start the exercise.`, the four Exercise descriptions, the five sound names and the icon names (Ring, Moon, Sun, Leaf, Wave, Wind).
 
 The design writes "12 s per cycle" in lower case; the catalog says "Cycle" as the glossary does, and the plural variation follows the Cycle count.
 
@@ -200,7 +200,7 @@ Exercise names are the full names on every iPhone screen ("Box breathing", "4-7-
 
 These are open. An agent that needs one of them stops and asks (rule 3). Each has a proposal; the ticket [#53](https://github.com/siroroman/BreathApp/issues/53) collects the decisions. The features that need them have their own tickets: [#54](https://github.com/siroroman/BreathApp/issues/54) saved settings and Quick Start, [#55](https://github.com/siroroman/BreathApp/issues/55) Duration slider, [#56](https://github.com/siroroman/BreathApp/issues/56) Session menu, [#57](https://github.com/siroroman/BreathApp/issues/57) custom exercises, [#58](https://github.com/siroroman/BreathApp/issues/58) Stats and Log, [#59](https://github.com/siroroman/BreathApp/issues/59) Reminders, [#60](https://github.com/siroroman/BreathApp/issues/60) Settings. The list, detail and Session are [#28](https://github.com/siroroman/BreathApp/issues/28) to [#33](https://github.com/siroroman/BreathApp/issues/33).
 
-1. **Safety note.** The detail sheet has no Safety note, although the spec requires it on every Exercise, visible before Start in the reading order, non-blocking and with no acknowledgement. This is a gap in the design, not a decision to drop it. Proposal: a block in `surface`, radius 16, with `fg2` text 15, between the result line and the Sounds group, so it comes before Start for VoiceOver. The designer adds it to the canvas and to `design/phone/` before the detail ticket's Safety criterion is built.
+1. **Safety note.** Decided (user, #206): the detail sheet has no Safety note. This overrides the spec line that required it on every Exercise, and the research recommendation in `research/breathing-techniques.md`; the spec must be amended in the same change.
 2. **Light mode.** Tokens has light values, but every screen is drawn dark. Proposal: build the asset catalog with both columns of Tokens, give `line`, `pop` and `scrim` light values from the designer, and check light with screenshots. If the designer wants dark only, say so and the spec drops light.
 3. **Opening Settings.** No screen shows how the Settings sheet opens. Proposal: a gear button at the top right of the Exercises screen, as in the Session.
 4. **What Settings does.** "Aurora" in Appearance looks like a colour theme; no theme list is drawn. "Health access: Allowed" implies writing Mindful Minutes to Apple Health, which the first brief put out of scope; the permission flow is not drawn. "Share the app" has no link. Proposal: decided before the Settings ticket (a human decision).
@@ -210,7 +210,7 @@ These are open. An agent that needs one of them stops and asks (rule 3). Each ha
 8. **Settings menu in the Session.** Opening it does not pause the Session in the design (proposal: it keeps running and the Session keeps its auto-pause rules); the menu is dismissed by a tap outside it.
 9. **Sounds names.** The five names are placeholders, as on the watch.
 10. **Log rules.** Which Sessions are logged (proposal: completed ones only, which keeps "Stop means stop" of the spec), which length is shown (the Session's exact length), the week start (the design starts on Monday; proposal: follow the system's first weekday), an empty state for a new install, and long lists (the Log scrolls).
-11. **Reminders.** When the notification permission is asked (proposal: on the first Add reminder), what a tap on the notification opens (proposal: the detail sheet of that Exercise, so the Safety note is seen and Start stays a deliberate tap), editing and deleting a reminder, and the denied-permission state. Reminders are local notifications; there is no server.
+11. **Reminders.** When the notification permission is asked (proposal: on the first Add reminder), what a tap on the notification opens (proposal: the detail sheet of that Exercise, so Start stays a deliberate tap), editing and deleting a reminder, and the denied-permission state. Reminders are local notifications; there is no server.
 12. **Quick Start rules.** It shows the Exercise, length and Haptics state of the last Session that was started, and Box breathing at 5 min before any. Proposal: the same rule as the watch (stopped Sessions count, written when a Session starts). Start skips the detail and begins the Lead-in. Whether the Sound setting is shown on the card is open.
 13. **The paused look and the AX5 layouts.** The component data holds Paused and the AX5 sizes, but the canvas draws only the default size and the states listed in 1 to 4. Screenshots at the default size are checked against the source values; the AX5 sizes are design values, not checked by the agent.
 14. **Missing descriptions.** The English texts for the 4-7-8, Coherent and Physiological sigh descriptions are not in the design. Proposal: Claude drafts them in the style of the Box text and the designer approves them.
@@ -236,7 +236,7 @@ The design added screens and features the first brief put out of scope, and chan
 | Time block | `m:ss` | `m:ss` with the caption "remaining" |
 | Reduce Motion dots | Brightness and opacity | Colour, brightness and opacity |
 | Colour modes | Light and dark | Dark drawn; light only as tokens (point 2) |
-| Safety note | On the detail | Not drawn (point 1) |
+| Safety note | None (decided in #206) | None (point 1) |
 | Row | Name and Pattern | A Pattern glyph, name and Pattern |
 | Exercise description | None | A description on the detail |
 
@@ -251,6 +251,6 @@ The design added screens and features the first brief put out of scope, and chan
 | Settings | in the detail, in a Session menu and in a Settings sheet | in a Settings page beside Exercises |
 | Pause and Stop | on the Session screen | on a separate Controls page |
 | Lead-in | "Get ready" and a large digit | a large digit |
-| Safety note | required, not drawn yet | none (decided in #39) |
+| Safety note | none (decided in #206) | none (decided in #39) |
 | History and Reminders | Stats tab | none |
 | Custom exercises | yes | none |

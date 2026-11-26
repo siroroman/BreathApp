@@ -9,7 +9,7 @@ Input for the visual design of the tracer bullet. The behaviour is fixed by the 
 iPhone only, iOS 26, portrait only, light and dark. The Apple Watch app is designed separately in [watch-design.md](watch-design.md). Three screens, in this order:
 
 1. **Exercises list.** Four rows: Box breathing `4 · 4 · 4 · 4`, 4-7-8 `4 · 7 · 8`, Coherent breathing `5.5 · 5.5`, Physiological sigh `2 · 1 · 6`. The whole row is one tap target.
-2. **Exercise detail sheet.** A bottom sheet with Cancel. It holds the name, the Pattern with Phase names (`Inhale 4 · Hold 7 · Exhale 8`), a Duration value that opens a 1 to 30 min picker, a Haptics switch (on by default), the Safety note and a Start button.
+2. **Exercise detail sheet.** A bottom sheet with Cancel. It holds the name, the Pattern with Phase names (`Inhale 4 · Hold 7 · Exhale 8`), a Duration value that opens a 1 to 30 min picker, a Haptics switch (on by default) and a Start button.
 3. **Session**, full screen, no close button and no swipe-down. It has these states:
    - Lead-in: 3 seconds, shape at its smallest, remaining Lead-in time shown. The look is open.
    - Breathing: Phase name in large text above the shape, a torus of dots, a progress ring for one Cycle, total time remaining as `m:ss`, and exactly two controls, Pause (becomes Resume) and Stop.
@@ -23,7 +23,7 @@ iPhone only, iOS 26, portrait only, light and dark. The Apple Watch app is desig
 - **Reduce Motion.** The shape stays at a fixed size (about 0.72) and the Breath level shows as dot brightness and opacity. Ring and Phase name are unchanged. The exact look of the dots is for design.
 - **No countdown per Phase.** Seconds left in the Phase are not shown; the ring replaces them.
 - **Phase is never colour alone.** The Phase name and the ring position carry it. Colour is extra.
-- **Safety note** is shown on every Exercise, non-blocking, with no acknowledgement. It must be visible before Start in the reading order.
+- **No Safety note** on the detail sheet (decided in #206).
 - **Nothing is saved.** No history, no streak, no Quick Start, no play or edit button on rows, no settings screen.
 
 ## Constraints to design within
@@ -41,7 +41,6 @@ iPhone only, iOS 26, portrait only, light and dark. The Apple Watch app is desig
 - Type, spacing, and the look of rows, chips, switch and buttons within native iOS 26 conventions.
 - The Lead-in, paused and complete looks.
 - Whether a row has an icon or a small shape preview (see the references). The spec says only name and Pattern.
-- How the Safety note is set so that it is read, not skipped, and still calm.
 
 ## References
 
