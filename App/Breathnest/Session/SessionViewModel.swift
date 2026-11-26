@@ -126,13 +126,12 @@ final class SessionViewModel {
         refresh()
     }
 
-    /// Releases the screen and the ticker, for when the cover goes away by any path. The end sound of a completed
-    /// Session is left to finish; any other way out silences the sound.
+    /// Releases the screen and the ticker, for when the cover goes away by any path.
     func end() {
         task?.cancel()
         task = nil
         haptics.stop()
-        if stage != .completed { sounds.stop() }
+        sounds.stop()
         screenAwake.setAwake(false)
     }
 
@@ -140,20 +139,19 @@ final class SessionViewModel {
         speed == 1 ? now : origin.advanced(by: (now - origin) * speed)
     }
 
-    /// Plays the chosen sound once when the breathing starts and once when the Session completes, if Sound is on.
-    /// A batch that crosses both plays both; a Pause or Stop plays none. The switch and the choice are read now.
-    private func playCues(for transitions: [SessionEngine.Transition]) {
-        let cues = transitions.filter { $0 == .leadInEnded || $0 == .completed }
-        guard settings.settings.isSoundOn else { return }
-        for _ in cues {
-            sounds.play(settings.settings.soundID)
-        }
+    /// Plays the chosen sound when an inhale or an exhale starts, if Sound is on. A hold or a rest has no cue. A
+    /// batch that crosses several Phases plays one cue, not one per Phase, and one that completes the Session plays
+    /// none. The switch and the choice are read now.
+    private func playCue(for transitions: [SessionEngine.Transition]) {
+        guard settings.settings.isSoundOn, !transitions.contains(.completed) else { return }
+        let hasCue = transitions.contains { $0 == .phaseStarted(.inhale) || $0 == .phaseStarted(.exhale) }
+        if hasCue { sounds.play(settings.settings.soundID) }
     }
 
     /// Plays the haptic of each Phase the time crossed, once, at its start. Every Phase is counted, but a batch
     /// that pauses, stops or completes the Session plays none: the haptic would be cut at once.
     private func handle(_ transitions: [SessionEngine.Transition], plays: Bool = true) {
-        if plays { playCues(for: transitions) }
+        if plays { playCue(for: transitions) }
         let pattern = exercise.pattern
         let isPlaying = plays && settings.settings.isHapticsOn && !transitions.contains(.completed)
         for transition in transitions {

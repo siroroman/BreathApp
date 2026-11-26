@@ -225,27 +225,47 @@ private final class RecordingSounds: SoundPlayer {
         #expect(sounds.played.isEmpty)
     }
 
-    @Test func theChosenSoundPlaysOnceWhenTheBreathingStartsAndOnceAtTheEnd() {
+    @Test func theChosenSoundPlaysAtEachInhaleAndExhaleStartAndNotAtAHold() {
         let (viewModel, sounds, _) = makeWithSounds(sound: .chime)
         viewModel.tick(now: at(3.5))
         #expect(sounds.played == [.chime])
-        viewModel.tick(now: at(30))
+        viewModel.tick(now: at(7.5))
         #expect(sounds.played == [.chime])
-        viewModel.tick(now: at(600))
-        #expect(viewModel.stage == .completed)
+        viewModel.tick(now: at(11.5))
         #expect(sounds.played == [.chime, .chime])
+        viewModel.tick(now: at(15.5))
+        #expect(sounds.played == [.chime, .chime])
+        viewModel.tick(now: at(19.5))
+        #expect(sounds.played == [.chime, .chime, .chime])
     }
 
-    @Test func aGapThatCrossesTheStartAndTheEndPlaysTheSoundTwiceNotOncePerPhase() {
+    @Test func aPhaseThatIsStillRunningDoesNotPlayAgain() {
         let (viewModel, sounds, _) = makeWithSounds()
-        viewModel.tick(now: at(600))
-        #expect(sounds.played == [.softBell, .softBell])
+        viewModel.tick(now: at(3.5))
+        viewModel.tick(now: at(4))
+        viewModel.tick(now: at(6.9))
+        #expect(sounds.played == [.softBell])
+    }
+
+    @Test func aGapThatCrossesSeveralPhasesPlaysOneCueNotOnePerPhase() {
+        let (viewModel, sounds, _) = makeWithSounds()
+        viewModel.tick(now: at(3 + 12.5))
+        #expect(sounds.played == [.softBell])
+    }
+
+    @Test func completionPlaysNoSoundOfItsOwn() {
+        let (viewModel, sounds, _) = makeWithSounds()
+        for second in 1 ... 67 {
+            viewModel.tick(now: at(Double(second)))
+        }
+        #expect(viewModel.stage == .completed)
+        #expect(sounds.played.count == 8)
     }
 
     @Test func withSoundOffNothingPlays() {
         let (viewModel, sounds, _) = makeWithSounds(isSoundOn: false)
         viewModel.tick(now: at(3.5))
-        viewModel.tick(now: at(600))
+        viewModel.tick(now: at(11.5))
         #expect(sounds.played.isEmpty)
     }
 
@@ -254,11 +274,11 @@ private final class RecordingSounds: SoundPlayer {
         viewModel.tick(now: at(3.5))
         settings.setSound(isOn: true)
         settings.setSound(.pulse)
-        viewModel.tick(now: at(600))
+        viewModel.tick(now: at(11.5))
         #expect(sounds.played == [.pulse])
     }
 
-    @Test func stoppingTheSessionPlaysNoEndSoundAndSilencesThePlayer() {
+    @Test func stoppingTheSessionSilencesThePlayer() {
         let (viewModel, sounds, _) = makeWithSounds()
         viewModel.tick(now: at(8))
         viewModel.stop(now: at(8))
@@ -266,7 +286,7 @@ private final class RecordingSounds: SoundPlayer {
         #expect(sounds.stopCount == 1)
     }
 
-    @Test func pauseSilencesThePlayerAndResumeDoesNotPlayTheStartAgain() {
+    @Test func pauseSilencesThePlayerAndResumeDoesNotPlayTheRunningPhaseAgain() {
         let (viewModel, sounds, _) = makeWithSounds()
         viewModel.tick(now: at(8))
         viewModel.pause(now: at(8))
@@ -274,14 +294,6 @@ private final class RecordingSounds: SoundPlayer {
         viewModel.resume(now: at(9))
         viewModel.tick(now: at(10))
         #expect(sounds.played == [.softBell])
-    }
-
-    @Test func theEndSoundIsNotCutOffWhenTheSessionReleasesItsResources() {
-        let (viewModel, sounds, _) = makeWithSounds()
-        viewModel.tick(now: at(600))
-        #expect(sounds.stopCount == 0)
-        viewModel.end()
-        #expect(sounds.stopCount == 0)
     }
 
     @Test func closingTheCoverMidSessionSilencesThePlayer() {
