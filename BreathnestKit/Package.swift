@@ -6,9 +6,12 @@ let package = Package(
     platforms: [.iOS(.v26), .macOS(.v26), .watchOS(.v26)],
     products: [
         .library(name: "BreathnestKit", targets: ["BreathnestKit"]),
+        .library(name: "BreathnestKitTesting", targets: ["BreathnestKitTesting"]),
     ],
     targets: [
         .target(name: "BreathnestKit", swiftSettings: [.treatAllWarnings(as: .error)]),
-        .testTarget(name: "BreathnestKitTests", dependencies: ["BreathnestKit"], swiftSettings: [.treatAllWarnings(as: .error)]),
+        // Fakes of the seams, for tests and previews only (ADR 0002).
+        .target(name: "BreathnestKitTesting", dependencies: ["BreathnestKit"], swiftSettings: [.treatAllWarnings(as: .error)]),
+        .testTarget(name: "BreathnestKitTests", dependencies: ["BreathnestKit", "BreathnestKitTesting"], swiftSettings: [.treatAllWarnings(as: .error)]),
     ]
 )
