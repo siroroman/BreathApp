@@ -24,65 +24,41 @@ final class ExerciseDetailUITests: XCTestCase {
         try app.performAccessibilityAudit()
     }
 
-    func testChipsDifferPerExerciseAndTheDefaultIsSelected() {
+    private func durationValue(in app: XCUIApplication) -> XCUIElement {
+        app.buttons["detail.durationValue"]
+    }
+
+    func testDurationShowsOnlyTheNumberAndNoChipsSliderOrResultLine() {
         let app = launchApp()
         openDetail(of: "box", in: app)
-        XCTAssertEqual(
-            ["60", "180", "300", "600"].map { app.buttons["detail.chip.\($0)"].exists },
-            [true, true, true, true]
-        )
-        XCTAssertTrue(app.buttons["detail.chip.300"].isSelected)
-        XCTAssertFalse(app.buttons["detail.chip.60"].isSelected)
-        XCTAssertEqual(app.staticTexts["detail.result"].label, "19 Cycles · 5:04")
-        app.buttons["detail.cancelButton"].tap()
-
-        XCTAssertTrue(app.buttons["exercises.row.four-seven-eight"].waitForExistence(timeout: 5))
-        openDetail(of: "four-seven-eight", in: app)
-        XCTAssertEqual(["75", "120", "150"].map { app.buttons["detail.chip.\($0)"].exists }, [true, true, true])
+        XCTAssertEqual(durationValue(in: app).value as? String, "5 minutes")
         XCTAssertFalse(app.buttons["detail.chip.300"].exists)
-        XCTAssertTrue(app.buttons["detail.chip.75"].isSelected)
-        XCTAssertEqual(app.buttons["detail.chip.75"].label, "1 minute, 15 seconds")
+        XCTAssertFalse(app.sliders["detail.slider"].exists)
+        XCTAssertFalse(app.staticTexts["detail.result"].exists)
+        XCTAssertFalse(app.pickerWheels.firstMatch.exists)
     }
 
-    func testChangingTheChipUpdatesTheResultLine() {
+    func testTappingTheValueOpensThePickerAndPickingChangesIt() {
         let app = launchApp()
         openDetail(of: "box", in: app)
 
-        app.buttons["detail.chip.60"].tap()
+        durationValue(in: app).tap()
+        let wheel = app.pickerWheels.firstMatch
+        XCTAssertTrue(wheel.waitForExistence(timeout: 5))
+        wheel.adjust(toPickerWheelValue: "12 min")
 
-        XCTAssertTrue(app.buttons["detail.chip.60"].isSelected)
-        XCTAssertFalse(app.buttons["detail.chip.300"].isSelected)
-        XCTAssertEqual(app.staticTexts["detail.result"].label, "4 Cycles · 1:04")
+        XCTAssertEqual(durationValue(in: app).value as? String, "12 minutes")
+        durationValue(in: app).tap()
+        XCTAssertFalse(app.pickerWheels.firstMatch.waitForExistence(timeout: 1))
     }
 
-    func testSliderAndChipsStayInStep() {
-        let app = launchApp()
-        openDetail(of: "box", in: app)
-        let slider = app.sliders.matching(identifier: "detail.slider").firstMatch
-        XCTAssertTrue(slider.exists)
-        XCTAssertEqual(slider.label, "Custom duration in minutes")
-        XCTAssertEqual(slider.value as? String, "5 minutes")
-
-        slider.adjust(toNormalizedSliderPosition: 0)
-        XCTAssertEqual(app.staticTexts.matching(identifier: "detail.durationValue").firstMatch.label, "Duration, 1 min")
-        XCTAssertTrue(app.buttons["detail.chip.60"].isSelected)
-        XCTAssertEqual(app.staticTexts["detail.result"].label, "4 Cycles · 1:04")
-
-        app.buttons["detail.chip.600"].tap()
-        XCTAssertEqual(slider.value as? String, "10 minutes")
-    }
-
-    func testFourSevenEightSliderIsLimitedToFourToEightCycles() {
+    func testFourSevenEightCanPickTheSameRange() {
         let app = launchApp()
         openDetail(of: "four-seven-eight", in: app)
-        let slider = app.sliders.matching(identifier: "detail.slider").firstMatch
-        slider.adjust(toNormalizedSliderPosition: 1)
-        XCTAssertEqual(app.staticTexts["detail.result"].label, "8 Cycles · 2:32")
-        XCTAssertEqual(app.staticTexts.matching(identifier: "detail.durationValue").firstMatch.label, "Duration, 2:30")
-        XCTAssertTrue(app.buttons["detail.chip.150"].isSelected)
-        slider.adjust(toNormalizedSliderPosition: 0)
-        XCTAssertEqual(app.staticTexts["detail.result"].label, "4 Cycles · 1:16")
-        XCTAssertEqual(app.staticTexts.matching(identifier: "detail.durationValue").firstMatch.label, "Duration, 1:15")
+        XCTAssertEqual(durationValue(in: app).value as? String, "1 minute")
+        durationValue(in: app).tap()
+        app.pickerWheels.firstMatch.adjust(toPickerWheelValue: "30 min")
+        XCTAssertEqual(durationValue(in: app).value as? String, "30 minutes")
     }
 
     func testChoicesResetToTheDefaultsEachTimeTheSheetOpens() {
@@ -91,13 +67,14 @@ final class ExerciseDetailUITests: XCTestCase {
         let haptics = app.switches["detail.hapticsToggle"]
         XCTAssertEqual(haptics.value as? String, "1")
 
-        app.buttons["detail.chip.600"].tap()
+        durationValue(in: app).tap()
+        app.pickerWheels.firstMatch.adjust(toPickerWheelValue: "10 min")
         haptics.tap()
         XCTAssertEqual(haptics.value as? String, "0")
         app.buttons["detail.cancelButton"].tap()
 
         openDetail(of: "box", in: app)
-        XCTAssertTrue(app.buttons["detail.chip.300"].isSelected)
+        XCTAssertEqual(durationValue(in: app).value as? String, "5 minutes")
         XCTAssertEqual(app.switches["detail.hapticsToggle"].value as? String, "1")
     }
 

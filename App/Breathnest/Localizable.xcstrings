@@ -253,86 +253,44 @@
         }
       }
     },
-    "detail.duration.options" : {
-      "comment" : "VoiceOver name of the group of Duration option chips (1 min, 3 min, 5 min ...).",
+    "detail.duration.hint" : {
+      "comment" : "VoiceOver hint of the Duration button, which opens the minute picker.",
       "extractionState" : "manual",
       "localizations" : {
         "cs" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Quick options"
+            "value" : "Opens the picker"
           }
         },
         "de" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Quick options"
+            "value" : "Opens the picker"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Quick options"
+            "value" : "Opens the picker"
           }
         },
         "es" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Quick options"
+            "value" : "Opens the picker"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Quick options"
+            "value" : "Opens the picker"
           }
         },
         "sk" : {
           "stringUnit" : {
             "state" : "new",
-            "value" : "Quick options"
-          }
-        }
-      }
-    },
-    "detail.duration.slider" : {
-      "comment" : "VoiceOver name of the slider that sets a custom Session length in minutes. Its value is read as a length, such as 5 minutes.",
-      "extractionState" : "manual",
-      "localizations" : {
-        "cs" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Custom duration in minutes"
-          }
-        },
-        "de" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Custom duration in minutes"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Custom duration in minutes"
-          }
-        },
-        "es" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Custom duration in minutes"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Custom duration in minutes"
-          }
-        },
-        "sk" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "Custom duration in minutes"
+            "value" : "Opens the picker"
           }
         }
       }
@@ -417,156 +375,6 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "%1$@ %2$@"
-          }
-        }
-      }
-    },
-    "detail.result %lld %@" : {
-      "comment" : "Result line under the Duration chips. %lld is the number of Cycles, %@ the exact length of the Session as minutes:seconds, such as 19 Cycles · 5:04. A Cycle is one pass through every Phase of the Pattern.",
-      "extractionState" : "manual",
-      "localizations" : {
-        "cs" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "new",
-                  "value" : "%lld Cycle · %@"
-                }
-              },
-              "few" : {
-                "stringUnit" : {
-                  "state" : "new",
-                  "value" : "%lld Cycles · %@"
-                }
-              },
-              "many" : {
-                "stringUnit" : {
-                  "state" : "new",
-                  "value" : "%lld Cycles · %@"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "new",
-                  "value" : "%lld Cycles · %@"
-                }
-              }
-            }
-          }
-        },
-        "de" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "new",
-                  "value" : "%lld Cycle · %@"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "new",
-                  "value" : "%lld Cycles · %@"
-                }
-              }
-            }
-          }
-        },
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld Cycle · %@"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld Cycles · %@"
-                }
-              }
-            }
-          }
-        },
-        "es" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "new",
-                  "value" : "%lld Cycle · %@"
-                }
-              },
-              "many" : {
-                "stringUnit" : {
-                  "state" : "new",
-                  "value" : "%lld Cycles · %@"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "new",
-                  "value" : "%lld Cycles · %@"
-                }
-              }
-            }
-          }
-        },
-        "fr" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "new",
-                  "value" : "%lld Cycle · %@"
-                }
-              },
-              "many" : {
-                "stringUnit" : {
-                  "state" : "new",
-                  "value" : "%lld Cycles · %@"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "new",
-                  "value" : "%lld Cycles · %@"
-                }
-              }
-            }
-          }
-        },
-        "sk" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "new",
-                  "value" : "%lld Cycle · %@"
-                }
-              },
-              "few" : {
-                "stringUnit" : {
-                  "state" : "new",
-                  "value" : "%lld Cycles · %@"
-                }
-              },
-              "many" : {
-                "stringUnit" : {
-                  "state" : "new",
-                  "value" : "%lld Cycles · %@"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "new",
-                  "value" : "%lld Cycles · %@"
-                }
-              }
-            }
           }
         }
       }

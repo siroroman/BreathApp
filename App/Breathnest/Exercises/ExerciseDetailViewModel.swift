@@ -1,7 +1,7 @@
 import BreathnestKit
 import Observation
 
-/// The state of one Exercise detail sheet. A sheet makes a new one, so the Duration option starts at its default
+/// The state of one Exercise detail sheet. A sheet makes a new one, so the Duration starts at its default
 /// every time it opens; Sound, the chosen sound and Haptics are the saved settings. Holds no text: the view builds it
 /// from the catalog.
 @MainActor
@@ -16,62 +16,38 @@ final class ExerciseDetailViewModel {
         self.exercise = exercise
         self.settings = settings
         self.lastSession = lastSession
-        selectedDuration = exercise.defaultDuration
+        selectedDuration = exercise.defaultPickerDuration
     }
 
     var isHapticsOn: Bool { settings.settings.isHapticsOn }
     var isSoundOn: Bool { settings.settings.isSoundOn }
     var soundID: SoundID { settings.settings.soundID }
 
-    var durationOptions: [Duration] {
-        exercise.durationOptions
+    /// The whole minutes the Duration picker offers, 1 to 30, for every Exercise.
+    var pickerMinutes: [Int] {
+        Array(1 ... 30)
     }
 
-    /// The Cycles and the exact length of a Session at the selected option.
+    /// The Cycles and the exact length of a Session at the selected duration.
     var sessionLength: SessionLength {
         exercise.sessionLength(for: selectedDuration)
     }
 
-    /// The lengths the Duration slider steps through, shortest first.
-    var sliderDurations: [Duration] {
-        exercise.sliderDurations
+    /// The selected duration in whole minutes: the picker only offers whole minutes.
+    var selectedMinutes: Int {
+        Int((selectedDuration / .seconds(60)).rounded())
     }
 
-    /// The slider step nearest the selected duration, so a tapped chip moves the slider.
-    var sliderPosition: Int {
-        let steps = sliderDurations
-        let selected = selectedDuration
-        func distance(_ index: Int) -> Duration {
-            let gap = steps[index] - selected
-            return gap < .zero ? .zero - gap : gap
-        }
-        return steps.indices.min { distance($0) < distance($1) } ?? 0
-    }
-
-    /// A chip is selected when its Session has the same Cycles as the selected duration, so the chip follows the
-    /// slider when they match and no chip is selected when they do not.
-    func isSelected(option: Duration) -> Bool {
-        exercise.sessionLength(for: option).cycleCount == sessionLength.cycleCount
-    }
-
-    /// Whole-minute lengths read "5 min"; when any option or slider step is not, as for 4-7-8, all read "1:15"
-    /// so no length is rounded.
-    var optionsAreWholeMinutes: Bool {
-        (durationOptions + sliderDurations).allSatisfy {
-            $0.components.seconds % 60 == 0 && $0.components.attoseconds == 0
-        }
-    }
-
-    /// A duration that is not one of the Exercise's options is ignored.
+    /// A duration that is not one of the picker's values is ignored.
     func select(duration: Duration) {
-        guard durationOptions.contains(duration) else { return }
+        guard exercise.pickerDurations.contains(duration) else { return }
         selectedDuration = duration
     }
 
-    /// Moves to the slider step at `sliderPosition`, clamped to the steps.
-    func select(sliderPosition position: Int) {
-        let steps = sliderDurations
-        selectedDuration = steps[min(max(position, 0), steps.count - 1)]
+    /// A minute outside the picker's 1 to 30 is ignored.
+    func select(minutes: Int) {
+        guard pickerMinutes.contains(minutes) else { return }
+        selectedDuration = .seconds(minutes * 60)
     }
 
     func setHaptics(isOn: Bool) {

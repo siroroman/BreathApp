@@ -50,12 +50,6 @@ import Testing
         #expect(ExerciseText.rowHint == "Opens details")
     }
 
-    @Test func resultLineReadsCyclesAndTheExactLength() {
-        let length = Exercise.box.sessionLength(for: .seconds(300))
-        #expect(ExerciseText.result(length) == "19 Cycles · 5:04")
-        #expect(ExerciseText.result(Exercise.box.sessionLength(for: .seconds(1))) == "1 Cycle · 0:16")
-    }
-
     @Test func optionsReadAsMinutesOrAsClock() {
         #expect(ExerciseText.option(.seconds(300), wholeMinutes: true) == "5 min")
         #expect(ExerciseText.option(.seconds(75), wholeMinutes: false) == "1:15")
