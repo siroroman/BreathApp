@@ -71,6 +71,7 @@ import Testing
     @Test func recordEncodesAndDecodesToTheSameValue() throws {
         let original = try #require(record(4, 2, 6, 0))
         let data = try JSONEncoder().encode(original)
-        #expecttry (JSONDecoder().decode(CustomExerciseRecord.self, from: data) == original)
+        let decoded = try JSONDecoder().decode(CustomExerciseRecord.self, from: data)
+        #expect(decoded == original)
     }
 }
