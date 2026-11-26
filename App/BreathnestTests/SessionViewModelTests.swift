@@ -293,10 +293,32 @@ private final class RecordingHaptics: HapticPlayer {
         #expect(haptics.played == [plan(0)])
     }
 
+    @Test func switchingHapticsOffMidPhaseSilencesTheHapticThatIsPlaying() {
+        let (viewModel, haptics, settings) = makeWithSettings()
+        viewModel.tick(now: at(3.5))
+        let stopsBefore = haptics.stopCount
+        viewModel.setHaptics(isOn: false)
+        #expect(settings.settings.isHapticsOn == false)
+        #expect(haptics.stopCount == stopsBefore + 1)
+    }
+
+    @Test func switchingHapticsOnMidPhaseSilencesNothingAndKeepsTheRestOfThePhaseQuiet() {
+        let (viewModel, haptics, settings) = makeWithSettings(isHapticsOn: false)
+        viewModel.tick(now: at(3.5))
+        let stopsBefore = haptics.stopCount
+        viewModel.setHaptics(isOn: true)
+        #expect(settings.settings.isHapticsOn)
+        #expect(haptics.stopCount == stopsBefore)
+        viewModel.tick(now: at(3 + 3.9))
+        #expect(haptics.played.isEmpty)
+    }
+
     @Test func switchingHapticsBackOnMidSessionPlaysTheNextPhaseOnly() {
         let (viewModel, haptics, settings) = makeWithSettings(isHapticsOn: false)
         viewModel.tick(now: at(3.5))
         settings.setHaptics(isOn: true)
+        viewModel.tick(now: at(3 + 3.9))
+        #expect(haptics.played.isEmpty)
         viewModel.tick(now: at(3 + 4.5))
         #expect(haptics.played == [plan(1)])
     }

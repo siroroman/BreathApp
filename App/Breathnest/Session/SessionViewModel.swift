@@ -106,6 +106,13 @@ final class SessionViewModel {
         refresh()
     }
 
+    /// The Haptics switch of the Session menu: saves it, and switching it off silences the haptic that is playing,
+    /// not only the Phases after it. Switching it on plays nothing until the next Phase starts.
+    func setHaptics(isOn: Bool) {
+        settings.setHaptics(isOn: isOn)
+        if !isOn { haptics.stop() }
+    }
+
     /// The scene is no longer active (call, lock, Control Center, app switch): the Session pauses.
     func sceneBecameInactive(now: ContinuousClock.Instant) {
         pause(now: now)
