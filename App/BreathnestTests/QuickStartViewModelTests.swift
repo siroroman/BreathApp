@@ -47,8 +47,7 @@ import Testing
 
     @Test func theSpokenCardNamesTheExerciseLengthAndHaptics() {
         let spoken = ExerciseText.spokenQuickStart(exercise: .box, requested: .seconds(300), isHapticsOn: false,
-            locale: Locale(identifier: "en_US")
-        )
+                                                   locale: Locale(identifier: "en_US"))
         #expect(spoken == "Box breathing, 5 minutes, Haptics off")
     }
 

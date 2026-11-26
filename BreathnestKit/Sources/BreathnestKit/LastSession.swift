@@ -22,7 +22,8 @@ public struct LastSession: StoredDocument {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let defaults = Self.defaultValue
         exerciseID = (try? container.decode(String.self, forKey: .exerciseID)) ?? defaults.exerciseID
-        let seconds = (try? container.decode(Double.self, forKey: .seconds)).flatMap { $0.isFinite && $0 > 0 ? $0 : nil }
+        let seconds = (try? container.decode(Double.self, forKey: .seconds))
+            .flatMap { $0.isFinite && $0 > 0 ? $0 : nil }
         requested = seconds.map { .seconds($0) } ?? defaults.requested
     }
 

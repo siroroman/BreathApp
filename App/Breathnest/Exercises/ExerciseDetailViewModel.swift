@@ -2,7 +2,8 @@ import BreathnestKit
 import Observation
 
 /// The state of one Exercise detail sheet. A sheet makes a new one, so the Duration option starts at its default
-/// every time it opens; Sound, the chosen sound and Haptics are the saved settings. Holds no text: the view builds it from the catalog.
+/// every time it opens; Sound, the chosen sound and Haptics are the saved settings. Holds no text: the view builds it
+/// from the catalog.
 @MainActor
 @Observable
 final class ExerciseDetailViewModel {

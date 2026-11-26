@@ -100,8 +100,14 @@ import Testing
 
     @Test func theEncodingIsStable() throws {
         let store = InMemoryDocumentStore()
-        SavedDocument<AppSettings>(store: store).update(AppSettings(isSoundOn: false, soundID: .woodBlock, isHapticsOn: true))
-        let bytes = try #require(try store.load())
-        #expect(String(decoding: bytes, as: UTF8.self) == #"{"isHapticsOn":true,"isSoundOn":false,"soundID":"wood-block","version":1}"#)
+        SavedDocument<AppSettings>(store: store).update(AppSettings(
+            isSoundOn: false,
+            soundID: .woodBlock,
+            isHapticsOn: true
+        ))
+        let saved = try store.load()
+        let bytes = try #require(saved)
+        #expect(String(decoding: bytes, as: UTF8.self) ==
+            #"{"isHapticsOn":true,"isSoundOn":false,"soundID":"wood-block","version":1}"#)
     }
 }

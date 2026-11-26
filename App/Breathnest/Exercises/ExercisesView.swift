@@ -33,7 +33,10 @@ struct ExercisesView: View {
                         .accessibilityIdentifier("exercises.title")
                     QuickStartCard(viewModel: quickStart, scale: scale) {
                         quickStart.started()
-                        session = dependencies.makeSession(exercise: quickStart.exercise, requested: quickStart.requested)
+                        session = dependencies.makeSession(
+                            exercise: quickStart.exercise,
+                            requested: quickStart.requested
+                        )
                     }
                     .padding(.bottom, 16)
                     VStack(spacing: 0) {

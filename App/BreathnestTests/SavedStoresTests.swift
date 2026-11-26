@@ -37,9 +37,11 @@ import Testing
     @Test func userDefaultsHoldsTheBytesUnderItsKey() throws {
         let defaults = try #require(UserDefaults(suiteName: "SavedStoresTests.\(UUID().uuidString)"))
         let store = UserDefaultsDocumentStore(defaults: defaults, key: "breathnest.settings")
-        #expect(try store.load() == nil)
+        let empty = try store.load()
+        #expect(empty == nil)
         try store.save(Data("abc".utf8))
-        #expect(try store.load() == Data("abc".utf8))
+        let kept = try store.load()
+        #expect(kept == Data("abc".utf8))
         #expect(defaults.data(forKey: "breathnest.settings") == Data("abc".utf8))
     }
 
@@ -54,7 +56,10 @@ import Testing
     @Test func aValueOfTheWrongTypeIsKeptAndTheDefaultIsUsed() throws {
         let defaults = try #require(UserDefaults(suiteName: "SavedStoresTests.\(UUID().uuidString)"))
         defaults.set("not data", forKey: "breathnest.settings")
-        let settings = AppSettingsStore(store: UserDefaultsDocumentStore(defaults: defaults, key: "breathnest.settings"))
+        let settings = AppSettingsStore(store: UserDefaultsDocumentStore(
+            defaults: defaults,
+            key: "breathnest.settings"
+        ))
         #expect(settings.settings == .defaultValue)
         #expect(defaults.string(forKey: "breathnest.settings.unreadable") == "not data")
     }
@@ -62,7 +67,10 @@ import Testing
     @Test func corruptBytesAreKeptUnderTheUnreadableKey() throws {
         let defaults = try #require(UserDefaults(suiteName: "SavedStoresTests.\(UUID().uuidString)"))
         defaults.set(Data("{{{".utf8), forKey: "breathnest.lastSession")
-        let store = LastSessionStore(store: UserDefaultsDocumentStore(defaults: defaults, key: "breathnest.lastSession"))
+        let store = LastSessionStore(store: UserDefaultsDocumentStore(
+            defaults: defaults,
+            key: "breathnest.lastSession"
+        ))
         #expect(store.quickStart.exercise == .box)
         #expect(defaults.data(forKey: "breathnest.lastSession.unreadable") == Data("{{{".utf8))
     }

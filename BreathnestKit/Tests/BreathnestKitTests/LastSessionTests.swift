@@ -50,7 +50,8 @@ import Testing
     @Test func theEncodingIsStable() throws {
         let store = InMemoryDocumentStore()
         SavedDocument<LastSession>(store: store).update(LastSession(exerciseID: "box", requested: .seconds(180)))
-        let bytes = try #require(try store.load())
+        let saved = try store.load()
+        let bytes = try #require(saved)
         #expect(String(decoding: bytes, as: UTF8.self) == #"{"exerciseID":"box","seconds":180,"version":1}"#)
     }
 }
