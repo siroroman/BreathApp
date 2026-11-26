@@ -65,14 +65,15 @@ protocol HapticEngineDriving: AnyObject {
 @MainActor
 final class SystemHapticEngine: HapticEngineDriving {
     private let engine: CHHapticEngine
-    private var player: (any CHHapticAdvancedPatternPlayer)?
+    private let slot = HapticPlayerSlot<any CHHapticAdvancedPatternPlayer>()
 
     /// `onReset` runs when the system reset the engine: it and its players are gone and a new one is needed.
     init(onReset: @escaping @MainActor () -> Void) throws {
         engine = try CHHapticEngine()
         // Both arrive off the main thread.
-        engine.stoppedHandler = { [weak self] _ in
-            Task { @MainActor in self?.player = nil }
+        engine.stoppedHandler = { [slot] _ in
+            let late = slot.stopReported()
+            Task { @MainActor in late() }
         }
         engine.resetHandler = {
             Task { @MainActor in onReset() }
@@ -81,15 +82,14 @@ final class SystemHapticEngine: HapticEngineDriving {
 
     func play(_ pattern: CHHapticPattern) throws {
         try engine.start()
-        try? player?.stop(atTime: CHHapticTimeImmediate)
+        try? slot.player?.stop(atTime: CHHapticTimeImmediate)
         let next = try engine.makeAdvancedPlayer(with: pattern)
         try next.start(atTime: CHHapticTimeImmediate)
-        player = next
+        slot.hold(next)
     }
 
     func stop() {
-        try? player?.stop(atTime: CHHapticTimeImmediate)
-        player = nil
+        try? slot.release()?.stop(atTime: CHHapticTimeImmediate)
         engine.stop()
     }
 }
