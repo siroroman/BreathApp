@@ -75,12 +75,12 @@ struct AppDependencies {
         )
     }
 
-    /// A new Session for `exercise`, with the seams of the app and the Haptics setting as it is now.
+    /// A new Session for `exercise`, with the seams of the app and the saved settings, which it reads live.
     @MainActor
     func makeSession(exercise: Exercise, requested: Duration) -> SessionViewModel {
         SessionViewModel(
             exercise: exercise, requested: requested, screenAwake: screenAwake, haptics: haptics,
-            isHapticsOn: settings.settings.isHapticsOn, speed: sessionSpeed, startedAt: .now
+            settings: settings, speed: sessionSpeed, startedAt: .now
         )
     }
 

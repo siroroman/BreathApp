@@ -1,4 +1,5 @@
 import BreathnestKit
+import BreathnestKitTesting
 import Testing
 
 @testable import Breathnest
@@ -38,7 +39,7 @@ private final class RecordingHaptics: HapticPlayer {
         let awake = FakeScreenAwake()
         let viewModel = SessionViewModel(
             exercise: exercise, requested: requested, screenAwake: awake, haptics: RecordingHaptics(),
-            isHapticsOn: true, speed: speed, startedAt: origin
+            settings: AppSettingsStore(store: InMemoryDocumentStore()), speed: speed, startedAt: origin
         )
         return (viewModel, awake)
     }
@@ -46,12 +47,23 @@ private final class RecordingHaptics: HapticPlayer {
     private func makeWithHaptics(
         _ exercise: Exercise = .box, requested: Duration = .seconds(60), isHapticsOn: Bool = true, speed: Double = 1
     ) -> (SessionViewModel, RecordingHaptics) {
-        let haptics = RecordingHaptics()
-        let viewModel = SessionViewModel(
-            exercise: exercise, requested: requested, screenAwake: FakeScreenAwake(), haptics: haptics,
-            isHapticsOn: isHapticsOn, speed: speed, startedAt: origin
+        let (viewModel, haptics, _) = makeWithSettings(
+            exercise, requested: requested, isHapticsOn: isHapticsOn, speed: speed
         )
         return (viewModel, haptics)
+    }
+
+    private func makeWithSettings(
+        _ exercise: Exercise = .box, requested: Duration = .seconds(60), isHapticsOn: Bool = true, speed: Double = 1
+    ) -> (SessionViewModel, RecordingHaptics, AppSettingsStore) {
+        let haptics = RecordingHaptics()
+        let settings = AppSettingsStore(store: InMemoryDocumentStore())
+        settings.setHaptics(isOn: isHapticsOn)
+        let viewModel = SessionViewModel(
+            exercise: exercise, requested: requested, screenAwake: FakeScreenAwake(), haptics: haptics,
+            settings: settings, speed: speed, startedAt: origin
+        )
+        return (viewModel, haptics, settings)
     }
 
     /// What the Kit's Haptic plan asks for at the start of the box Phase at `index`.
@@ -269,6 +281,57 @@ private final class RecordingHaptics: HapticPlayer {
         viewModel.tick(now: at(3 + 8.5))
         viewModel.tick(now: at(3 + 64))
         #expect(haptics.played.isEmpty)
+    }
+
+    @Test func switchingHapticsOffMidSessionSilencesTheNextPhases() {
+        let (viewModel, haptics, settings) = makeWithSettings()
+        viewModel.tick(now: at(3.5))
+        #expect(haptics.played == [plan(0)])
+        settings.setHaptics(isOn: false)
+        viewModel.tick(now: at(3 + 4.5))
+        viewModel.tick(now: at(3 + 12.5))
+        #expect(haptics.played == [plan(0)])
+    }
+
+    @Test func switchingHapticsOffMidPhaseSilencesTheHapticThatIsPlaying() {
+        let (viewModel, haptics, settings) = makeWithSettings()
+        viewModel.tick(now: at(3.5))
+        let stopsBefore = haptics.stopCount
+        viewModel.setHaptics(isOn: false)
+        #expect(settings.settings.isHapticsOn == false)
+        #expect(haptics.stopCount == stopsBefore + 1)
+    }
+
+    @Test func switchingHapticsOnMidPhaseSilencesNothingAndKeepsTheRestOfThePhaseQuiet() {
+        let (viewModel, haptics, settings) = makeWithSettings(isHapticsOn: false)
+        viewModel.tick(now: at(3.5))
+        let stopsBefore = haptics.stopCount
+        viewModel.setHaptics(isOn: true)
+        #expect(settings.settings.isHapticsOn)
+        #expect(haptics.stopCount == stopsBefore)
+        viewModel.tick(now: at(3 + 3.9))
+        #expect(haptics.played.isEmpty)
+    }
+
+    @Test func switchingHapticsBackOnMidSessionPlaysTheNextPhaseOnly() {
+        let (viewModel, haptics, settings) = makeWithSettings(isHapticsOn: false)
+        viewModel.tick(now: at(3.5))
+        settings.setHaptics(isOn: true)
+        viewModel.tick(now: at(3 + 3.9))
+        #expect(haptics.played.isEmpty)
+        viewModel.tick(now: at(3 + 4.5))
+        #expect(haptics.played == [plan(1)])
+    }
+
+    @Test func changingSettingsDoesNotPauseTheSession() {
+        let (viewModel, _, settings) = makeWithSettings()
+        viewModel.tick(now: at(5))
+        settings.setHaptics(isOn: false)
+        settings.setSound(isOn: false)
+        settings.setSound(.pulse)
+        viewModel.tick(now: at(6))
+        #expect(viewModel.isPaused == false)
+        #expect(viewModel.stage == .breathing)
     }
 
     @Test func nothingPlaysAfterStop() {
