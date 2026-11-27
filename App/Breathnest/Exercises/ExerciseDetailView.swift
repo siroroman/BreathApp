@@ -26,7 +26,7 @@ struct ExerciseDetailView: View {
         let scale = DesignScale(typeSize: typeSize)
         GeometryReader { proxy in
             ScrollView {
-                VStack(alignment: .leading, spacing: scale(14, 22)) {
+                VStack(alignment: .leading, spacing: scale(22, 30)) {
                     Capsule()
                         .fill(Color(.outline))
                         .frame(width: 36, height: 5)
@@ -90,38 +90,81 @@ struct ExerciseDetailView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    /// One row: the label and the chosen length as a button. Tapping it opens the wheel picker under the row
-    /// (screen 6, #205); the value is `ring` while the picker is open.
+    /// One bordered row: the label, a minus button, the chosen length as a button and a plus button. Tapping the
+    /// length opens the wheel picker under the row (screen 6, #205, #222); the value is `ring`.
     private func durationSection(scale: DesignScale) -> some View {
         let value = ExerciseText.option(viewModel.selectedDuration, wholeMinutes: true)
         return VStack(alignment: .leading, spacing: 0) {
-            Button {
-                withAnimation(.snappy) { isPickerOpen.toggle() }
-            } label: {
-                HStack(spacing: 12) {
-                    Text("detail.duration")
-                        .foregroundStyle(Color(.fg2))
-                    Spacer(minLength: 0)
-                    Text(verbatim: value)
-                        .monospacedDigit()
-                        .foregroundStyle(Color(.ring))
+            HStack(spacing: 8) {
+                Text("detail.duration")
+                    .designFont(.subheadline, 15, weight: .semibold, lineHeight: 1.3)
+                    .foregroundStyle(Color(.fg2))
+                    .accessibilityHidden(true)
+                Spacer(minLength: 0)
+                stepButton(systemName: "minus", enabled: viewModel.canDecrement, scale: scale) {
+                    viewModel.decrement()
                 }
-                .designFont(.subheadline, 15, weight: .semibold, lineHeight: 1.3)
-                .frame(maxWidth: .infinity, minHeight: scale(44, 88))
-                .contentShape(Rectangle())
+                .accessibilityLabel(Text("detail.duration.decrease"))
+                .accessibilityIdentifier("detail.durationDecrease")
+                durationValueButton(value: value, scale: scale)
+                stepButton(systemName: "plus", enabled: viewModel.canIncrement, scale: scale) {
+                    viewModel.increment()
+                }
+                .accessibilityLabel(Text("detail.duration.increase"))
+                .accessibilityIdentifier("detail.durationIncrease")
             }
-            .buttonStyle(.plain)
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel(Text("detail.duration"))
-            .accessibilityValue(ExerciseText.spokenLength(viewModel.selectedDuration, locale: locale))
-            .accessibilityHint(Text("detail.duration.hint"))
-            .accessibilityAddTraits(.isButton)
-            .accessibilityIdentifier("detail.durationValue")
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .frame(maxWidth: .infinity, minHeight: scale(64, 108))
+            .background(Color(.surface))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(Color(.ring), lineWidth: 1.5))
 
             if isPickerOpen {
                 durationPicker
             }
         }
+    }
+
+    private func durationValueButton(value: String, scale: DesignScale) -> some View {
+        Button {
+            withAnimation(.snappy) { isPickerOpen.toggle() }
+        } label: {
+            HStack(spacing: 6) {
+                Text(verbatim: value)
+                    .designFont(.title2, 24, weight: .bold)
+                    .monospacedDigit()
+                Image(systemName: "chevron.up.chevron.down")
+                    .font(.system(size: 12, weight: .semibold))
+                    .accessibilityHidden(true)
+            }
+            .foregroundStyle(Color(.ring))
+            .frame(minWidth: 44, minHeight: scale(44, 76))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text("detail.duration"))
+        .accessibilityValue(ExerciseText.spokenLength(viewModel.selectedDuration, locale: locale))
+        .accessibilityHint(Text("detail.duration.hint"))
+        .accessibilityAddTraits(.isButton)
+        .accessibilityIdentifier("detail.durationValue")
+    }
+
+    private func stepButton(
+        systemName: String, enabled: Bool, scale: DesignScale, action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            Image(systemName: systemName)
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundStyle(Color(.fg))
+                .frame(width: scale(44, 76), height: scale(44, 76))
+                .background(Circle().fill(Color(.track)))
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .disabled(!enabled)
+        .opacity(enabled ? 1 : 0.4)
     }
 
     /// A native wheel over 1 to 30 minutes, the same for every Exercise.

@@ -52,6 +52,17 @@ final class ExerciseDetailUITests: XCTestCase {
         XCTAssertFalse(app.pickerWheels.firstMatch.waitForExistence(timeout: 1))
     }
 
+    func testPlusAndMinusStepTheDurationByOneMinute() {
+        let app = launchApp()
+        openDetail(of: "box", in: app)
+
+        app.buttons["detail.durationIncrease"].tap()
+        XCTAssertEqual(durationValue(in: app).value as? String, "6 minutes")
+        app.buttons["detail.durationDecrease"].tap()
+        app.buttons["detail.durationDecrease"].tap()
+        XCTAssertEqual(durationValue(in: app).value as? String, "4 minutes")
+    }
+
     func testFourSevenEightCanPickTheSameRange() {
         let app = launchApp()
         openDetail(of: "four-seven-eight", in: app)

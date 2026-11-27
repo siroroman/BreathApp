@@ -253,6 +253,90 @@
         }
       }
     },
+    "detail.duration.decrease" : {
+      "comment" : "VoiceOver label of the minus button of the Duration row: one minute shorter.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Decrease duration"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Decrease duration"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Decrease duration"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Decrease duration"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Decrease duration"
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Decrease duration"
+          }
+        }
+      }
+    },
+    "detail.duration.increase" : {
+      "comment" : "VoiceOver label of the plus button of the Duration row: one minute longer.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Increase duration"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Increase duration"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Increase duration"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Increase duration"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Increase duration"
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Increase duration"
+          }
+        }
+      }
+    },
     "detail.duration.hint" : {
       "comment" : "VoiceOver hint of the Duration button, which opens the minute picker.",
       "extractionState" : "manual",

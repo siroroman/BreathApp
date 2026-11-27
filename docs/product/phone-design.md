@@ -38,7 +38,7 @@ Colours that appear only in the dark screens and have no light value yet (see "N
 
 - Font: the system font (SF), no custom fonts. Numbers use tabular figures.
 - **Screen title** (Exercises, and the sheet titles): Exercises 34 / 700, sheet titles 30 / 700, line height 1.1 to 1.15, letter spacing -0.02em. AX5: 56 and 52.
-- Screen padding: 64 top, 16 sides, 34 bottom. Sheets: 44 gap above, radius 38 on the top corners, padding 10 / 20 / 36, 14 between blocks (12 on New exercise, 16 on Settings), a 36 × 5 grabber in `outline`, then Cancel (or Done) as a text button, `ring`, 17 / 500 (Done 17 / 600), min height 44.
+- Screen padding: 64 top, 16 sides, 34 bottom. Sheets: 44 gap above, radius 38 on the top corners, padding 10 / 20 / 36, 14 between blocks (12 on New exercise, 16 on Settings, 22 on the Exercise detail, #222), a 36 × 5 grabber in `outline`, then Cancel (or Done) as a text button, `ring`, 17 / 500 (Done 17 / 600), min height 44.
 - Groups: `surface`, radius 20 on screens, 16 on sheets, rows divided by a 1 pt `line`. Rows are at least 44 high on sheets (Settings 52).
 - Buttons: full pills (radius 999). Primary: `fg` fill, `bg` text, 19 / 600, min height 54 (Quick Start's is 17 / 600, 44). Secondary (Stop): transparent, 2 pt `fg2` border, `fg` text.
 - Chips: pills, min height 44, padding 0 20, 17 / 600. Selected: `fg` fill, `bg` text. Unselected: `surface` fill, 1.5 `outline` border, `fg` text.
@@ -106,14 +106,14 @@ A bottom sheet over the list (see Type and layout). Top to bottom:
 
 1. Cancel, left.
 2. Title: the Exercise name (30 / 700). Below, 6: the Pattern with Phase names (16, `fg2`), `Inhale 4 · Hold 4 · Exhale 4 · Hold 4`. Below, 10: a description (15, `fg2`, line height 1.4). Box: "Four equal counts for every breath in, hold, breath out and hold. A steady, even rhythm." Physiological sigh is drawn only in German ("Zwei kurze Atemzüge durch die Nase, dann ein langes Ausatmen."); the English source is its translation, "Two short breaths in through the nose, then one long breath out.", and is not in the design. The descriptions of 4-7-8 and Coherent are not drawn either; the designer supplies them (point 14).
-3. **Duration** section. One row, no chips, no slider, no result line. "Duration" on the left (15 / 600, `fg2`) and the chosen length on the right as a text button ("5 min", 15 / 600, `ring`, tabular, min touch target 44). Tapping it opens a native **wheel picker** inline under the row (the iOS inline picker pattern), with the values 1 to 30 min in steps of 1, for every Exercise. While the picker is open the value stays `ring`; tapping it again or tapping outside closes the picker. The value is read from the wheel as soon as it settles. VoiceOver: the button reads "Duration, 5 minutes" with the hint "Opens the picker"; the picker is the native adjustable control.
+3. **Duration** section (#222). One bordered row (`surface` fill, `ring` border 1.5, radius 16, padding 10 / 16, min height 64), no chips, no slider, no result line. "Duration" on the left (15 / 600, `fg2`). On the right: a round **minus** button (44, `track` fill, `fg` glyph), the chosen length as a text button ("5 min", 24 / 700, `ring`, tabular, with a small up-down chevron, min touch target 44) and a round **plus** button. Minus and plus change the length by one minute and are dimmed and disabled at 1 and 30 min. Tapping the value opens a native **wheel picker** inline under the row (the iOS inline picker pattern), with the values 1 to 30 min in steps of 1, for every Exercise; tapping it again closes the picker. VoiceOver: the value button reads "Duration, 5 minutes" with the hint "Opens the picker"; minus and plus read "Decrease duration" and "Increase duration". The values are read from the PDF "Detail · Sound menu · dark", not from the canvas source.
 4. A group (`surface`, radius 16) of three rows, 17 / 500, padding 10 / 16:
    - **Sounds**: the chosen sound ("Soft bell", `fg2`) and an up-down chevron. Opens the menu in 7.
    - **Sound**: a switch, on.
    - **Haptics**: a switch, on.
 5. The **Start** button, pinned to the bottom: primary, 54 high.
 
-AX5: the sheet is 2,100 high and scrolls; rows 88, the Duration value 34, switches scaled 1.5, Start 96.
+AX5: the sheet is 2,100 high and scrolls; rows 88, the Duration row 108 with 76 round buttons, switches scaled 1.5, Start 96.
 
 The German variant (physiological sigh) is drawn to check long strings: "Abbrechen", "Physiologischer Seufzer", "Einatmen 2 · Einatmen 1 · Ausatmen 6", "Dauer", "5 Min.", "Haptik", "Starten", "Klänge", "Sanfte Glocke", "Ton".
 
@@ -229,7 +229,7 @@ The design added screens and features the first brief put out of scope, and chan
 | Reminders | Out of scope | A Reminder section and a New reminder sheet |
 | Sound | Out of scope | Sounds, Sound and Haptics on the detail and in the Session menu |
 | Settings screen | None | A Settings sheet (Appearance, Health access, Share, Version) |
-| Duration | Chips per Exercise only | One tappable value with a 1 to 30 min wheel picker |
+| Duration | Chips per Exercise only | A bordered row with minus and plus buttons and a tappable value that opens a 1 to 30 min wheel picker |
 | Haptics switch | On the detail, reset on every open | Saved setting, also in the Session menu |
 | Session controls | Exactly two: Pause and Stop | Pause, Stop and a gear that opens the Settings menu |
 | Lead-in | Shape at its smallest, remaining Lead-in time shown | "Get ready", a large 3, 2, 1, no torus; the Session's full length is shown |

@@ -50,6 +50,19 @@ final class ExerciseDetailViewModel {
         selectedDuration = .seconds(minutes * 60)
     }
 
+    var canDecrement: Bool { selectedMinutes > pickerMinutes.first ?? 1 }
+    var canIncrement: Bool { selectedMinutes < pickerMinutes.last ?? 30 }
+
+    /// One minute shorter; stays at the shortest length.
+    func decrement() {
+        select(minutes: selectedMinutes - 1)
+    }
+
+    /// One minute longer; stays at the longest length.
+    func increment() {
+        select(minutes: selectedMinutes + 1)
+    }
+
     func setHaptics(isOn: Bool) {
         settings.setHaptics(isOn: isOn)
     }
