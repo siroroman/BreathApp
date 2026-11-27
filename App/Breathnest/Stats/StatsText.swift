@@ -19,13 +19,14 @@ enum StatsText {
         String(localized: "duration.minutes \(minutes(of: entry.length))")
     }
 
+    /// The number under a day of the card, without a unit as drawn.
     static func dayMinutes(_ minutes: Int) -> String {
-        String(localized: "duration.minutes \(minutes)")
+        minutes.formatted()
     }
 
     /// The week's total, "23 min".
     static func total(_ minutes: Int) -> String {
-        dayMinutes(minutes)
+        String(localized: "duration.minutes \(minutes)")
     }
 
     /// "Today, 7:30 AM" for today, "Tue, 27 Oct, 9:40 PM" otherwise, in the system's order and language.
