@@ -9,6 +9,8 @@ struct NewReminderView: View {
     let add: (_ time: (hour: Int, minute: Int), _ exerciseID: String, _ weekdays: Set<Int>) async -> Bool
 
     @State private var viewModel = NewReminderViewModel()
+    /// True from the first tap on Add reminder, so a second tap cannot save another Reminder.
+    @State private var isSaving = false
     @Environment(\.dismiss) private var dismiss
     @Environment(\.dynamicTypeSize) private var typeSize
 
@@ -158,6 +160,8 @@ struct NewReminderView: View {
 
     private func addButton(scale: DesignScale) -> some View {
         Button {
+            guard !isSaving else { return }
+            isSaving = true
             Task {
                 _ = await add((viewModel.hour, viewModel.minute), viewModel.exerciseID, viewModel.weekdays)
                 dismiss()
@@ -171,8 +175,8 @@ struct NewReminderView: View {
                 .contentShape(Capsule())
         }
         .buttonStyle(.plain)
-        .disabled(!viewModel.canAdd)
-        .opacity(viewModel.canAdd ? 1 : 0.4)
+        .disabled(!viewModel.canAdd || isSaving)
+        .opacity(viewModel.canAdd && !isSaving ? 1 : 0.4)
         .padding(.top, 8)
         .accessibilityIdentifier("newReminder.addButton")
     }
