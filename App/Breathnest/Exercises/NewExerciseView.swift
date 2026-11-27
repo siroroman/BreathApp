@@ -25,10 +25,12 @@ struct NewExerciseView: View {
                     .designFont(.title, 30, weight: .bold, tracking: -0.02, lineHeight: 1.15)
                     .accessibilityAddTraits(.isHeader)
                     .accessibilityIdentifier("newExercise.title")
-                nameField(scale: scale)
-                iconRow(scale: scale)
-                descriptionField
-                patternGroup(scale: scale)
+                VStack(alignment: .leading, spacing: 20) {
+                    nameField(scale: scale)
+                    iconRow(scale: scale)
+                    descriptionField
+                    patternGroup(scale: scale)
+                }
                 addButton(scale: scale)
             }
             .padding(.top, 10)
