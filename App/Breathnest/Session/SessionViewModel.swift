@@ -32,6 +32,9 @@ final class SessionViewModel {
     @ObservationIgnored private let speed: Double
     @ObservationIgnored private let origin: ContinuousClock.Instant
     @ObservationIgnored private var task: Task<Void, Never>?
+    /// Called once, when the Session completes, with its exact length. A stopped Session never calls it (#58).
+    @ObservationIgnored private let onCompleted: (@MainActor (Duration) -> Void)?
+    @ObservationIgnored private var hasReportedCompletion = false
     /// Writes Mindful Minutes to Apple Health; nil where the app has no Health seam (previews, older tests).
     @ObservationIgnored private let health: HealthRecording?
     /// The write of a completed Session, kept so a test can await it.
@@ -41,8 +44,9 @@ final class SessionViewModel {
     init(
         exercise: Exercise, requested: Duration, screenAwake: any ScreenAwake, haptics: any HapticPlayer,
         sounds: any SoundPlayer, settings: AppSettingsStore, health: HealthRecording? = nil, speed: Double = 1,
-        startedAt: ContinuousClock.Instant
+        startedAt: ContinuousClock.Instant, onCompleted: (@MainActor (Duration) -> Void)? = nil
     ) {
+        self.onCompleted = onCompleted
         self.exercise = exercise
         self.screenAwake = screenAwake
         self.haptics = haptics
@@ -188,6 +192,10 @@ final class SessionViewModel {
 
     private func refresh() {
         snapshot = engine.snapshot
+        if stage == .completed, !hasReportedCompletion {
+            hasReportedCompletion = true
+            onCompleted?(totalLength)
+        }
         if stage == .completed { writeMindfulMinutes() }
         if stage == .completed || stage == .stopped { end() }
     }

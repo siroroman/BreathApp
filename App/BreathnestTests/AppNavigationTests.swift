@@ -27,4 +27,11 @@ import Testing
         navigation.closeDetail()
         #expect(navigation.openExercise == nil)
     }
+
+    @Test func selectingATabChangesTheTab() {
+        let navigation = AppNavigation()
+        #expect(navigation.tab == .exercises)
+        navigation.select(.stats)
+        #expect(navigation.tab == .stats)
+    }
 }

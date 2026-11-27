@@ -8,9 +8,16 @@ struct FileDocumentStore: DocumentStore {
     /// Names the set-aside copy, `<name>.unreadable-<stamp>.json`. Never read from the file itself.
     var stamp: @Sendable () -> String = { ISO8601DateFormatter().string(from: Date()) }
 
+    private static var directory: URL {
+        URL.applicationSupportDirectory.appending(path: "Breathnest", directoryHint: .isDirectory)
+    }
+
     static var customExercises: FileDocumentStore {
-        let base = URL.applicationSupportDirectory.appending(path: "Breathnest", directoryHint: .isDirectory)
-        return FileDocumentStore(url: base.appending(path: "custom-exercises.json"))
+        FileDocumentStore(url: directory.appending(path: "custom-exercises.json"))
+    }
+
+    static var log: FileDocumentStore {
+        FileDocumentStore(url: directory.appending(path: "log.json"))
     }
 
     func load() throws -> Data? {

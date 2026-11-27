@@ -65,6 +65,8 @@ struct AppDependencies {
     /// The last Session that started, which the Quick Start card offers again.
     let lastSession: LastSessionStore
     let customExercises: CustomExercisesViewModel
+    /// One entry per completed Session (#58).
+    let log: LogStore
 
     @MainActor
     static func live(arguments: [String] = ProcessInfo.processInfo.arguments) -> AppDependencies {
@@ -75,7 +77,8 @@ struct AppDependencies {
             settings: AppSettingsStore(store: store(key: "breathnest.settings", arguments: arguments)),
             lastSession: LastSessionStore(store: store(key: "breathnest.lastSession", arguments: arguments)),
             customExercises: CustomExercisesViewModel(store: CustomExerciseStore(backing: FileDocumentStore
-                    .customExercises))
+                    .customExercises)),
+            log: LogStore(store: logStore(arguments: arguments))
         )
     }
 
@@ -85,8 +88,22 @@ struct AppDependencies {
         SessionViewModel(
             exercise: exercise, requested: requested, screenAwake: screenAwake, haptics: haptics,
             sounds: sounds, settings: settings, health: HealthRecording(access: health, now: { .now }),
-            speed: sessionSpeed, startedAt: .now
+            speed: sessionSpeed, startedAt: .now,
+            onCompleted: { [log, customExercises] length in
+                log.recordCompleted(
+                    exercise: exercise, length: length, customName: customExercises.record(withID: exercise.id)?.name
+                )
+            }
         )
+    }
+
+    /// The file store of the Log. `-ResetSavedData` deletes the file first, like the `UserDefaults` documents.
+    private static func logStore(arguments: [String]) -> FileDocumentStore {
+        let store = FileDocumentStore.log
+        #if DEBUG
+            if arguments.contains("-ResetSavedData") { try? FileManager.default.removeItem(at: store.url) }
+        #endif
+        return store
     }
 
     /// The `UserDefaults` store of one document. The DEBUG launch argument `-ResetSavedData` clears it first, so
