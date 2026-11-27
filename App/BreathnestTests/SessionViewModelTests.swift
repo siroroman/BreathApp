@@ -1,5 +1,6 @@
 import BreathnestKit
 import BreathnestKitTesting
+import Foundation
 import Testing
 
 @testable import Breathnest
@@ -514,9 +515,11 @@ private final class RecordingSounds: SoundPlayer {
         SessionViewModel(
             exercise: .box, requested: .seconds(60), screenAwake: StubAwake(), haptics: StubHaptics(),
             sounds: StubSounds(), settings: AppSettingsStore(store: InMemoryDocumentStore()),
-            health: health, startedAt: origin
+            health: HealthRecording(access: health, now: { self.finish }), startedAt: origin
         )
     }
+
+    private let finish = Date(timeIntervalSince1970: 2_000_000)
 
     @Test func aCompletedSessionWritesMindfulMinutes() async {
         let health = FakeHealthAccess(state: .allowed)
@@ -525,8 +528,9 @@ private final class RecordingSounds: SoundPlayer {
         #expect(viewModel.stage == .completed)
         await viewModel.healthWrite?.value
         #expect(health.saved.count == 1)
-        let saved = health.saved[0]
-        #expect(saved.end.timeIntervalSince(saved.start) == viewModel.totalLength / .seconds(1))
+        #expect(health.saved == [MindfulSession(
+            start: finish.addingTimeInterval(-(viewModel.totalLength / .seconds(1))), end: finish
+        )])
     }
 
     @Test func aStoppedSessionWritesNothing() async {

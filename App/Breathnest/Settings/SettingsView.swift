@@ -1,5 +1,6 @@
 import BreathnestKit
 import SwiftUI
+import UIKit
 
 /// Screen 9 of the design: the Settings sheet. Done at the top right, the title and four groups of one row:
 /// Appearance, Health access, Share the app and Version (#60).
@@ -78,14 +79,13 @@ struct SettingsView: View {
                     row("settings.appearance", value: Text("settings.appearance.aurora"), chevron: true, scale: scale)
                 }
                 .buttonStyle(.plain)
-                .accessibilityAddTraits(.isButton)
                 .accessibilityIdentifier("settings.appearanceRow")
             }
             group {
                 Button {
                     Task {
                         if await viewModel.healthTapped() == .opensSystemSettings,
-                           let url = URL(string: "app-settings:")
+                           let url = URL(string: UIApplication.openSettingsURLString)
                         {
                             openURL(url)
                         }
@@ -94,7 +94,6 @@ struct SettingsView: View {
                     row("settings.health", value: Text(Self.healthText(viewModel.healthState)), chevron: true, scale: scale)
                 }
                 .buttonStyle(.plain)
-                .accessibilityAddTraits(.isButton)
                 .accessibilityHint(Text(Self.healthHint(viewModel.healthState)))
                 .accessibilityIdentifier("settings.healthRow")
             }

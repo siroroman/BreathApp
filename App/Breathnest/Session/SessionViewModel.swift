@@ -2,6 +2,13 @@ import BreathnestKit
 import Foundation
 import Observation
 
+/// Apple Health and the wall clock that stamps what a completed Session writes. The app passes `.now`; a test
+/// passes a fixed date.
+struct HealthRecording {
+    let access: any HealthAccess
+    let now: () -> Date
+}
+
 /// The state of one running Session: owns the engine, feeds it the time and releases the screen. Holds no text
 /// (ADR 0002). The ticker task is started by `run(ticker:)` and cancelled when the Session ends.
 @MainActor
@@ -26,14 +33,14 @@ final class SessionViewModel {
     @ObservationIgnored private let origin: ContinuousClock.Instant
     @ObservationIgnored private var task: Task<Void, Never>?
     /// Writes Mindful Minutes to Apple Health; nil where the app has no Health seam (previews, older tests).
-    @ObservationIgnored private let health: (any HealthAccess)?
+    @ObservationIgnored private let health: HealthRecording?
     /// The write of a completed Session, kept so a test can await it.
     @ObservationIgnored private(set) var healthWrite: Task<Void, Never>?
 
     /// `speed` scales the time fed to the engine; the app passes 1 except for the DEBUG launch argument.
     init(
         exercise: Exercise, requested: Duration, screenAwake: any ScreenAwake, haptics: any HapticPlayer,
-        sounds: any SoundPlayer, settings: AppSettingsStore, health: (any HealthAccess)? = nil, speed: Double = 1,
+        sounds: any SoundPlayer, settings: AppSettingsStore, health: HealthRecording? = nil, speed: Double = 1,
         startedAt: ContinuousClock.Instant
     ) {
         self.exercise = exercise
@@ -145,9 +152,9 @@ final class SessionViewModel {
     /// A completed Session, and only that (Stop means stop), goes to Apple Health once, when access is allowed.
     private func writeMindfulMinutes() {
         guard healthWrite == nil, let health else { return }
-        let end = Date.now
+        let end = health.now()
         let start = end.addingTimeInterval(-(totalLength / .seconds(1)))
-        healthWrite = Task { await health.saveMindfulSession(from: start, to: end) }
+        healthWrite = Task { await health.access.saveMindfulSession(from: start, to: end) }
     }
 
     private func fed(_ now: ContinuousClock.Instant) -> ContinuousClock.Instant {
