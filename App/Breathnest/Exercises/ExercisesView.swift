@@ -11,6 +11,7 @@ struct ExercisesView: View {
     @State private var session: SessionViewModel?
     @Environment(\.dynamicTypeSize) private var typeSize
     @State private var isAddingExercise = false
+    @State private var isSettingsOpen = false
 
     init(navigation: AppNavigation, dependencies: AppDependencies) {
         self.navigation = navigation
@@ -25,12 +26,25 @@ struct ExercisesView: View {
         GeometryReader { proxy in
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
-                    Text("exercises.title")
-                        .designFont(.largeTitle, 34, weight: .bold, tracking: -0.02, lineHeight: 1.1)
-                        .padding(.horizontal, 4)
-                        .padding(.bottom, 20)
-                        .accessibilityAddTraits(.isHeader)
-                        .accessibilityIdentifier("exercises.title")
+                    HStack(alignment: .center, spacing: 8) {
+                        Text("exercises.title")
+                            .designFont(.largeTitle, 34, weight: .bold, tracking: -0.02, lineHeight: 1.1)
+                            .accessibilityAddTraits(.isHeader)
+                            .accessibilityIdentifier("exercises.title")
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        Button {
+                            isSettingsOpen = true
+                        } label: {
+                            Image(systemName: "gearshape")
+                                .font(.system(size: 26))
+                                .foregroundStyle(Color(.fg2))
+                                .frame(minWidth: 44, minHeight: 44)
+                        }
+                        .accessibilityLabel(Text("settings.title"))
+                        .accessibilityIdentifier("exercises.settingsButton")
+                    }
+                    .padding(.horizontal, 4)
+                    .padding(.bottom, 20)
                     QuickStartCard(viewModel: quickStart, scale: scale) {
                         quickStart.started()
                         session = dependencies.makeSession(
@@ -69,6 +83,9 @@ struct ExercisesView: View {
                 exercise: exercise, custom: dependencies.customExercises.record(withID: exercise.id),
                 dependencies: dependencies
             )
+        }
+        .sheet(isPresented: $isSettingsOpen) {
+            SettingsView(dependencies: dependencies)
         }
         .sheet(isPresented: $isAddingExercise) {
             NewExerciseView { dependencies.customExercises.add($0) }

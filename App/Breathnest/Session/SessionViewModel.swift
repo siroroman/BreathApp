@@ -1,4 +1,5 @@
 import BreathnestKit
+import Foundation
 import Observation
 
 /// The state of one running Session: owns the engine, feeds it the time and releases the screen. Holds no text
@@ -24,17 +25,23 @@ final class SessionViewModel {
     @ObservationIgnored private let speed: Double
     @ObservationIgnored private let origin: ContinuousClock.Instant
     @ObservationIgnored private var task: Task<Void, Never>?
+    /// Writes Mindful Minutes to Apple Health; nil where the app has no Health seam (previews, older tests).
+    @ObservationIgnored private let health: (any HealthAccess)?
+    /// The write of a completed Session, kept so a test can await it.
+    @ObservationIgnored private(set) var healthWrite: Task<Void, Never>?
 
     /// `speed` scales the time fed to the engine; the app passes 1 except for the DEBUG launch argument.
     init(
         exercise: Exercise, requested: Duration, screenAwake: any ScreenAwake, haptics: any HapticPlayer,
-        sounds: any SoundPlayer, settings: AppSettingsStore, speed: Double = 1, startedAt: ContinuousClock.Instant
+        sounds: any SoundPlayer, settings: AppSettingsStore, health: (any HealthAccess)? = nil, speed: Double = 1,
+        startedAt: ContinuousClock.Instant
     ) {
         self.exercise = exercise
         self.screenAwake = screenAwake
         self.haptics = haptics
         self.sounds = sounds
         self.settings = settings
+        self.health = health
         self.speed = speed
         self.requested = requested
         ring = ProgressRing(pattern: exercise.pattern)
@@ -135,6 +142,14 @@ final class SessionViewModel {
         screenAwake.setAwake(false)
     }
 
+    /// A completed Session, and only that (Stop means stop), goes to Apple Health once, when access is allowed.
+    private func writeMindfulMinutes() {
+        guard healthWrite == nil, let health else { return }
+        let end = Date.now
+        let start = end.addingTimeInterval(-(totalLength / .seconds(1)))
+        healthWrite = Task { await health.saveMindfulSession(from: start, to: end) }
+    }
+
     private func fed(_ now: ContinuousClock.Instant) -> ContinuousClock.Instant {
         speed == 1 ? now : origin.advanced(by: (now - origin) * speed)
     }
@@ -166,6 +181,7 @@ final class SessionViewModel {
 
     private func refresh() {
         snapshot = engine.snapshot
+        if stage == .completed { writeMindfulMinutes() }
         if stage == .completed || stage == .stopped { end() }
     }
 }

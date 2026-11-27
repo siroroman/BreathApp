@@ -505,3 +505,47 @@ private final class RecordingSounds: SoundPlayer {
         #expect(haptics.stopCount == 1)
     }
 }
+
+@MainActor
+@Suite struct SessionViewModelHealthTests {
+    private let origin = ContinuousClock.now
+
+    private func makeSession(_ health: FakeHealthAccess) -> SessionViewModel {
+        SessionViewModel(
+            exercise: .box, requested: .seconds(60), screenAwake: StubAwake(), haptics: StubHaptics(),
+            sounds: StubSounds(), settings: AppSettingsStore(store: InMemoryDocumentStore()),
+            health: health, startedAt: origin
+        )
+    }
+
+    @Test func aCompletedSessionWritesMindfulMinutes() async {
+        let health = FakeHealthAccess(state: .allowed)
+        let viewModel = makeSession(health)
+        viewModel.tick(now: origin.advanced(by: .seconds(500)))
+        #expect(viewModel.stage == .completed)
+        await viewModel.healthWrite?.value
+        #expect(health.saved.count == 1)
+        let saved = health.saved[0]
+        #expect(saved.end.timeIntervalSince(saved.start) == viewModel.totalLength / .seconds(1))
+    }
+
+    @Test func aStoppedSessionWritesNothing() async {
+        let health = FakeHealthAccess(state: .allowed)
+        let viewModel = makeSession(health)
+        viewModel.stop(now: origin.advanced(by: .seconds(10)))
+        #expect(viewModel.stage == .stopped)
+        await viewModel.healthWrite?.value
+        #expect(health.saved.isEmpty)
+    }
+}
+
+@MainActor private final class StubAwake: ScreenAwake { func setAwake(_: Bool) {} }
+@MainActor private final class StubHaptics: HapticPlayer {
+    func play(_: [HapticEvent]) {}
+    func stop() {}
+}
+
+@MainActor private final class StubSounds: SoundPlayer {
+    func play(_: SoundID, events _: [SoundEvent]) {}
+    func stop() {}
+}
