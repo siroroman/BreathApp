@@ -24,12 +24,17 @@ final class SessionViewModel {
     @ObservationIgnored private let speed: Double
     @ObservationIgnored private let origin: ContinuousClock.Instant
     @ObservationIgnored private var task: Task<Void, Never>?
+    /// Called once, when the Session completes, with its exact length. A stopped Session never calls it (#58).
+    @ObservationIgnored private let onCompleted: (@MainActor (Duration) -> Void)?
+    @ObservationIgnored private var hasReportedCompletion = false
 
     /// `speed` scales the time fed to the engine; the app passes 1 except for the DEBUG launch argument.
     init(
         exercise: Exercise, requested: Duration, screenAwake: any ScreenAwake, haptics: any HapticPlayer,
-        sounds: any SoundPlayer, settings: AppSettingsStore, speed: Double = 1, startedAt: ContinuousClock.Instant
+        sounds: any SoundPlayer, settings: AppSettingsStore, speed: Double = 1, startedAt: ContinuousClock.Instant,
+        onCompleted: (@MainActor (Duration) -> Void)? = nil
     ) {
+        self.onCompleted = onCompleted
         self.exercise = exercise
         self.screenAwake = screenAwake
         self.haptics = haptics
@@ -166,6 +171,10 @@ final class SessionViewModel {
 
     private func refresh() {
         snapshot = engine.snapshot
+        if stage == .completed, !hasReportedCompletion {
+            hasReportedCompletion = true
+            onCompleted?(totalLength)
+        }
         if stage == .completed || stage == .stopped { end() }
     }
 }

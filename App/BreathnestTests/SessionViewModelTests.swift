@@ -88,6 +88,33 @@ private final class RecordingSounds: SoundPlayer {
         return pattern.hapticEvents(for: .phaseStarted(pattern.phases[index].kind), phaseIndex: index)
     }
 
+    private func makeReporting(_ report: @escaping @MainActor (Duration) -> Void) -> SessionViewModel {
+        SessionViewModel(
+            exercise: .box, requested: .seconds(60), screenAwake: FakeScreenAwake(), haptics: RecordingHaptics(),
+            sounds: RecordingSounds(), settings: AppSettingsStore(store: InMemoryDocumentStore()),
+            startedAt: origin, onCompleted: report
+        )
+    }
+
+    @Test func aCompletedSessionReportsItsExactLengthOnce() {
+        var lengths: [Duration] = []
+        let viewModel = makeReporting { lengths.append($0) }
+        viewModel.tick(now: at(600))
+        viewModel.tick(now: at(700))
+        #expect(viewModel.stage == .completed)
+        #expect(lengths == [.seconds(64)])
+    }
+
+    @Test func aStoppedSessionReportsNothing() {
+        var lengths: [Duration] = []
+        let viewModel = makeReporting { lengths.append($0) }
+        viewModel.tick(now: at(20))
+        viewModel.stop(now: at(21))
+        viewModel.tick(now: at(600))
+        #expect(viewModel.stage == .stopped)
+        #expect(lengths.isEmpty)
+    }
+
     @Test func opensInTheLeadInShowingTheFullLengthAndTheDigitThree() {
         let (viewModel, _) = make()
         #expect(viewModel.stage == .leadIn)
