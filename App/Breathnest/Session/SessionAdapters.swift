@@ -56,6 +56,8 @@ struct AppDependencies {
     let screenAwake: any ScreenAwake
     let haptics: any HapticPlayer
     let sounds: any SoundPlayer
+    /// Apple Health: the Settings row asks for access, a completed Session writes Mindful Minutes.
+    let health: any HealthAccess
     /// Scales the time fed to the Session engine. 1 in a release build; a DEBUG launch argument can raise it.
     let sessionSpeed: Double
     /// Sound, the chosen sound and Haptics: saved, and shared by every screen that shows them.
@@ -68,7 +70,7 @@ struct AppDependencies {
     static func live(arguments: [String] = ProcessInfo.processInfo.arguments) -> AppDependencies {
         AppDependencies(
             ticker: DisplayLinkTicker(), screenAwake: IdleTimerScreenAwake(), haptics: CoreHapticsPlayer(),
-            sounds: AVSoundPlayer(),
+            sounds: AVSoundPlayer(), health: HealthKitAccess(),
             sessionSpeed: speed(in: arguments),
             settings: AppSettingsStore(store: store(key: "breathnest.settings", arguments: arguments)),
             lastSession: LastSessionStore(store: store(key: "breathnest.lastSession", arguments: arguments)),
@@ -82,7 +84,8 @@ struct AppDependencies {
     func makeSession(exercise: Exercise, requested: Duration) -> SessionViewModel {
         SessionViewModel(
             exercise: exercise, requested: requested, screenAwake: screenAwake, haptics: haptics,
-            sounds: sounds, settings: settings, speed: sessionSpeed, startedAt: .now
+            sounds: sounds, settings: settings, health: HealthRecording(access: health, now: { .now }),
+            speed: sessionSpeed, startedAt: .now
         )
     }
 
