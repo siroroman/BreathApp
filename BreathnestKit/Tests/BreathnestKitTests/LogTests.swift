@@ -40,6 +40,9 @@ import Testing
         #expect(json.contains(#""version":1"#))
         #expect(json.contains(#""items":["#))
         #expect(json.contains(#""exerciseID":"box""#))
+        // ADR 0003: the instant as ISO 8601 in UTC, the exact length as seconds under `length`.
+        #expect(json.contains(#""finishedAt":"2026-11-24T07:30:00Z""#))
+        #expect(json.contains(#""length":300"#))
     }
 
     @Test func unreadableBytesAreSetAsideAndTheLogStartsEmpty() {

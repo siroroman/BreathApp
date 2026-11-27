@@ -31,7 +31,7 @@ public struct LogEntry: Sendable, Hashable, Codable, Identifiable {
     }
 
     private enum CodingKeys: String, CodingKey {
-        case id, exerciseID, finishedAt, seconds, pattern, customName
+        case id, exerciseID, finishedAt, length, pattern, customName
     }
 
     public init(from decoder: any Decoder) throws {
@@ -39,7 +39,7 @@ public struct LogEntry: Sendable, Hashable, Codable, Identifiable {
         id = try values.decode(String.self, forKey: .id)
         exerciseID = try values.decode(String.self, forKey: .exerciseID)
         finishedAt = try values.decode(Date.self, forKey: .finishedAt)
-        length = try .seconds(values.decode(Double.self, forKey: .seconds))
+        length = try .seconds(values.decode(Double.self, forKey: .length))
         let records = try values.decode([PhaseRecord].self, forKey: .pattern)
         let phases = try records.map { record -> Phase in
             guard let kind = Self.kinds[record.kind] else {
@@ -61,7 +61,7 @@ public struct LogEntry: Sendable, Hashable, Codable, Identifiable {
         try values.encode(id, forKey: .id)
         try values.encode(exerciseID, forKey: .exerciseID)
         try values.encode(finishedAt, forKey: .finishedAt)
-        try values.encode(length / .seconds(1), forKey: .seconds)
+        try values.encode(length / .seconds(1), forKey: .length)
         try values.encode(
             pattern.phases.map { PhaseRecord(kind: Self.name(of: $0.kind), seconds: $0.duration / .seconds(1)) },
             forKey: .pattern
