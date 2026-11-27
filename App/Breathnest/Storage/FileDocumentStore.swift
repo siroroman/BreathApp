@@ -13,6 +13,11 @@ struct FileDocumentStore: DocumentStore {
         return FileDocumentStore(url: base.appending(path: "custom-exercises.json"))
     }
 
+    static var reminders: FileDocumentStore {
+        let base = URL.applicationSupportDirectory.appending(path: "Breathnest", directoryHint: .isDirectory)
+        return FileDocumentStore(url: base.appending(path: "reminders.json"))
+    }
+
     func load() throws -> Data? {
         do {
             return try Data(contentsOf: url)

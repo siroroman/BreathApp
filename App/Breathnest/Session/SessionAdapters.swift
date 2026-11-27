@@ -1,5 +1,6 @@
 import BreathnestKit
 import UIKit
+import UserNotifications
 
 /// Yields the time once per screen frame (ADR 0002). The display link lives on the main run loop and stops when
 /// the consumer's task is cancelled.
@@ -63,17 +64,36 @@ struct AppDependencies {
     /// The last Session that started, which the Quick Start card offers again.
     let lastSession: LastSessionStore
     let customExercises: CustomExercisesViewModel
+    /// The Reminders, their notifications and the permission.
+    let reminders: RemindersViewModel
+    /// Shows a Reminder that arrives while the app is open and routes a tap on one. The center holds it weakly, so
+    /// the app keeps it.
+    let notificationRouter: NotificationRouter
 
     @MainActor
     static func live(arguments: [String] = ProcessInfo.processInfo.arguments) -> AppDependencies {
-        AppDependencies(
+        let customExercises = CustomExercisesViewModel(store: CustomExerciseStore(backing: FileDocumentStore
+                .customExercises))
+        let notifier = UserNotificationReminderNotifier { id in
+            await MainActor.run {
+                Exercise.builtIn.first { $0.id == id }.map { ExerciseText.name(of: $0) }
+                    ?? customExercises.record(withID: id)?.name ?? id
+            }
+        }
+        let router = NotificationRouter()
+        UNUserNotificationCenter.current().delegate = router
+        return AppDependencies(
             ticker: DisplayLinkTicker(), screenAwake: IdleTimerScreenAwake(), haptics: CoreHapticsPlayer(),
             sounds: AVSoundPlayer(),
             sessionSpeed: speed(in: arguments),
             settings: AppSettingsStore(store: store(key: "breathnest.settings", arguments: arguments)),
             lastSession: LastSessionStore(store: store(key: "breathnest.lastSession", arguments: arguments)),
-            customExercises: CustomExercisesViewModel(store: CustomExerciseStore(backing: FileDocumentStore
-                    .customExercises))
+            customExercises: customExercises,
+            reminders: RemindersViewModel(
+                store: remindersStore(arguments: arguments), notifier: notifier,
+                knownExerciseIDs: { Set(Exercise.builtIn.map(\.id) + customExercises.records.map(\.id)) }
+            ),
+            notificationRouter: router
         )
     }
 
@@ -96,6 +116,14 @@ struct AppDependencies {
             }
         #endif
         return UserDefaultsDocumentStore(defaults: .standard, key: key)
+    }
+
+    private static func remindersStore(arguments: [String]) -> FileDocumentStore {
+        let store = FileDocumentStore.reminders
+        #if DEBUG
+            if arguments.contains("-ResetSavedData") { try? FileManager.default.removeItem(at: store.url) }
+        #endif
+        return store
     }
 
     private static func speed(in arguments: [String]) -> Double {
