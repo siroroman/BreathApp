@@ -91,7 +91,12 @@ struct SettingsView: View {
                         }
                     }
                 } label: {
-                    row("settings.health", value: Text(Self.healthText(viewModel.healthState)), chevron: true, scale: scale)
+                    row(
+                        "settings.health",
+                        value: Text(Self.healthText(viewModel.healthState)),
+                        chevron: true,
+                        scale: scale
+                    )
                 }
                 .buttonStyle(.plain)
                 .accessibilityHint(Text(Self.healthHint(viewModel.healthState)))

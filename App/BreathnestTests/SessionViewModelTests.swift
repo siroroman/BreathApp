@@ -515,7 +515,7 @@ private final class RecordingSounds: SoundPlayer {
         SessionViewModel(
             exercise: .box, requested: .seconds(60), screenAwake: StubAwake(), haptics: StubHaptics(),
             sounds: StubSounds(), settings: AppSettingsStore(store: InMemoryDocumentStore()),
-            health: HealthRecording(access: health, now: { self.finish }), startedAt: origin
+            health: HealthRecording(access: health, now: { finish }), startedAt: origin
         )
     }
 

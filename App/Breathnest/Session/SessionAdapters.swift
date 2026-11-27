@@ -84,7 +84,8 @@ struct AppDependencies {
     func makeSession(exercise: Exercise, requested: Duration) -> SessionViewModel {
         SessionViewModel(
             exercise: exercise, requested: requested, screenAwake: screenAwake, haptics: haptics,
-            sounds: sounds, settings: settings, health: HealthRecording(access: health, now: { .now }), speed: sessionSpeed, startedAt: .now
+            sounds: sounds, settings: settings, health: HealthRecording(access: health, now: { .now }),
+            speed: sessionSpeed, startedAt: .now
         )
     }
 

@@ -23,14 +23,14 @@ import Testing
 
     @Test func requestingAccessMovesAnUndecidedStateToTheAnswer() async {
         let allowed = FakeHealthAccess(state: .notDetermined, answer: .allowed)
-        #expect(await allowed.requestAccess() == .allowed)
+        #expectawait (allowed.requestAccess() == .allowed)
         #expect(allowed.state == .allowed)
         let denied = FakeHealthAccess(state: .notDetermined, answer: .denied)
-        #expect(await denied.requestAccess() == .denied)
+        #expectawait (denied.requestAccess() == .denied)
     }
 
     @Test func requestingAccessAfterAnAnswerKeepsIt() async {
         let health = FakeHealthAccess(state: .denied, answer: .allowed)
-        #expect(await health.requestAccess() == .denied)
+        #expectawait (health.requestAccess() == .denied)
     }
 }
