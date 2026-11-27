@@ -1,7 +1,7 @@
 import BreathnestKit
 import SwiftUI
 
-/// The sections of the second tab. Reminder is built in #59.
+/// The sections of the second tab. Reminder is the Reminders section (#59).
 enum StatsSection: Hashable {
     case stats, reminder
 }
@@ -9,6 +9,7 @@ enum StatsSection: Hashable {
 /// Screen 10 of the design: the segmented control, This week and the Log.
 struct StatsView: View {
     let viewModel: StatsViewModel
+    let dependencies: AppDependencies
     @State private var section = StatsSection.stats
     @Environment(\.dynamicTypeSize) private var typeSize
 
@@ -21,7 +22,7 @@ struct StatsView: View {
                         .padding(.bottom, 24)
                     switch section {
                     case .stats: StatsSectionView(viewModel: viewModel, scale: scale)
-                    case .reminder: EmptyView() // The Reminders list arrives with #59.
+                    case .reminder: RemindersView(dependencies: dependencies)
                     }
                 }
                 .padding(.horizontal, 16)

@@ -14,7 +14,7 @@ struct RootView: View {
         Group {
             switch navigation.tab {
             case .exercises: ExercisesView(navigation: navigation, dependencies: dependencies)
-            case .stats: StatsView(viewModel: StatsViewModel(log: dependencies.log))
+            case .stats: StatsView(viewModel: StatsViewModel(log: dependencies.log), dependencies: dependencies)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
