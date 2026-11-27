@@ -153,17 +153,21 @@ private struct DayCircles: View {
     let scale: DesignScale
 
     var body: some View {
-        let side = scale(30, 44)
-        HStack(spacing: scale(8, 4)) {
-            ForEach(Reminder.displayOrder, id: \.self) { day in
-                let isChosen = weekdays.contains(day)
-                Text(verbatim: ReminderText.letter(of: day))
-                    .designFont(.footnote, 12, weight: isChosen ? .bold : .medium)
-                    .foregroundStyle(Color(isChosen ? .bg : .fg2))
-                    .frame(width: side, height: side)
-                    .background(Circle().fill(isChosen ? Color(.fg) : .clear))
-                    .overlay(Circle().strokeBorder(Color(.outline), lineWidth: isChosen ? 0 : 1.5))
-            }
+        let side = scale(30, 64)
+        let circles = ForEach(Reminder.displayOrder, id: \.self) { day in
+            let isChosen = weekdays.contains(day)
+            Text(verbatim: ReminderText.letter(of: day))
+                .designFont(.footnote, 12, weight: isChosen ? .bold : .medium)
+                .foregroundStyle(Color(isChosen ? .bg : .fg2))
+                .frame(width: side, height: side)
+                .background(Circle().fill(isChosen ? Color(.fg) : .clear))
+                .overlay(Circle().strokeBorder(Color(.outline), lineWidth: isChosen ? 0 : 1.5))
+        }
+        // At accessibility sizes the circles wrap onto a second row instead of touching.
+        if scale.isAccessibility {
+            WrappingLayout(spacing: 8) { circles }
+        } else {
+            HStack(spacing: 8) { circles }
         }
     }
 }
