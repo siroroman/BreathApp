@@ -72,11 +72,14 @@ import Testing
 
     @Test func theDayLettersStartWithTheFirstWeekday() {
         let week = WeekSummary(entries: [], now: date("2026-11-24T10:00:00Z"), calendar: calendar)
-        #expect(week.days.map { StatsText.letter(of: $0.date, calendar: calendar) } == ["M", "T", "W", "T", "F", "S", "S"])
+        let letters = week.days.map { StatsText.letter(of: $0.date, calendar: calendar) }
+        #expect(letters == ["M", "T", "W", "T", "F", "S", "S"])
     }
 
     @Test func aRowIsReadAsOneSentence() {
-        let row = StatsText.spokenRow(entry("2026-11-27T07:30:00Z"), now: date("2026-11-27T12:00:00Z"), calendar: calendar)
+        let row = StatsText.spokenRow(
+            entry("2026-11-27T07:30:00Z"), now: date("2026-11-27T12:00:00Z"), calendar: calendar
+        )
         #expect(row.hasPrefix("Box breathing, "))
         #expect(row.hasSuffix(", 10 min"))
     }

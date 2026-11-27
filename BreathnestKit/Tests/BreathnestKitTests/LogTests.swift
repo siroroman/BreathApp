@@ -34,7 +34,8 @@ import Testing
     @Test func theDocumentIsAVersionedListOfItems() throws {
         let store = InMemoryDocumentStore()
         SavedDocument<Log>(store: store).update(Log(entries: [make()]))
-        let data = try #require(try store.load())
+        let loaded = try store.load()
+        let data = try #require(loaded)
         let json = try #require(String(data: data, encoding: .utf8))
         #expect(json.contains(#""version":1"#))
         #expect(json.contains(#""items":["#))
