@@ -16,9 +16,12 @@ final class AppNavigation {
         self.customExercises = customExercises
     }
 
-    /// An ID that is neither a built-in nor a saved custom Exercise opens nothing.
+    /// An ID that is neither a built-in nor a saved custom Exercise opens nothing. The sheet belongs to the Exercises
+    /// tab, so a tap on a notification while Stats is showing brings that tab back first.
     func openDetail(of id: Exercise.ID) {
-        openExercise = Exercise.builtIn.first { $0.id == id } ?? customExercises?.exercises.first { $0.id == id }
+        let exercise = Exercise.builtIn.first { $0.id == id } ?? customExercises?.exercises.first { $0.id == id }
+        if exercise != nil { tab = .exercises }
+        openExercise = exercise
     }
 
     func select(_ tab: AppTab) {

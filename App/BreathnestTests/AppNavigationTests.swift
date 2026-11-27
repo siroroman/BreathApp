@@ -34,4 +34,19 @@ import Testing
         navigation.select(.stats)
         #expect(navigation.tab == .stats)
     }
+
+    @Test func openingADetailFromAnotherTabShowsTheExercisesTab() {
+        let navigation = AppNavigation()
+        navigation.select(.stats)
+        navigation.openDetail(of: Exercise.box.id)
+        #expect(navigation.tab == .exercises)
+        #expect(navigation.openExercise == .box)
+    }
+
+    @Test func anUnknownIDLeavesTheTabAlone() {
+        let navigation = AppNavigation()
+        navigation.select(.stats)
+        navigation.openDetail(of: "no-such-exercise")
+        #expect(navigation.tab == .stats)
+    }
 }
