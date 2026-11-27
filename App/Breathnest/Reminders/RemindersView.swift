@@ -2,7 +2,7 @@ import BreathnestKit
 import SwiftUI
 
 /// Screen 11 of the design: the Reminder section. The intro, the Reminders, the Add reminder row and the footnote. It
-/// is the content of the Reminder segment of the Stats tab (#58 hosts it); it scrolls on its own.
+/// is the content of the Reminder segment of the Stats tab; it scrolls on its own.
 struct RemindersView: View {
     let dependencies: AppDependencies
 
@@ -15,8 +15,7 @@ struct RemindersView: View {
 
     var body: some View {
         let scale = DesignScale(typeSize: typeSize)
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
+        VStack(alignment: .leading, spacing: 16) {
                 Text("reminders.intro")
                     .designFont(.subheadline, 15)
                     .foregroundStyle(Color(.fg2))
@@ -38,11 +37,7 @@ struct RemindersView: View {
                     .foregroundStyle(Color(.fg2))
                     .padding(.horizontal, 4)
                     .accessibilityIdentifier("reminders.footnote")
-            }
-            .padding(.horizontal, 16)
-            .padding(.bottom, 34)
         }
-        .background(Color(.bg))
         .task { await model.start() }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { Task { await model.start() } }

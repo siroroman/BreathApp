@@ -57,6 +57,8 @@ struct AppDependencies {
     let screenAwake: any ScreenAwake
     let haptics: any HapticPlayer
     let sounds: any SoundPlayer
+    /// Apple Health: the Settings row asks for access, a completed Session writes Mindful Minutes.
+    let health: any HealthAccess
     /// Scales the time fed to the Session engine. 1 in a release build; a DEBUG launch argument can raise it.
     let sessionSpeed: Double
     /// Sound, the chosen sound and Haptics: saved, and shared by every screen that shows them.
@@ -69,6 +71,8 @@ struct AppDependencies {
     /// Shows a Reminder that arrives while the app is open and routes a tap on one. The center holds it weakly, so
     /// the app keeps it.
     let notificationRouter: NotificationRouter
+    /// One entry per completed Session (#58).
+    let log: LogStore
 
     @MainActor
     static func live(arguments: [String] = ProcessInfo.processInfo.arguments) -> AppDependencies {
@@ -84,7 +88,7 @@ struct AppDependencies {
         UNUserNotificationCenter.current().delegate = router
         return AppDependencies(
             ticker: DisplayLinkTicker(), screenAwake: IdleTimerScreenAwake(), haptics: CoreHapticsPlayer(),
-            sounds: AVSoundPlayer(),
+            sounds: AVSoundPlayer(), health: HealthKitAccess(),
             sessionSpeed: speed(in: arguments),
             settings: AppSettingsStore(store: store(key: "breathnest.settings", arguments: arguments)),
             lastSession: LastSessionStore(store: store(key: "breathnest.lastSession", arguments: arguments)),
@@ -93,7 +97,8 @@ struct AppDependencies {
                 store: remindersStore(arguments: arguments), notifier: notifier,
                 knownExerciseIDs: { Set(Exercise.builtIn.map(\.id) + customExercises.records.map(\.id)) }
             ),
-            notificationRouter: router
+            notificationRouter: router,
+            log: LogStore(store: logStore(arguments: arguments))
         )
     }
 
@@ -102,8 +107,23 @@ struct AppDependencies {
     func makeSession(exercise: Exercise, requested: Duration) -> SessionViewModel {
         SessionViewModel(
             exercise: exercise, requested: requested, screenAwake: screenAwake, haptics: haptics,
-            sounds: sounds, settings: settings, speed: sessionSpeed, startedAt: .now
+            sounds: sounds, settings: settings, health: HealthRecording(access: health, now: { .now }),
+            speed: sessionSpeed, startedAt: .now,
+            onCompleted: { [log, customExercises] length in
+                log.recordCompleted(
+                    exercise: exercise, length: length, customName: customExercises.record(withID: exercise.id)?.name
+                )
+            }
         )
+    }
+
+    /// The file store of the Log. `-ResetSavedData` deletes the file first, like the `UserDefaults` documents.
+    private static func logStore(arguments: [String]) -> FileDocumentStore {
+        let store = FileDocumentStore.log
+        #if DEBUG
+            if arguments.contains("-ResetSavedData") { try? FileManager.default.removeItem(at: store.url) }
+        #endif
+        return store
     }
 
     /// The `UserDefaults` store of one document. The DEBUG launch argument `-ResetSavedData` clears it first, so

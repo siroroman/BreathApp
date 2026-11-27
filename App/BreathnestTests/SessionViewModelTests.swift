@@ -1,5 +1,6 @@
 import BreathnestKit
 import BreathnestKitTesting
+import Foundation
 import Testing
 
 @testable import Breathnest
@@ -86,6 +87,33 @@ private final class RecordingSounds: SoundPlayer {
     private func plan(_ index: Int) -> [HapticEvent] {
         let pattern = Exercise.box.pattern
         return pattern.hapticEvents(for: .phaseStarted(pattern.phases[index].kind), phaseIndex: index)
+    }
+
+    private func makeReporting(_ report: @escaping @MainActor (Duration) -> Void) -> SessionViewModel {
+        SessionViewModel(
+            exercise: .box, requested: .seconds(60), screenAwake: FakeScreenAwake(), haptics: RecordingHaptics(),
+            sounds: RecordingSounds(), settings: AppSettingsStore(store: InMemoryDocumentStore()),
+            startedAt: origin, onCompleted: report
+        )
+    }
+
+    @Test func aCompletedSessionReportsItsExactLengthOnce() {
+        var lengths: [Duration] = []
+        let viewModel = makeReporting { lengths.append($0) }
+        viewModel.tick(now: at(600))
+        viewModel.tick(now: at(700))
+        #expect(viewModel.stage == .completed)
+        #expect(lengths == [.seconds(64)])
+    }
+
+    @Test func aStoppedSessionReportsNothing() {
+        var lengths: [Duration] = []
+        let viewModel = makeReporting { lengths.append($0) }
+        viewModel.tick(now: at(20))
+        viewModel.stop(now: at(21))
+        viewModel.tick(now: at(600))
+        #expect(viewModel.stage == .stopped)
+        #expect(lengths.isEmpty)
     }
 
     @Test func opensInTheLeadInShowingTheFullLengthAndTheDigitThree() {
@@ -504,4 +532,51 @@ private final class RecordingSounds: SoundPlayer {
         viewModel.end()
         #expect(haptics.stopCount == 1)
     }
+}
+
+@MainActor
+@Suite struct SessionViewModelHealthTests {
+    private let origin = ContinuousClock.now
+
+    private func makeSession(_ health: FakeHealthAccess) -> SessionViewModel {
+        SessionViewModel(
+            exercise: .box, requested: .seconds(60), screenAwake: StubAwake(), haptics: StubHaptics(),
+            sounds: StubSounds(), settings: AppSettingsStore(store: InMemoryDocumentStore()),
+            health: HealthRecording(access: health, now: { finish }), startedAt: origin
+        )
+    }
+
+    private let finish = Date(timeIntervalSince1970: 2_000_000)
+
+    @Test func aCompletedSessionWritesMindfulMinutes() async {
+        let health = FakeHealthAccess(state: .allowed)
+        let viewModel = makeSession(health)
+        viewModel.tick(now: origin.advanced(by: .seconds(500)))
+        #expect(viewModel.stage == .completed)
+        await viewModel.healthWrite?.value
+        #expect(health.saved.count == 1)
+        #expect(health.saved == [MindfulSession(
+            start: finish.addingTimeInterval(-(viewModel.totalLength / .seconds(1))), end: finish
+        )])
+    }
+
+    @Test func aStoppedSessionWritesNothing() async {
+        let health = FakeHealthAccess(state: .allowed)
+        let viewModel = makeSession(health)
+        viewModel.stop(now: origin.advanced(by: .seconds(10)))
+        #expect(viewModel.stage == .stopped)
+        await viewModel.healthWrite?.value
+        #expect(health.saved.isEmpty)
+    }
+}
+
+@MainActor private final class StubAwake: ScreenAwake { func setAwake(_: Bool) {} }
+@MainActor private final class StubHaptics: HapticPlayer {
+    func play(_: [HapticEvent]) {}
+    func stop() {}
+}
+
+@MainActor private final class StubSounds: SoundPlayer {
+    func play(_: SoundID, events _: [SoundEvent]) {}
+    func stop() {}
 }

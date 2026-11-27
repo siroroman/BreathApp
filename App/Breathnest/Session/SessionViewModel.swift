@@ -1,5 +1,13 @@
 import BreathnestKit
+import Foundation
 import Observation
+
+/// Apple Health and the wall clock that stamps what a completed Session writes. The app passes `.now`; a test
+/// passes a fixed date.
+struct HealthRecording {
+    let access: any HealthAccess
+    let now: () -> Date
+}
 
 /// The state of one running Session: owns the engine, feeds it the time and releases the screen. Holds no text
 /// (ADR 0002). The ticker task is started by `run(ticker:)` and cancelled when the Session ends.
@@ -24,17 +32,27 @@ final class SessionViewModel {
     @ObservationIgnored private let speed: Double
     @ObservationIgnored private let origin: ContinuousClock.Instant
     @ObservationIgnored private var task: Task<Void, Never>?
+    /// Called once, when the Session completes, with its exact length. A stopped Session never calls it (#58).
+    @ObservationIgnored private let onCompleted: (@MainActor (Duration) -> Void)?
+    @ObservationIgnored private var hasReportedCompletion = false
+    /// Writes Mindful Minutes to Apple Health; nil where the app has no Health seam (previews, older tests).
+    @ObservationIgnored private let health: HealthRecording?
+    /// The write of a completed Session, kept so a test can await it.
+    @ObservationIgnored private(set) var healthWrite: Task<Void, Never>?
 
     /// `speed` scales the time fed to the engine; the app passes 1 except for the DEBUG launch argument.
     init(
         exercise: Exercise, requested: Duration, screenAwake: any ScreenAwake, haptics: any HapticPlayer,
-        sounds: any SoundPlayer, settings: AppSettingsStore, speed: Double = 1, startedAt: ContinuousClock.Instant
+        sounds: any SoundPlayer, settings: AppSettingsStore, health: HealthRecording? = nil, speed: Double = 1,
+        startedAt: ContinuousClock.Instant, onCompleted: (@MainActor (Duration) -> Void)? = nil
     ) {
+        self.onCompleted = onCompleted
         self.exercise = exercise
         self.screenAwake = screenAwake
         self.haptics = haptics
         self.sounds = sounds
         self.settings = settings
+        self.health = health
         self.speed = speed
         self.requested = requested
         ring = ProgressRing(pattern: exercise.pattern)
@@ -135,6 +153,14 @@ final class SessionViewModel {
         screenAwake.setAwake(false)
     }
 
+    /// A completed Session, and only that (Stop means stop), goes to Apple Health once, when access is allowed.
+    private func writeMindfulMinutes() {
+        guard healthWrite == nil, let health else { return }
+        let end = health.now()
+        let start = end.addingTimeInterval(-(totalLength / .seconds(1)))
+        healthWrite = Task { await health.access.saveMindfulSession(from: start, to: end) }
+    }
+
     private func fed(_ now: ContinuousClock.Instant) -> ContinuousClock.Instant {
         speed == 1 ? now : origin.advanced(by: (now - origin) * speed)
     }
@@ -166,6 +192,11 @@ final class SessionViewModel {
 
     private func refresh() {
         snapshot = engine.snapshot
+        if stage == .completed, !hasReportedCompletion {
+            hasReportedCompletion = true
+            onCompleted?(totalLength)
+        }
+        if stage == .completed { writeMindfulMinutes() }
         if stage == .completed || stage == .stopped { end() }
     }
 }

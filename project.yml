@@ -38,9 +38,14 @@ targets:
       - App/Breathnest
     dependencies:
       - package: BreathnestKit
+    entitlements:
+      path: App/Breathnest/Breathnest.entitlements
+      properties:
+        com.apple.developer.healthkit: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.siroroman.breathnest
+        INFOPLIST_KEY_NSHealthUpdateUsageDescription: Breathnest saves your completed breathing sessions to Apple Health as mindful minutes.
         PRODUCT_NAME: Breathnest
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES

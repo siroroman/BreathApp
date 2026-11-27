@@ -56,11 +56,13 @@ public final class SavedDocument<Value: StoredDocument> {
     private static var encoder: JSONEncoder {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
+        encoder.dateEncodingStrategy = .iso8601
         return encoder
     }
 
     private static func decode(_ data: Data) -> Value? {
         let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
         guard let header = try? decoder.decode(Header.self, from: data) else { return nil }
         if let version = header.version, version > Value.currentVersion { return nil }
         return try? decoder.decode(Value.self, from: data)

@@ -16,26 +16,12 @@ struct BreathnestApp: App {
 
     var body: some Scene {
         WindowGroup {
-            root
+            RootView(navigation: navigation, dependencies: dependencies)
                 .tint(Color(.ring))
                 // Only dark is drawn. Light follows the decision of #53, which has `line`, `pop` and `scrim` no light
                 // value yet.
                 .preferredColorScheme(.dark)
                 .task { await dependencies.reminders.start() }
         }
-    }
-
-    @ViewBuilder private var root: some View {
-        #if DEBUG
-            // Until the Stats tab hosts it (#58), `-ShowReminders` opens the Reminder screen on its own.
-            if ProcessInfo.processInfo.arguments.contains("-ShowReminders") {
-                RemindersView(dependencies: dependencies)
-                    .safeAreaPadding(.top, 40)
-            } else {
-                ExercisesView(navigation: navigation, dependencies: dependencies)
-            }
-        #else
-            ExercisesView(navigation: navigation, dependencies: dependencies)
-        #endif
     }
 }

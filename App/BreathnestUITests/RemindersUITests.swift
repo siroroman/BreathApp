@@ -1,7 +1,7 @@
 import XCTest
 
-/// Smoke test and accessibility audit of the Reminder section and the New reminder sheet. The section opens on its
-/// own with `-ShowReminders` until the Stats tab hosts it (#58).
+/// Smoke test and accessibility audit of the Reminder section and the New reminder sheet. Both are reached through the Stats
+/// tab, Reminder segment.
 @MainActor
 final class RemindersUITests: XCTestCase {
     override func setUp() async throws {
@@ -10,9 +10,11 @@ final class RemindersUITests: XCTestCase {
 
     private func launchReminders(contentSize: String? = nil) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments += ["-AppleLanguages", "(en)", "-AppleLocale", "en_US", "-ResetSavedData", "-ShowReminders"]
+        app.launchArguments += ["-AppleLanguages", "(en)", "-AppleLocale", "en_US", "-ResetSavedData"]
         if let contentSize { app.launchArguments += ["-UIPreferredContentSizeCategoryName", contentSize] }
         app.launch()
+        app.buttons["tab.stats"].tap()
+        app.buttons["stats.segment.reminder"].tap()
         XCTAssertTrue(app.buttons["reminders.addRow"].waitForExistence(timeout: 5))
         return app
     }
