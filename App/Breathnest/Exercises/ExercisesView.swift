@@ -36,9 +36,10 @@ struct ExercisesView: View {
                             isSettingsOpen = true
                         } label: {
                             Image(systemName: "gearshape")
-                                .font(.system(size: 26))
+                                .font(.system(size: scale(26, 38)))
                                 .foregroundStyle(Color(.fg2))
-                                .frame(minWidth: 44, minHeight: 44)
+                                .frame(minWidth: scale(44, 64), minHeight: scale(44, 64))
+                                .contentShape(Rectangle())
                         }
                         .accessibilityLabel(Text("settings.title"))
                         .accessibilityIdentifier("exercises.settingsButton")

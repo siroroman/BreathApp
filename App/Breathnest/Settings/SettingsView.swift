@@ -167,17 +167,14 @@ struct SettingsView: View {
     private func row(
         _ title: LocalizedStringKey, value: Text?, chevron: Bool, scale: DesignScale, shareIcon: Bool = false
     ) -> some View {
-        HStack(spacing: 8) {
-            Text(title)
-                .designFont(.body, 17, weight: .medium)
-                .foregroundStyle(Color(.fg))
-                .frame(maxWidth: .infinity, alignment: .leading)
-            if let value {
-                value
-                    .designFont(.body, 17, weight: .medium)
-                    .foregroundStyle(Color(.fg2))
-                    .multilineTextAlignment(.trailing)
-            }
+        let label = Text(title)
+            .designFont(.body, 17, weight: .medium)
+            .foregroundStyle(Color(.fg))
+        let valueText = value.map {
+            $0.designFont(.body, 17, weight: .medium)
+                .foregroundStyle(Color(.fg2))
+        }
+        let trailing = HStack(spacing: 8) {
             if chevron {
                 Image(systemName: "chevron.right")
                     .font(.system(size: 14, weight: .semibold))
@@ -189,6 +186,25 @@ struct SettingsView: View {
                     .font(.system(size: 20, weight: .medium))
                     .foregroundStyle(Color(.ring))
                     .accessibilityHidden(true)
+            }
+        }
+        return Group {
+            if typeSize.isAccessibilitySize {
+                // The value goes under the name, so neither is broken across lines.
+                HStack(spacing: 8) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        label
+                        valueText
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    trailing
+                }
+            } else {
+                HStack(spacing: 8) {
+                    label.frame(maxWidth: .infinity, alignment: .leading)
+                    valueText
+                    trailing
+                }
             }
         }
         .padding(.horizontal, 16)
