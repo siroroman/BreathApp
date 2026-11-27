@@ -35,18 +35,21 @@ import Testing
 
     @Test func tappingHealthAfterADenialOpensTheSystemSettings() async {
         let (viewModel, health) = make(.denied)
-        #expectawait (viewModel.healthTapped() == .opensSystemSettings)
+        let result = await viewModel.healthTapped()
+        #expect(result == .opensSystemSettings)
         #expect(health.requestCount == 0)
     }
 
     @Test func tappingHealthWhenAllowedOpensTheSystemSettings() async {
         let (viewModel, _) = make(.allowed)
-        #expectawait (viewModel.healthTapped() == .opensSystemSettings)
+        let result = await viewModel.healthTapped()
+        #expect(result == .opensSystemSettings)
     }
 
     @Test func tappingHealthWhereItIsUnavailableDoesNothing() async {
         let (viewModel, health) = make(.unavailable)
-        #expectawait (viewModel.healthTapped() == .nothing)
+        let result = await viewModel.healthTapped()
+        #expect(result == .nothing)
         #expect(health.requestCount == 0)
     }
 
