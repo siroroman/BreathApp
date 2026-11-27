@@ -9,7 +9,7 @@ import Observation
 final class StatsViewModel {
     @ObservationIgnored private let log: LogStore
     @ObservationIgnored private let calendar: Calendar
-    @ObservationIgnored private let now: @MainActor () -> Date
+    @ObservationIgnored let now: @MainActor () -> Date
 
     init(log: LogStore, calendar: Calendar = .autoupdatingCurrent, now: @escaping @MainActor () -> Date = { Date() }) {
         self.log = log
@@ -18,7 +18,12 @@ final class StatsViewModel {
     }
 
     var week: WeekSummary {
-        WeekSummary(entries: log.log.entries, now: now(), calendar: calendar)
+        week(at: now())
+    }
+
+    /// The week at one instant, so the card and the Log rows of one render agree on "today".
+    func week(at instant: Date) -> WeekSummary {
+        WeekSummary(entries: log.log.entries, now: instant, calendar: calendar)
     }
 
     /// Newest first.

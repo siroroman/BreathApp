@@ -13,6 +13,8 @@ final class StatsUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["stats.total"].waitForExistence(timeout: 5))
         XCTAssertEqual(app.staticTexts["stats.total"].label, "0 min")
         XCTAssertTrue(app.staticTexts["stats.log.empty"].exists)
+        // VoiceOver reads the two sections as one segmented control.
+        XCTAssertTrue(app.segmentedControls.firstMatch.exists)
         XCTAssertEqual(app.otherElements.matching(identifier: "stats.log.row").count, 0)
         attach(app, "stats-empty")
     }

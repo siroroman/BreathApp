@@ -3235,6 +3235,48 @@
         }
       }
     },
+    "stats.segment.label" : {
+      "comment" : "VoiceOver name of the switch at the top of the second tab, which chooses between the Stats and the Reminder section.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "cs" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Section"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Section"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Section"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Section"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Section"
+          }
+        },
+        "sk" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Section"
+          }
+        }
+      }
+    },
     "stats.segment.reminder" : {
       "comment" : "Segment of the switch at the top of the second tab. Shows the reminders.",
       "extractionState" : "manual",

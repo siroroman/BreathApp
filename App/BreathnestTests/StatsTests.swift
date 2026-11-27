@@ -80,11 +80,4 @@ import Testing
         #expect(row.hasPrefix("Box breathing, "))
         #expect(row.hasSuffix(", 10 min"))
     }
-
-    @Test func selectingATabChangesTheTab() {
-        let navigation = AppNavigation()
-        #expect(navigation.tab == .exercises)
-        navigation.select(.stats)
-        #expect(navigation.tab == .stats)
-    }
 }

@@ -38,8 +38,8 @@ private struct StatsSectionView: View {
     let scale: DesignScale
 
     var body: some View {
-        let week = viewModel.week
-        let now = Date()
+        let now = viewModel.now()
+        let week = viewModel.week(at: now)
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .firstTextBaseline) {
                 Text("stats.thisWeek")
@@ -78,6 +78,14 @@ private struct SectionPicker: View {
         }
         .padding(4)
         .background(Color(.surface), in: Capsule())
+        // Drawn as in the design, read by VoiceOver as one native segmented control ("Stats, 1 of 2").
+        .accessibilityRepresentation {
+            Picker("stats.segment.label", selection: $selection) {
+                Text("stats.segment.stats").tag(StatsSection.stats)
+                Text("stats.segment.reminder").tag(StatsSection.reminder)
+            }
+            .pickerStyle(.segmented)
+        }
     }
 
     private func segment(_ value: StatsSection, _ title: LocalizedStringKey, id: String) -> some View {

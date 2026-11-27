@@ -36,6 +36,8 @@ private struct TabBar: View {
             item(.stats, title: "tab.stats", scale: scale)
         }
         .padding(.horizontal, 16)
+        .accessibilityElement(children: .contain)
+        .accessibilityAddTraits(.isTabBar)
         // The 34 pt at the bottom is the home indicator's safe area, which the background fills.
         .frame(height: scale(88, 150) - 34)
         .background(Color(.bg).ignoresSafeArea(edges: .bottom))
