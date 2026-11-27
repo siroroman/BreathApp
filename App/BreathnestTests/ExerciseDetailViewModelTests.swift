@@ -39,6 +39,30 @@ import Testing
         #expect(viewModel.sessionLength.totalLength == .seconds(608))
     }
 
+    @Test func incrementAndDecrementMoveTheDurationByOneMinute() {
+        let viewModel = makeViewModel(.box)
+        viewModel.increment()
+        #expect(viewModel.selectedMinutes == 6)
+        viewModel.decrement()
+        viewModel.decrement()
+        #expect(viewModel.selectedMinutes == 4)
+    }
+
+    @Test func steppingStopsAtOneAndThirtyMinutes() {
+        let viewModel = makeViewModel(.box)
+        viewModel.select(minutes: 1)
+        #expect(viewModel.canDecrement == false)
+        #expect(viewModel.canIncrement)
+        viewModel.decrement()
+        #expect(viewModel.selectedMinutes == 1)
+
+        viewModel.select(minutes: 30)
+        #expect(viewModel.canIncrement == false)
+        #expect(viewModel.canDecrement)
+        viewModel.increment()
+        #expect(viewModel.selectedMinutes == 30)
+    }
+
     @Test func aDurationThatIsNotAnOptionIsIgnored() {
         let viewModel = makeViewModel(.fourSevenEight)
         viewModel.select(duration: .seconds(90))
