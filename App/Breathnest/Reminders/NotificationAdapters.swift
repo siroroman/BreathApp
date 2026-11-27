@@ -21,7 +21,7 @@ struct UserNotificationReminderNotifier: ReminderNotifier {
     }
 
     func requestPermission() async -> Bool {
-        (try? await center.requestAuthorization(options: [.alert, .sound])) ?? false
+        await (try? center.requestAuthorization(options: [.alert, .sound])) ?? false
     }
 
     func schedule(_ requests: [ReminderRequest]) async {
@@ -35,7 +35,11 @@ struct UserNotificationReminderNotifier: ReminderNotifier {
                 dateMatching: DateComponents(hour: request.hour, minute: request.minute, weekday: request.weekday),
                 repeats: true
             )
-            try? await center.add(UNNotificationRequest(identifier: request.identifier, content: content, trigger: trigger))
+            try? await center.add(UNNotificationRequest(
+                identifier: request.identifier,
+                content: content,
+                trigger: trigger
+            ))
         }
     }
 
@@ -48,7 +52,7 @@ struct UserNotificationReminderNotifier: ReminderNotifier {
 /// Shows a Reminder that arrives while the app is open and sends a tap on one to `open` with its Exercise ID, so it
 /// opens the same detail sheet a tap on a row does (ADR 0002).
 final class NotificationRouter: NSObject, UNUserNotificationCenterDelegate, Sendable {
-    private let destination = Mutex<(@MainActor @Sendable (String) -> Void)?>(nil)
+    private let destination = Mutex < (@MainActor @Sendable (String) -> Void)? > nil
 
     /// Where a tap goes. Set once the navigation exists; the app does that in its first moments.
     func route(to open: @escaping @MainActor @Sendable (String) -> Void) {

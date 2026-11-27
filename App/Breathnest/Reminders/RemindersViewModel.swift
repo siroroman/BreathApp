@@ -16,7 +16,8 @@ final class RemindersViewModel {
     @ObservationIgnored private let knownExerciseIDs: @MainActor () -> Set<String>
 
     init(
-        store: any DocumentStore, notifier: any ReminderNotifier, knownExerciseIDs: @escaping @MainActor () -> Set<String>
+        store: any DocumentStore, notifier: any ReminderNotifier,
+        knownExerciseIDs: @escaping @MainActor () -> Set<String>
     ) {
         document = SavedDocument(store: store)
         self.notifier = notifier
@@ -49,7 +50,7 @@ final class RemindersViewModel {
     /// Turning one on needs the permission; with it denied the switch stays off and the denied state shows.
     func setEnabled(_ isEnabled: Bool, for id: Reminder.ID) async {
         guard let index = reminders.firstIndex(where: { $0.id == id }) else { return }
-        if isEnabled, !(await isAllowed(asking: false)) { return }
+        if isEnabled, await !isAllowed(asking: false) { return }
         reminders[index].isEnabled = isEnabled
         document.update(RemindersDocument(items: reminders))
         await scheduler.apply(reminders[index], knownExerciseIDs: knownExerciseIDs())

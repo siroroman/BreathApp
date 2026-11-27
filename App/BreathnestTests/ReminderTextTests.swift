@@ -18,7 +18,13 @@ import Testing
     }
 
     @Test func theSpokenDaysNameTheSetAndEachDay() throws {
-        let weekdays = try #require(Reminder(hour: 8, minute: 0, weekdays: [2, 3, 4, 5, 6], exerciseID: "box", isEnabled: true))
+        let weekdays = try #require(Reminder(
+            hour: 8,
+            minute: 0,
+            weekdays: [2, 3, 4, 5, 6],
+            exerciseID: "box",
+            isEnabled: true
+        ))
         #expect(ReminderText.spokenDays(weekdays.weekdays, locale: us)
             == "Weekdays: Monday, Tuesday, Wednesday, Thursday, Friday")
     }

@@ -1,8 +1,8 @@
 import Foundation
 import Testing
 
-import BreathnestKitTesting
 @testable import BreathnestKit
+import BreathnestKitTesting
 
 @Suite struct ReminderTests {
     private func make(
@@ -31,13 +31,13 @@ import BreathnestKitTesting
     }
 
     @Test func theSummaryNamesTheCommonSets() throws {
-        #expect(try #require(make(weekdays: [1, 2, 3, 4, 5, 6, 7])).weekdaySummary == .everyDay)
-        #expect(try #require(make(weekdays: [2, 3, 4, 5, 6])).weekdaySummary == .weekdays)
-        #expect(try #require(make(weekdays: [1, 7])).weekdaySummary == .weekends)
+        #expecttry (#require(make(weekdays: [1, 2, 3, 4, 5, 6, 7])).weekdaySummary == .everyDay)
+        #expecttry (#require(make(weekdays: [2, 3, 4, 5, 6])).weekdaySummary == .weekdays)
+        #expecttry (#require(make(weekdays: [1, 7])).weekdaySummary == .weekends)
     }
 
     @Test func otherSetsListTheirDaysMondayFirst() throws {
-        #expect(try #require(make(weekdays: [1, 2, 4])).weekdaySummary == .days([2, 4, 1]))
+        #expecttry (#require(make(weekdays: [1, 2, 4])).weekdaySummary == .days([2, 4, 1]))
     }
 
     @Test func theWeekIsShownMondayToSunday() {
@@ -47,7 +47,7 @@ import BreathnestKitTesting
     @Test func aReminderRoundTripsThroughJSON() throws {
         let reminder = try #require(make(weekdays: [2, 4]))
         let data = try JSONEncoder().encode(reminder)
-        #expect(try JSONDecoder().decode(Reminder.self, from: data) == reminder)
+        #expecttry (JSONDecoder().decode(Reminder.self, from: data) == reminder)
     }
 
     @Test func aStoredReminderOutOfRangeFailsToDecode() {

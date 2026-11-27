@@ -62,7 +62,7 @@ private final class StubNotifier: ReminderNotifier {
     @Test func theFirstAddAsksForPermissionAndAGrantSchedules() async {
         let notifier = StubNotifier(permission: .notDetermined, grants: true)
         let model = model(notifier)
-        #expect(await model.add(hour: 8, minute: 0, weekdays: [1], exerciseID: "box"))
+        #expectawait (model.add(hour: 8, minute: 0, weekdays: [1], exerciseID: "box"))
         #expect(notifier.requestCount == 1)
         #expect(model.permission == .allowed)
     }
@@ -70,7 +70,7 @@ private final class StubNotifier: ReminderNotifier {
     @Test func aDeniedPermissionSavesAndSchedulesNothingAndIsShown() async {
         let notifier = StubNotifier(permission: .notDetermined, grants: false)
         let model = model(notifier)
-        #expect(await model.add(hour: 8, minute: 0, weekdays: [1], exerciseID: "box") == false)
+        #expectawait (model.add(hour: 8, minute: 0, weekdays: [1], exerciseID: "box") == false)
         #expect(model.permission == .denied)
         #expect(model.reminders.isEmpty)
         #expect(notifier.scheduled.isEmpty)
@@ -87,7 +87,7 @@ private final class StubNotifier: ReminderNotifier {
     @Test func anInvalidReminderIsNotAdded() async {
         let notifier = StubNotifier()
         let model = model(notifier)
-        #expect(await model.add(hour: 8, minute: 0, weekdays: [], exerciseID: "box") == false)
+        #expectawait (model.add(hour: 8, minute: 0, weekdays: [], exerciseID: "box") == false)
         #expect(model.reminders.isEmpty)
     }
 

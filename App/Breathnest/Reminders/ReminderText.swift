@@ -28,7 +28,8 @@ enum ReminderText {
         case .everyDay: String(localized: "reminders.days.everyDay")
         case .weekdays: String(localized: "reminders.days.weekdays")
         case .weekends: String(localized: "reminders.days.weekends")
-        case let .days(days): days.map { calendar(locale).shortStandaloneWeekdaySymbols[$0 - 1] }.joined(separator: ", ")
+        case let .days(days): days.map { calendar(locale).shortStandaloneWeekdaySymbols[$0 - 1] }
+            .joined(separator: ", ")
         }
     }
 

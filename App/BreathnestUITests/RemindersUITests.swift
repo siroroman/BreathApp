@@ -1,6 +1,7 @@
 import XCTest
 
-/// Smoke test and accessibility audit of the Reminder section and the New reminder sheet. Both are reached through the Stats
+/// Smoke test and accessibility audit of the Reminder section and the New reminder sheet. Both are reached through the
+/// Stats
 /// tab, Reminder segment.
 @MainActor
 final class RemindersUITests: XCTestCase {
@@ -22,7 +23,8 @@ final class RemindersUITests: XCTestCase {
     func testSectionPassesAccessibilityAudit() throws {
         let app = launchReminders()
         XCTAssertTrue(app.staticTexts["reminders.footnote"].exists)
-        // The Stats tab around the section raises the Dynamic Type issue on its tab bar and segment (the Stats segment fails the
+        // The Stats tab around the section raises the Dynamic Type issue on its tab bar and segment (the Stats segment
+        // fails the
         // same audit without a Reminder on screen), so only that issue type is passed over; every other one fails.
         try app.performAccessibilityAudit { issue in
             if issue.auditType == .dynamicType { return true }
@@ -40,11 +42,12 @@ final class RemindersUITests: XCTestCase {
         app.buttons["newReminder.day.1"].tap()
         app.buttons["newReminder.day.2"].tap()
         XCTAssertEqual(app.staticTexts["newReminder.repeatSummary"].label, "Tue, Wed, Thu, Fri, Sat, Sun")
-        // The system time wheel (a UIDatePicker) draws a font the audit calls fixed, with no element to name. Taking the
+        // The system time wheel (a UIDatePicker) draws a font the audit calls fixed, with no element to name. Taking
+        // the
         // wheel out makes the audit pass, so it is the only source and the design asks for the system wheel. Every
         // other issue still fails the test.
         try app.performAccessibilityAudit { issue in
-            return issue.auditType == .dynamicType
+            issue.auditType == .dynamicType
         }
     }
 }

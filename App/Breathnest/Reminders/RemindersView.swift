@@ -16,27 +16,27 @@ struct RemindersView: View {
     var body: some View {
         let scale = DesignScale(typeSize: typeSize)
         VStack(alignment: .leading, spacing: 16) {
-                Text("reminders.intro")
-                    .designFont(.subheadline, 15)
-                    .foregroundStyle(Color(.fg2))
-                    .padding(.horizontal, 4)
-                if model.permission == .denied { deniedNotice }
-                if !model.reminders.isEmpty {
-                    VStack(spacing: 0) {
-                        ForEach(Array(model.reminders.enumerated()), id: \.element.id) { index, reminder in
-                            if index > 0 { Rectangle().fill(Color(.line)).frame(height: 1) }
-                            ReminderRow(reminder: reminder, scale: scale, dependencies: dependencies)
-                        }
+            Text("reminders.intro")
+                .designFont(.subheadline, 15)
+                .foregroundStyle(Color(.fg2))
+                .padding(.horizontal, 4)
+            if model.permission == .denied { deniedNotice }
+            if !model.reminders.isEmpty {
+                VStack(spacing: 0) {
+                    ForEach(Array(model.reminders.enumerated()), id: \.element.id) { index, reminder in
+                        if index > 0 { Rectangle().fill(Color(.line)).frame(height: 1) }
+                        ReminderRow(reminder: reminder, scale: scale, dependencies: dependencies)
                     }
-                    .background(Color(.surface))
-                    .clipShape(RoundedRectangle(cornerRadius: 20))
                 }
-                addRow(scale: scale)
-                Text("reminders.footnote")
-                    .designFont(.footnote, 13)
-                    .foregroundStyle(Color(.fg2))
-                    .padding(.horizontal, 4)
-                    .accessibilityIdentifier("reminders.footnote")
+                .background(Color(.surface))
+                .clipShape(RoundedRectangle(cornerRadius: 20))
+            }
+            addRow(scale: scale)
+            Text("reminders.footnote")
+                .designFont(.footnote, 13)
+                .foregroundStyle(Color(.fg2))
+                .padding(.horizontal, 4)
+                .accessibilityIdentifier("reminders.footnote")
         }
         .task { await model.start() }
         .onChange(of: scenePhase) { _, phase in
